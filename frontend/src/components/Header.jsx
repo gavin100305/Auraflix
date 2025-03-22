@@ -1,5 +1,6 @@
 import React from "react";
 import { motion } from "framer-motion";
+import { Link } from "react-router-dom";
 
 const Header = () => {
   const buttonHover = {
@@ -19,14 +20,16 @@ const Header = () => {
             >
               InfluenceIQ
             </motion.h1>
-            <motion.button
-              initial="rest"
-              whileHover="hover"
-              variants={buttonHover}
-              className="bg-white/90 text-black px-5 py-2 rounded-full font-inter text-sm font-bold hover:bg-white transition-all"
-            >
-              Get Started
-            </motion.button>
+            <Link to="/auth">
+              <motion.button
+                initial="rest"
+                whileHover="hover"
+                variants={buttonHover}
+                className="bg-white/90 text-black px-5 py-2 rounded-full font-inter text-sm font-bold hover:bg-white transition-all"
+              >
+                Get Started
+              </motion.button>
+            </Link>
           </div>
         </div>
       </header>

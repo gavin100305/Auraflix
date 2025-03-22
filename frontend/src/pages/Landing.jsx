@@ -5,7 +5,7 @@ import Header from "../components/Header";
 import RomFooter from "../components/RomFooter";
 import Features from "../components/Features";
 import Search from "../components/Search";
-import InfluencerList from "../components/InfluencerList";
+
 const Landing = () => {
   return (
     <div className="min-h-screen flex flex-col bg-black text-white">
@@ -40,7 +40,7 @@ const Landing = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.3 }}
-            className="mx-auto mt-6 mb-6 max-w-2xl text-center text-base md:text-lg font-inter text-neutral-300"
+            className="mx-auto mt-6 mb-7 max-w-2xl text-center text-base md:text-lg font-inter text-neutral-300"
           >
             Search, analyze, and leverage the right influencers for your brand.
             Get comprehensive reports and insights to make data-driven
@@ -52,8 +52,8 @@ const Landing = () => {
       </div>
 
       <Features />
-
       <RomFooter />
+
     </div>
   );
 };
