@@ -9,7 +9,7 @@ app = FastAPI()
 # Enable CORS for frontend communication
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Allow all origins for testing
+    allow_origins=["http://localhost:5173"],  # Allow all origins for testing
     allow_credentials=True,
     allow_methods=["*"],  # Allow all methods (GET, POST, etc.)
     allow_headers=["*"],  # Allow all headers
@@ -60,10 +60,10 @@ def get_influencer_by_rank(rank: int):
 
 # Add this endpoint to fetch all usernames
 @app.get("/users")
-def get_usernames():
-    logger.info("Fetching all usernames")
-    usernames = [item.get("channel_info") for item in json_data if "channel_info" in item]
-    return {"users": usernames}
+def get_all_users():
+    logger.info("Fetching all user data")
+    return {"users": json_data}
+
 
 # Health check endpoint
 @app.get("/health")

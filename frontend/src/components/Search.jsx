@@ -3,6 +3,7 @@ import { User, Heart, Image, TrendingUp } from "lucide-react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import SearchForm from "./SearchForm";
+import TrendGraph from "./TrendGraph";
 
 const Search = ({ isEmbedded = false }) => {
   const navigate = useNavigate();
@@ -12,6 +13,7 @@ const Search = ({ isEmbedded = false }) => {
   const [error, setError] = useState("");
   const [isResultVisible, setIsResultVisible] = useState(false);
   const [users, setUsers] = useState([]);
+  const[graphInfluencer,setGraphInfluencer] = useState(null);
 
   useEffect(() => {
     console.log("Fetching users...");
@@ -116,7 +118,10 @@ const Search = ({ isEmbedded = false }) => {
     }
     return num.toString();
   };
-
+  // console.log("query",searchQuery);
+  useEffect(() => {
+    setGraphInfluencer(users.filter(user => user.channel_info === searchQuery)[0]);
+  }, [searchQuery,users]);
   // If component is embedded on the landing page, only render the search form
   if (isEmbedded) {
     return (
@@ -305,6 +310,7 @@ const Search = ({ isEmbedded = false }) => {
                 </motion.button>
               </motion.div>
             </div>
+            <TrendGraph influencer={graphInfluencer} />
           </motion.div>
         )}
       </>
@@ -518,6 +524,7 @@ const Search = ({ isEmbedded = false }) => {
                   </motion.button>
                 </motion.div>
               </div>
+              <TrendGraph influencer={graphInfluencer} />
             </motion.div>
           )}
         </div>
