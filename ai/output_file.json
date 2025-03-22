@@ -3390,5 +3390,53 @@
             "twitter": "",
             "linkedin": ""
         }
+    },
+    {
+        "businessName": "newrom",
+        "email": "newrom@gmail.com",
+        "businessCategory": "fashion",
+        "description": "UrbanEdge Apparel crafts trendy, high-quality streetwear that blends style, comfort, and self-expression.",
+        "contact": {
+            "phone": "1234567890",
+            "address": "No address"
+        },
+        "website": "https://urbanapparel.com",
+        "socialMedia": {
+            "instagram": "",
+            "twitter": "",
+            "linkedin": ""
+        }
+    },
+    {
+        "businessName": "newrom",
+        "email": "newrom@gmail.com",
+        "businessCategory": "fashion",
+        "description": "UrbanEdge Apparel crafts trendy, high-quality streetwear that blends style, comfort, and self-expression.",
+        "contact": {
+            "phone": "1234567890",
+            "address": "No address"
+        },
+        "website": "https://urbanapparel.com",
+        "socialMedia": {
+            "instagram": "",
+            "twitter": "",
+            "linkedin": ""
+        }
+    },
+    {
+        "businessName": "newrom",
+        "email": "newrom@gmail.com",
+        "businessCategory": "fashion",
+        "description": "UrbanEdge Apparel crafts trendy, high-quality streetwear that blends style, comfort, and self-expression.",
+        "contact": {
+            "phone": "1234567890",
+            "address": "No address"
+        },
+        "website": "https://urbanapparel.com",
+        "socialMedia": {
+            "instagram": "",
+            "twitter": "",
+            "linkedin": ""
+        }
     }
 ]

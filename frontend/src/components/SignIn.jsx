@@ -58,7 +58,37 @@ const SignIn = () => {
         localStorage.setItem("user", JSON.stringify(data.businessUser));
       }
 
-      navigate("/analysis");
+      if (data.suggestions) {
+        let processedSuggestions = data.suggestions;
+
+        // Check if it's a string with newlines instead of an array
+        if (typeof data.suggestions === "string") {
+          processedSuggestions = data.suggestions
+            .replace(/"/g, "")
+            .split("\\n")
+            .filter((name) => name.trim())
+            .map((username) => ({
+              name: username,
+              username: username,
+              category: "Social Media",
+              profile_url: `https://www.instagram.com/${username}/`,
+            }));
+        }
+
+        localStorage.setItem(
+          "suggestedInfluencers",
+          JSON.stringify(processedSuggestions)
+        );
+      }
+
+      // Log what's been stored for debugging
+      console.log("Stored auth token and user data");
+      console.log(
+        "Suggested influencers:",
+        localStorage.getItem("suggestedInfluencers")
+      );
+
+      navigate("/dashboard");
     } catch (error) {
       console.error("Login error:", error);
       setError(error.message || "Login failed. Please check your credentials.");
