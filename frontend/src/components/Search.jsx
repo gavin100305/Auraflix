@@ -21,7 +21,7 @@ const Search = ({ isEmbedded = false }) => {
     console.log("Fetching users...");
     const fetchUsers = async () => {
       try {
-        const response = await fetch("http://127.0.0.1:8000/data");
+        const response = await fetch("http://127.0.0.1:8000/users");
         const data = await response.json();
         console.log("User data is", data);
         if (data.users && Array.isArray(data.users)) {
@@ -120,10 +120,10 @@ const Search = ({ isEmbedded = false }) => {
   const handleInputChange = (value) => {
     setSearchQuery(value);
   };
-
-  // Navigate to analysis page
+  
   const handleNavigateToAnalysis = () => {
-    navigate("/analysis", { state: { influencer: influencerData } });
+    const username = influencerData.channel_info; // Get the username from influencerData
+    navigate(`/influencers/${username}`, { state: { influencer: influencerData } });
   };
 
   // Format numbers for display

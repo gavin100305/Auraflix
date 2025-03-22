@@ -307,11 +307,6 @@ class BusinessUser(BaseModel):
 async def receive_business(user: BusinessUser):
     logger.info(f"Received business user: {user.email}")
 
-    # Save user to json_data and persist to file
-    json_data.append(user.dict())
-    with open(JSON_FILE_PATH, 'w') as f:
-        json.dump(json_data, f, indent=4)
-
     # Prepare influencer data as string for Gemini
     influencers_info = ""
     for influencer in json_data:
