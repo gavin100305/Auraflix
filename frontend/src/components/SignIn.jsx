@@ -58,7 +58,7 @@ const SignIn = () => {
         localStorage.setItem("user", JSON.stringify(data.businessUser));
       }
 
-      Navigate("/analysis");
+      navigate("/analysis");
     } catch (error) {
       console.error("Login error:", error);
       setError(error.message || "Login failed. Please check your credentials.");
