@@ -26,19 +26,27 @@ const Search = () => {
     setError("");
 
     try {
-      const response = await fetch("http://127.0.0.1:8000/data/rank/");
+      const response = await fetch("http://127.0.0.1:8000/data");
       const data = await response.json();
 
-      // Find the influencer whose name matches the search query
+      // Find influencer by 'channel_info'
       const matchedInfluencer = data.find(
-        (item) => item.Tiktoker.toLowerCase() === searchQuery.toLowerCase()
+        (item) => item.channel_info.toLowerCase() === searchQuery.toLowerCase()
       );
 
       if (matchedInfluencer) {
-        setInfluencerData(matchedInfluencer);
+        const rank = matchedInfluencer.rank; // Get rank
+
+        // Fetch detailed influencer data using rank
+        const detailedResponse = await fetch(
+          `http://127.0.0.1:8000/data/rank/${rank}`
+        );
+        const influencerDetails = await detailedResponse.json();
+
+        setInfluencerData(influencerDetails);
         saveSearch(searchQuery);
       } else {
-        setError("No Instagram profile found with that username");
+        setError("No influencer found with that username");
         setInfluencerData(null);
       }
     } catch (err) {
