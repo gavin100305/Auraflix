@@ -13,15 +13,15 @@ const Search = ({ isEmbedded = false }) => {
   const [error, setError] = useState("");
   const [isResultVisible, setIsResultVisible] = useState(false);
   const [users, setUsers] = useState([]);
-  const[graphInfluencer,setGraphInfluencer] = useState(null);
+  const [graphInfluencer, setGraphInfluencer] = useState(null);
 
   useEffect(() => {
     console.log("Fetching users...");
     const fetchUsers = async () => {
       try {
-        const response = await fetch("http://127.0.0.1:8000/users");
+        const response = await fetch("http://127.0.0.1:8000/data");
         const data = await response.json();
-        console.log("User data is",data);
+        console.log("User data is", data);
         if (data.users && Array.isArray(data.users)) {
           setUsers(data.users);
         }
@@ -29,7 +29,7 @@ const Search = ({ isEmbedded = false }) => {
         console.error("Failed to fetch users:", err);
       }
     };
-    
+
     fetchUsers();
   }, []);
 
@@ -120,8 +120,10 @@ const Search = ({ isEmbedded = false }) => {
   };
   // console.log("query",searchQuery);
   useEffect(() => {
-    setGraphInfluencer(users.filter(user => user.channel_info === searchQuery)[0]);
-  }, [searchQuery,users]);
+    setGraphInfluencer(
+      users.filter((user) => user.channel_info === searchQuery)[0]
+    );
+  }, [searchQuery, users]);
   // If component is embedded on the landing page, only render the search form
   if (isEmbedded) {
     return (
@@ -231,22 +233,21 @@ const Search = ({ isEmbedded = false }) => {
                   },
                 ].map((stat, index) => (
                   <motion.div
-                      key={index}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ 
-                        duration: 0.4,
-                        delay: 0.3 + index * 0.08,
-                        ease: "easeOut"
-                      }}
-                      whileHover={{ 
-                        scale: 1.03,
-                        transition: { duration: 0.2, ease: "easeInOut" }
-                      }}
-                      whileTap={{ scale: 0.98 }}
-                      className={`bg-gradient-to-br ${stat.gradient} p-5 rounded-xl border border-white/10 backdrop-blur-sm shadow-lg`}
-                    >
-
+                    key={index}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{
+                      duration: 0.4,
+                      delay: 0.3 + index * 0.08,
+                      ease: "easeOut",
+                    }}
+                    whileHover={{
+                      scale: 1.03,
+                      transition: { duration: 0.2, ease: "easeInOut" },
+                    }}
+                    whileTap={{ scale: 0.98 }}
+                    className={`bg-gradient-to-br ${stat.gradient} p-5 rounded-xl border border-white/10 backdrop-blur-sm shadow-lg`}
+                  >
                     <div className="flex items-center justify-between mb-2">
                       <p className="text-white/70 font-medium">{stat.title}</p>
                       {stat.icon}
@@ -353,7 +354,9 @@ const Search = ({ isEmbedded = false }) => {
             searchQuery={searchQuery}
             handleInputChange={handleInputChange}
             handleSearch={handleSearch}
+            users={users}
             isLoading={isLoading}
+            setSearchQuery={setSearchQuery}
           />
 
           {error && (

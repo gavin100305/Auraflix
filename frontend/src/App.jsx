@@ -1,8 +1,11 @@
 import Analysis from "./pages/Analysis";
 import Landing from "./pages/Landing";
 import Auth from "./pages/Auth";
-import Influencers from "./pages/Influencers"; // Import the new Influencers page
+import Influencers from "./pages/Influencers";
 import ProtectedRoute from "./components/ProtectedRoute";
+import InfluencerList from "./components/InfluencerList";
+import InfluencerDetail from "./components/InfluencerDetail";
+
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 function App() {
@@ -33,6 +36,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <Influencers />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/influencers/:username"
+            element={
+              <ProtectedRoute>
+                <InfluencerDetail />
               </ProtectedRoute>
             }
           />
