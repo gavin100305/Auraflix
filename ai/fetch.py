@@ -34,7 +34,7 @@ except json.JSONDecodeError:
 
 # API Endpoint to fetch paginated data
 @app.get("/data")
-def get_data(page: int = Query(1, ge=1), per_page: int = Query(10, ge=1)):
+def get_data(page: int = Query(1, ge=1), per_page: int = Query(200, ge=1)):
     """
     Fetch paginated JSON data.
     """
