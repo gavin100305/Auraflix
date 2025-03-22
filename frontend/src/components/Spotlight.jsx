@@ -15,7 +15,7 @@ const Spotlight = ({ className, fill }) => {
           }
         }
         .animate-spotlight {
-          animation: spotlight 2s ease 0.75s 1 forwards;
+          animation: spotlight 1.5s ease 0.75s 1 forwards;
         }
       `}</style>
       <svg
