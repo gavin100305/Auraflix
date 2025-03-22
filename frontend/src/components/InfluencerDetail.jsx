@@ -616,7 +616,6 @@ const InfluencerDetail = () => {
                   <TrendGraph influencer={influencer} />
                 </motion.div>
               </motion.div>
-            </div>
 {/* --------------------------------HEAT MAP------------------------------------------------------------- */}
               <div className="h-screen">
               <div className="px-6 py-4 border-b border-gray-800 bg-black">
@@ -626,6 +625,7 @@ const InfluencerDetail = () => {
               </div>
               <InfluencerWorldMap influencer={influencer} />
               </div>
+            </div>
           </div>
         </div>
       </div>
