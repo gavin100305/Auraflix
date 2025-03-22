@@ -1,6 +1,7 @@
 @import "tailwindcss";
 @import "@fontsource/bricolage-grotesque";
 @import "@fontsource/inter";
+@import 'leaflet/dist/leaflet.css';
 
 body {
   font-family: "Inter", sans-serif;

@@ -2,6 +2,9 @@ import React, { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import TrendGraph from "./TrendGraph";
+import { MapContainer, TileLayer, GeoJSON } from 'react-leaflet';
+import L from 'leaflet';
+import InfluencerWorldMap from "./InfluencerWorldMap";
 
 const InfluencerDetail = () => {
   const { username } = useParams();
@@ -10,6 +13,8 @@ const InfluencerDetail = () => {
   const [error, setError] = useState(null);
   const [summary, setSummary] = useState("");
   const [summaryLoading, setSummaryLoading] = useState(false);
+  const [geoData, setGeoData] = useState(null);
+
 
   useEffect(() => {
     const fetchInfluencerDetail = async () => {
@@ -402,6 +407,15 @@ const InfluencerDetail = () => {
               <div className="px-6 py-6 h-96">
                 {/* Pass the entire influencer object directly */}
                 <TrendGraph influencer={influencer} />
+              </div>
+{/* --------------------------------HEAT MAP------------------------------------------------------------- */}
+              <div className="h-screen">
+              <div className="px-6 py-4 border-b border-gray-800 bg-black">
+                <h2 className="text-xl font-bold text-white">
+                  WordlWide Popularity And Influence Level
+                </h2>
+              </div>
+              <InfluencerWorldMap influencer={influencer} />
               </div>
             </motion.div>
           </div>

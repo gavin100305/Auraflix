@@ -343,6 +343,30 @@ async def receive_business(user: BusinessUser):
         raise HTTPException(status_code=500, detail="Unexpected error occurred.")
 
 
+@app.post("/api/gemini/generate-influence")
+async def generate_influence(request: InfluencerRequest):
+    try:
+        # Call to Google's Gemini API
+        response = genai.generate_content(f"""
+        Generate a world influence map for {request.influencer_name} from {request.influencer_category} category.
+        Based on their home country of {request.influencer_country} and base influence score of {request.base_influence_score},
+        create a JSON object with country names as keys and influence scores (0-100) as values for major countries worldwide.
+        Consider cultural, geographic, linguistic proximity factors. Format as valid JSON only.
+        """)
+        
+        # Parse the generated content
+        influence_map = json.loads(response.text)
+        
+        return {
+            "status": "success",
+            "influence_map": influence_map
+        }
+    except Exception as e:
+        return {
+            "status": "error",
+            "message": str(e),
+            "influence_map": {}
+        }
 # Run the API using Uvicorn
 if __name__ == "__main__":
     import uvicorn
