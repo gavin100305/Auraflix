@@ -2,7 +2,13 @@ from fastapi import FastAPI, HTTPException, Query
 import json
 import logging
 from fastapi.middleware.cors import CORSMiddleware
-
+from pydantic import BaseModel
+import google.generativeai as genai
+from pydantic import BaseModel
+from typing import Optional
+from google.api_core.exceptions import GoogleAPICallError, NotFound
+from dotenv import load_dotenv
+import os
 # Initialize the FastAPI app
 app = FastAPI()
 
@@ -15,6 +21,13 @@ app.add_middleware(
     allow_headers=["*"],  # Allow all headers
 )
 
+load_dotenv()
+api_key = os.getenv("GEMINI_API_KEY")
+if not api_key:
+    raise ValueError("GEMINI_API_KEY environment variable not set.")
+
+import google.generativeai as genai
+genai.configure(api_key=api_key)
 # Set up logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -70,7 +83,76 @@ def get_all_users():
 def health_check():
     return {"status": "ok"}
 
+
+
+class Contact(BaseModel):
+    phone: Optional[str]
+    address: Optional[str]
+
+class SocialMedia(BaseModel):
+    instagram: Optional[str]
+    twitter: Optional[str]
+    linkedin: Optional[str]
+
+class BusinessUser(BaseModel):
+    businessName: str
+    email: str
+    businessCategory: str
+    description: str
+    contact: Contact              # ← Nested Contact object
+    website: Optional[str]
+    socialMedia: SocialMedia      # ← Nested SocialMedia object
+
+
+# Endpoint to receive user data from Node
+@app.post("/receive-business")
+async def receive_business(user: BusinessUser):
+    logger.info(f"Received business user: {user.email}")
+
+    # Save user to json_data and persist to file
+    json_data.append(user.dict())
+    with open(JSON_FILE_PATH, 'w') as f:
+        json.dump(json_data, f, indent=4)
+
+    # Prepare influencer data as string for Gemini
+    influencers_info = ""
+    for influencer in json_data:
+        name = influencer.get("channel_info", "Unknown")
+        desc = influencer.get("description", "No description")
+        influencers_info += f"Username: {name}, Description: {desc}\n"
+
+    prompt = (
+        f"You are a marketing AI assistant. Given this business description:\n\n"
+        f"{user.description}\n\n"
+        f"And this list of influencers:\n\n"
+        f"{influencers_info}\n"
+        f"Which usernames would be best to promote this business? Give me only the usernames as a list."
+    )
+
+    # Call Gemini
+    try:
+        model = genai.GenerativeModel("gemini-1.5-pro-latest")
+        response = model.generate_content(prompt)
+        suggestions = response.text.strip()
+        logger.info(f"Gemini suggestions: {suggestions}")
+        
+        # ✅ Return suggestions to Node.js
+        return {
+            "message": "Business data received and suggestions generated.",
+            "suggested_influencers": suggestions
+        }
+
+    except GoogleAPICallError as e:
+        logger.error(f"Gemini API error: {e.message}")
+        raise HTTPException(status_code=500, detail="Gemini API failed with an error.")
+    except Exception as e:
+        logger.error(f"Unexpected error: {e}")
+        raise HTTPException(status_code=500, detail="Unexpected error occurred.")
+
+
 # Run the API using Uvicorn
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
+    
+

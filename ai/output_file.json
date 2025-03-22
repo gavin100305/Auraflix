@@ -9,7 +9,7 @@
         "avg_engagement": "1.39%",
         "new_post_avg_like": "6.5m",
         "total_likes": "29.0b",
-        "country": "Portugal",
+        "country": "Spain",
         "credibility_score": 52.217000000000006,
         "longevity_score": 8.101980731853192,
         "engagement_quality_score": 1.8284993694829759,
@@ -41,7 +41,7 @@
         "avg_engagement": "1.24%",
         "new_post_avg_like": "4.4m",
         "total_likes": "6.0b",
-        "country": "Argentina",
+        "country": 0,
         "credibility_score": 51.372,
         "longevity_score": 6.792344427470809,
         "engagement_quality_score": 1.9031626084522808,
@@ -249,7 +249,7 @@
         "avg_engagement": "0.96%",
         "new_post_avg_like": "2.0m",
         "total_likes": "4.9b",
-        "country": "India",
+        "country": 0,
         "credibility_score": 50.088,
         "longevity_score": 7.244941546337007,
         "engagement_quality_score": 1.6525023607176583,
@@ -329,7 +329,7 @@
         "avg_engagement": "0.16%",
         "new_post_avg_like": "265.1k",
         "total_likes": "1.5b",
-        "country": "United States",
+        "country": 0,
         "credibility_score": 51.848000000000006,
         "longevity_score": 7.601402334583733,
         "engagement_quality_score": 0.41984732824427484,
@@ -425,7 +425,7 @@
         "avg_engagement": "0.92%",
         "new_post_avg_like": "1.2m",
         "total_likes": "4.9b",
-        "country": "United States",
+        "country": 0,
         "credibility_score": 49.676,
         "longevity_score": 7.741099090035366,
         "engagement_quality_score": 1.6042780748663104,
@@ -3198,5 +3198,181 @@
         "longevity_score": 8.343077871169383,
         "engagement_quality_score": 0.7079268292682928,
         "influenceiq_score": 56.14100470043768
+    },
+    {
+        "businessName": "Pole Calmer Sports",
+        "email": "reddittry67@gmail.com",
+        "businessCategory": "sports",
+        "description": "We are a business for selling football related equipment like football, boots, cones and other stuff",
+        "contact": {
+            "phone": "123456789",
+            "address": "Mumbai"
+        },
+        "website": "https://polecalmer.com",
+        "socialMedia": {
+            "instagram": "",
+            "twitter": "",
+            "linkedin": ""
+        }
+    },
+    {
+        "businessName": "Pole Calmer Sports",
+        "email": "reddittry67@gmail.com",
+        "businessCategory": "sports",
+        "description": "We are a business for selling football related equipment like football, boots, cones and other stuff",
+        "contact": {
+            "phone": "123456789",
+            "address": "Mumbai"
+        },
+        "website": "https://polecalmer.com",
+        "socialMedia": {
+            "instagram": "",
+            "twitter": "",
+            "linkedin": ""
+        }
+    },
+    {
+        "businessName": "Pole Calmer Sports",
+        "email": "reddittry67@gmail.com",
+        "businessCategory": "sports",
+        "description": "We are a business for selling football related equipment like football, boots, cones and other stuff",
+        "contact": {
+            "phone": "123456789",
+            "address": "Mumbai"
+        },
+        "website": "https://polecalmer.com",
+        "socialMedia": {
+            "instagram": "",
+            "twitter": "",
+            "linkedin": ""
+        }
+    },
+    {
+        "businessName": "Pole Calmer Sports",
+        "email": "reddittry67@gmail.com",
+        "businessCategory": "sports",
+        "description": "We are a business for selling football related equipment like football, boots, cones and other stuff",
+        "contact": {
+            "phone": "123456789",
+            "address": "Mumbai"
+        },
+        "website": "https://polecalmer.com",
+        "socialMedia": {
+            "instagram": "",
+            "twitter": "",
+            "linkedin": ""
+        }
+    },
+    {
+        "businessName": "Pole Calmer Sports",
+        "email": "reddittry67@gmail.com",
+        "businessCategory": "sports",
+        "description": "We are a business for selling football related equipment like football, boots, cones and other stuff",
+        "contact": {
+            "phone": "123456789",
+            "address": "Mumbai"
+        },
+        "website": "https://polecalmer.com",
+        "socialMedia": {
+            "instagram": "",
+            "twitter": "",
+            "linkedin": ""
+        }
+    },
+    {
+        "businessName": "Pole Calmer Sports",
+        "email": "reddittry67@gmail.com",
+        "businessCategory": "sports",
+        "description": "We are a business for selling football related equipment like football, boots, cones and other stuff",
+        "contact": {
+            "phone": "123456789",
+            "address": "Mumbai"
+        },
+        "website": "https://polecalmer.com",
+        "socialMedia": {
+            "instagram": "",
+            "twitter": "",
+            "linkedin": ""
+        }
+    },
+    {
+        "businessName": "Pole Calmer Sports",
+        "email": "reddittry67@gmail.com",
+        "businessCategory": "sports",
+        "description": "We are a business for selling football related equipment like football, boots, cones and other stuff",
+        "contact": {
+            "phone": "123456789",
+            "address": "Mumbai"
+        },
+        "website": "https://polecalmer.com",
+        "socialMedia": {
+            "instagram": "",
+            "twitter": "",
+            "linkedin": ""
+        }
+    },
+    {
+        "businessName": "Celestial Coffee",
+        "email": "owner@celestialcoffee.com",
+        "businessCategory": "Cafe",
+        "description": "A cozy cafe with a celestial theme, serving artisan coffee.",
+        "contact": {
+            "phone": "1234567890",
+            "address": "123 Galaxy Lane, Star City"
+        },
+        "website": "https://celestialcoffee.com",
+        "socialMedia": {
+            "instagram": "@celestialcoffee",
+            "twitter": "@celestialcafe",
+            "linkedin": "celestial-coffee"
+        }
+    },
+    {
+        "businessName": "Pole Calmer Sports",
+        "email": "reddittry67@gmail.com",
+        "businessCategory": "sports",
+        "description": "We are a business for selling football related equipment like football, boots, cones and other stuff",
+        "contact": {
+            "phone": "123456789",
+            "address": "Mumbai"
+        },
+        "website": "https://polecalmer.com",
+        "socialMedia": {
+            "instagram": "",
+            "twitter": "",
+            "linkedin": ""
+        }
+    },
+    {
+        "businessName": "Pole Calmer Sports",
+        "email": "reddittry67@gmail.com",
+        "businessCategory": "sports",
+        "description": "We are a business for selling football related equipment like football, boots, cones and other stuff",
+        "contact": {
+            "phone": "123456789",
+            "address": "Mumbai"
+        },
+        "website": "https://polecalmer.com",
+        "socialMedia": {
+            "instagram": "",
+            "twitter": "",
+            "linkedin": ""
+        }
+    },
+    {
+        "businessName": "Pole Calmer Sports",
+        "email": "reddittry67@gmail.com",
+        "businessCategory": "sports",
+        "description": "We are a business for selling football related equipment like football, boots, cones and other stuff",
+        "contact": {
+            "phone": "123456789",
+            "address": "Mumbai"
+        },
+        "website": "https://polecalmer.com",
+        "socialMedia": {
+            "instagram": "",
+            "twitter": "",
+            "linkedin": ""
+        }
     }
 ]

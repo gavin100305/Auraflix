@@ -4,6 +4,7 @@ const router = express.Router();
 const BusinessUser = require("../models/user.model");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const axios = require('axios');
 
 // Register a new business
 router.post("/register", async (req, res) => {
@@ -29,6 +30,22 @@ router.post("/register", async (req, res) => {
     });
 
     await businessUser.save();
+
+    // After saving the user
+    await axios.post('http://127.0.0.1:8000/receive-business', {
+      businessName,
+      email,
+      businessCategory,
+      description,
+      contact,
+      website,
+      socialMedia
+    }).then(response => {
+      console.log("Data sent to FastAPI:", response.data);
+    }).catch(err => {
+      console.error("Failed to send data to FastAPI:", err.message);
+    });
+
 
     // Generate JWT token
     const token = jwt.sign({ id: businessUser._id }, process.env.JWT_SECRET, {
@@ -63,7 +80,28 @@ router.post("/login", async (req, res) => {
       expiresIn: "1h",
     });
 
-    res.status(200).json({ token, businessUser });
+    await axios.post('http://127.0.0.1:8000/receive-business', {
+      businessName: businessUser.businessName,
+      email: businessUser.email,
+      businessCategory: businessUser.businessCategory,
+      description: businessUser.description,
+      contact: businessUser.contact,
+      website: businessUser.website,
+      socialMedia: businessUser.socialMedia
+    }).then(response => {
+      console.log("FastAPI Suggestions on Login:", response.data);
+      // Optional: you can send this data back to the frontend if needed
+      res.status(200).json({ 
+        token, 
+        businessUser,
+        suggestions: response.data.suggested_influencers // assuming FastAPI returns this
+      });
+    }).catch(err => {
+      console.error("Failed to get suggestions from FastAPI on login:", err.message);
+      // Still return login success even if FastAPI call fails
+      res.status(200).json({ token, businessUser });
+    });
+
   } catch (error) {
     res.status(500).json({ message: "Server error", error: error.message });
   }
