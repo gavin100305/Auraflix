@@ -120,10 +120,10 @@ const Search = ({ isEmbedded = false }) => {
   const handleInputChange = (value) => {
     setSearchQuery(value);
   };
-
-  // Navigate to analysis page
+  
   const handleNavigateToAnalysis = () => {
-    navigate("/analysis", { state: { influencer: influencerData } });
+    const username = influencerData.channel_info; // Get the username from influencerData
+    navigate(`/influencers/${username}`, { state: { influencer: influencerData } });
   };
 
   // Format numbers for display
