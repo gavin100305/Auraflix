@@ -14,6 +14,7 @@ const Analysis = () => {
       </div>
 
       <Footer />
+
     </div>
   );
 };

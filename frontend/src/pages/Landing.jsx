@@ -4,7 +4,7 @@ import Spotlight from "../components/Spotlight";
 import Header from "../components/Header";
 import RomFooter from "../components/RomFooter";
 import Features from "../components/Features";
-
+import Search from "../components/Search"; 
 const Landing = () => {
   return (
     <div className="min-h-screen flex flex-col bg-black text-white">
@@ -46,39 +46,8 @@ const Landing = () => {
             decisions.
           </motion.p>
 
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.6 }}
-            className="mt-10 max-w-2xl mx-auto"
-          >
-            <div className="relative flex items-center">
-              <input
-                type="text"
-                placeholder="Search for any influencer..."
-                className="w-full bg-white/10 border border-white/20 rounded-lg px-5 py-4 text-white font-inter focus:outline-none focus:ring-2 focus:ring-white/30"
-              />
-              <motion.button
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.95 }}
-                className="absolute right-3 bg-white text-black p-2 rounded-md hover:bg-opacity-90 transition-all"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-5 w-5"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <circle cx="11" cy="11" r="8"></circle>
-                  <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-                </svg>
-              </motion.button>
-            </div>
-          </motion.div>
+          {/* Embed the Search component with the isEmbedded prop */}
+          <Search isEmbedded={true} />
         </div>
       </div>
 
