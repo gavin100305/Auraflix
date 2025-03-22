@@ -282,13 +282,22 @@ const Search = ({ isEmbedded = false }) => {
                   },
                 ].map((stat, index) => (
                   <motion.div
-                    key={index}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.6 + index * 0.1 }}
-                    whileHover={{ scale: 1.05 }}
-                    className={`bg-gradient-to-br ${stat.gradient} p-5 rounded-xl border border-white/10 backdrop-blur-sm`}
-                  >
+                      key={index}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ 
+                        duration: 0.4,
+                        delay: 0.3 + index * 0.08,
+                        ease: "easeOut"
+                      }}
+                      whileHover={{ 
+                        scale: 1.03,
+                        transition: { duration: 0.2, ease: "easeInOut" }
+                      }}
+                      whileTap={{ scale: 0.98 }}
+                      className={`bg-gradient-to-br ${stat.gradient} p-5 rounded-xl border border-white/10 backdrop-blur-sm shadow-lg`}
+                    >
+
                     <div className="flex items-center justify-between mb-2">
                       <p className="text-white/70 font-medium">{stat.title}</p>
                       {stat.icon}

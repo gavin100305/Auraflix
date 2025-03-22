@@ -14,21 +14,16 @@ const Auth = () => {
           style={{
             backgroundImage:
               "linear-gradient(to right, #171717 1px, transparent 1px), linear-gradient(to bottom, #171717 1px, transparent 1px)",
-            backgroundSize: "40px 40px",
+            backgroundSize: "35px 35px",
           }}
         />
 
-        <div className="relative z-10 w-full max-w-md mx-auto px-6 py-10">
-          <div className="backdrop-blur-md bg-white/5 border border-white/10 rounded-2xl p-8 shadow-xl">
-            <div className="text-center mb-8">
+        <div className="relative z-10 w-full max-w-md mx-auto px-6 py-6">
+          <div className="backdrop-blur-md bg-white/5 border border-white/10 rounded-2xl p-7 shadow-xl">
+            <div className="text-center mb-3">
               <h2 className="text-2xl font-bold bg-gradient-to-b from-neutral-50 to-neutral-400 bg-clip-text text-transparent">
                 {isSignIn ? "Welcome Back" : "Join InfluenceIQ"}
               </h2>
-              <p className="mt-2 text-sm text-neutral-400">
-                {isSignIn
-                  ? "Sign in to access your dashboard"
-                  : "Register your business to get started"}
-              </p>
             </div>
 
             <AnimatePresence mode="wait">

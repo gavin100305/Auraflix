@@ -168,13 +168,9 @@ const InfluencerList = () => {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6 }}
     >
-      <div className="px-6 py-5 border-b border-gray-800 bg-black flex justify-between items-center">
-        <h2 className="text-2xl font-bold text-white">Top Influencers</h2>
-        <div className="text-sm text-gray-500">
-          Page {currentPage} | Total loaded: {influencers.length} influencers
-        </div>
-      </div>
-
+          <div className="px-6 py-5 border-b border-gray-800 bg-black flex justify-center     items-center">
+            <h2 className="text-2xl font-bold text-white">Top Influencers</h2>
+          </div>
       {error && (
         <div className="bg-red-900/60 border border-red-700 text-red-200 px-6 py-4 m-4 rounded">
           {error}
@@ -330,36 +326,41 @@ const InfluencerList = () => {
         </div>
       )}
 
-      <div className="px-6 py-4 border-t border-gray-900 bg-black flex justify-end">
-        <div className="flex space-x-3">
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={handlePrevPage}
-            disabled={currentPage === 1}
-            className={`px-5 py-2 rounded-lg transition ${
-              currentPage === 1
-                ? "bg-gray-900 text-gray-600 cursor-not-allowed"
-                : "bg-purple-800 text-white hover:bg-purple-700"
-            }`}
-          >
-            Previous
-          </motion.button>
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={handleNextPage}
-            disabled={!hasMore || loading}
-            className={`px-5 py-2 rounded-lg transition ${
-              !hasMore || loading
-                ? "bg-gray-900 text-gray-600 cursor-not-allowed"
-                : "bg-purple-800 text-white hover:bg-purple-700"
-            }`}
-          >
-            Next
-          </motion.button>
-        </div>
-      </div>
+<div className="px-6 py-4 border-t border-gray-900 bg-black flex justify-between">
+  <span className="text-gray-400">
+    Page {currentPage} of {Math.max(1, Math.ceil(influencers.length / itemsPerPage))}
+  </span>
+  <div className="flex space-x-3">
+    <motion.button
+      whileHover={{ scale: 1.05 }}
+      whileTap={{ scale: 0.95 }}
+      onClick={handlePrevPage}
+      disabled={currentPage === 1}
+      className={`px-5 py-2 rounded-lg transition ${
+        currentPage === 1
+          ? "bg-gray-900 text-gray-600 cursor-not-allowed"
+          : "bg-purple-800 text-white hover:bg-purple-700"
+      }`}
+    >
+      Previous
+    </motion.button>
+    <motion.button
+      whileHover={{ scale: 1.05 }}
+      whileTap={{ scale: 0.95 }}
+      onClick={handleNextPage}
+      disabled={!hasMore || loading}
+      className={`px-5 py-2 rounded-lg transition ${
+        !hasMore || loading
+          ? "bg-gray-900 text-gray-600 cursor-not-allowed"
+          : "bg-purple-800 text-white hover:bg-purple-700"
+      }`}
+    >
+      Next
+    </motion.button>
+  </div>
+</div>
+
+
     </motion.div>
   );
 };
