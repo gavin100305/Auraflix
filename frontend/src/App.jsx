@@ -1,9 +1,8 @@
 import InstagramAnalysisPage from "./components/InstagramAnalysisPage";
-
 function App() {
   return (
     <>
-    <InstagramAnalysisPage/>
+      <InstagramAnalysisPage />
     </>
   );
 }
