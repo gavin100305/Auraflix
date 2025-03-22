@@ -7,6 +7,7 @@ import InfluencerList from "./components/InfluencerList";
 import InfluencerDetail from "./components/InfluencerDetail";
 
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import InfluencerList from "./components/InfluencerList";
 
 function App() {
   return (
