@@ -54,7 +54,6 @@ const Landing = () => {
       <Features />
       <RomFooter />
 
-      <InfluencerList />
     </div>
   );
 };
