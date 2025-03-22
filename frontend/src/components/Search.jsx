@@ -127,6 +127,7 @@ const Search = ({ isEmbedded = false }) => {
           handleSearch={handleSearch}
           users={users}
           isLoading={isLoading}
+          setSearchQuery={setSearchQuery}
         />
 
         {error && (

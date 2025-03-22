@@ -13,10 +13,16 @@ const SearchForm = ({
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [filteredUsers, setFilteredUsers] = useState([]);
   const dropdownRef = useRef(null);
+  const justSelectedRef = useRef(false);
+
 
   // Filter users based on input
   // Filter users based on input
 useEffect(() => {
+  if (justSelectedRef.current) {
+    justSelectedRef.current = false; // reset flag
+    return; // skip dropdown logic
+  }
   if (searchQuery && users?.length > 0) {
     const filtered = users
       .filter(user => user.toLowerCase().includes(searchQuery.toLowerCase()))
@@ -34,9 +40,6 @@ useEffect(() => {
   }
 }, [searchQuery, users]);
 
-console.log(users);
-console.log(searchQuery);
-console.log(filteredUsers);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -54,6 +57,7 @@ console.log(filteredUsers);
   const handleUserSelect = (username) => {
     setSearchQuery(username);
     setIsDropdownOpen(false);
+    justSelectedRef.current = true; 
   };
 
   return (
@@ -83,6 +87,7 @@ console.log(filteredUsers);
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               className="absolute z-50 mt-1 w-full bg-gray-900 border border-white/20 rounded-md shadow-lg max-h-60 overflow-y-auto"
+              style={{ maxHeight: '15rem' }}
             >
               {filteredUsers.map((user, index) => (
                 <div
