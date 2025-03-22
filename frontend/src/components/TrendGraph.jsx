@@ -4,7 +4,7 @@ import {
 } from "recharts";
 
 const TrendGraph = ({ influencer }) => {
-    if(!influencer) return null;
+  if(!influencer) return null;
   const [trendData, setTrendData] = useState([]);
 
   useEffect(() => {
