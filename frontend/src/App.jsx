@@ -4,6 +4,7 @@ import Auth from "./pages/Auth";
 import Influencers from "./pages/Influencers"; // Import the new Influencers page
 import ProtectedRoute from "./components/ProtectedRoute";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import InfluencerList from "./components/InfluencerList";
 
 function App() {
   return (
