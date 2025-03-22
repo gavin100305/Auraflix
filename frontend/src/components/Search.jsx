@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect } from "react";
 import { User, Heart, Image, TrendingUp } from "lucide-react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
@@ -13,15 +13,17 @@ const Search = ({ isEmbedded = false }) => {
   const [error, setError] = useState("");
   const [isResultVisible, setIsResultVisible] = useState(false);
   const [users, setUsers] = useState([]);
-  const[graphInfluencer,setGraphInfluencer] = useState(null);
+  const [graphInfluencer, setGraphInfluencer] = useState(null);
+  const [imageUrl, setImageUrl] = useState(null); // State for Wikipedia image URL
 
+  // Fetch users on component mount
   useEffect(() => {
     console.log("Fetching users...");
     const fetchUsers = async () => {
       try {
-        const response = await fetch("http://127.0.0.1:8000/users");
+        const response = await fetch("http://127.0.0.1:8000/data");
         const data = await response.json();
-        console.log("User data is",data);
+        console.log("User data is", data);
         if (data.users && Array.isArray(data.users)) {
           setUsers(data.users);
         }
@@ -29,12 +31,14 @@ const Search = ({ isEmbedded = false }) => {
         console.error("Failed to fetch users:", err);
       }
     };
-    
+
     fetchUsers();
   }, []);
 
+  // Fetch Wikipedia image when influencerData changes
   useEffect(() => {
     if (influencerData) {
+      fetchWikipediaImage(influencerData.channel_info);
       setTimeout(() => {
         setIsResultVisible(true);
       }, 100);
@@ -43,6 +47,37 @@ const Search = ({ isEmbedded = false }) => {
     }
   }, [influencerData]);
 
+  // Function to fetch Wikipedia image
+  const fetchWikipediaImage = async (searchTerm) => {
+    try {
+      // Step 1: Fetch the Wikipedia page ID for the search term
+      const searchResponse = await fetch(
+        `https://en.wikipedia.org/w/api.php?action=query&format=json&list=search&srsearch=${searchTerm}&origin=*`
+      );
+      const searchData = await searchResponse.json();
+
+      if (searchData.query.search.length > 0) {
+        const pageId = searchData.query.search[0].pageid;
+
+        // Step 2: Fetch the image URL for the page
+        const imageResponse = await fetch(
+          `https://en.wikipedia.org/w/api.php?action=query&format=json&prop=pageimages&pageids=${pageId}&pithumbsize=200&origin=*`
+        );
+        const imageData = await imageResponse.json();
+
+        const thumbnail = imageData.query.pages[pageId].thumbnail;
+        if (thumbnail) {
+          setImageUrl(thumbnail.source); // Set the image URL
+        } else {
+          setImageUrl(null); // Reset if no image is found
+        }
+      }
+    } catch (error) {
+      console.error("Error fetching Wikipedia image:", error);
+    }
+  };
+
+  // Handle search
   const handleSearch = async (e) => {
     e.preventDefault();
     if (!searchQuery.trim()) {
@@ -59,9 +94,10 @@ const Search = ({ isEmbedded = false }) => {
       const data = await response.json();
       console.log(data);
       const matchedInfluencer = data.find(
-        (item) => item.channel_info.toLowerCase() === searchQuery.toLowerCase()
+        (item) =>
+          item.channel_info &&
+          item.channel_info.toLowerCase() === searchQuery.toLowerCase()
       );
-
       if (matchedInfluencer) {
         const detailedResponse = await fetch(
           `http://127.0.0.1:8000/data/rank/${matchedInfluencer.rank}`
@@ -80,14 +116,17 @@ const Search = ({ isEmbedded = false }) => {
     }
   };
 
+  // Handle input change
   const handleInputChange = (value) => {
     setSearchQuery(value);
   };
 
+  // Navigate to analysis page
   const handleNavigateToAnalysis = () => {
     navigate("/analysis", { state: { influencer: influencerData } });
   };
 
+  // Format numbers for display
   const formatNumber = (value) => {
     if (!value) return "N/A";
     if (value.includes("k")) return `${parseFloat(value) * 1_000}`;
@@ -95,6 +134,7 @@ const Search = ({ isEmbedded = false }) => {
     return value;
   };
 
+  // Calculate engagement rate
   const calculateEngagementRate = (avgLikes, followers) => {
     const likes = formatNumber(avgLikes);
     const totalFollowers = formatNumber(followers);
@@ -103,6 +143,7 @@ const Search = ({ isEmbedded = false }) => {
       : "0";
   };
 
+  // Format display numbers
   const formatDisplayNumber = (num) => {
     if (typeof num === "string") {
       if (num.includes("k") || num.includes("m")) return num;
@@ -118,10 +159,14 @@ const Search = ({ isEmbedded = false }) => {
     }
     return num.toString();
   };
-  // console.log("query",searchQuery);
+
+  // Update graph influencer
   useEffect(() => {
-    setGraphInfluencer(users.filter(user => user.channel_info === searchQuery)[0]);
-  }, [searchQuery,users]);
+    setGraphInfluencer(
+      users.filter((user) => user.channel_info === searchQuery)[0]
+    );
+  }, [searchQuery, users]);
+
   // If component is embedded on the landing page, only render the search form
   if (isEmbedded) {
     return (
@@ -164,7 +209,15 @@ const Search = ({ isEmbedded = false }) => {
                   transition={{ delay: 0.3, type: "spring" }}
                   className="w-20 h-20 bg-white/10 backdrop-blur-md rounded-full flex items-center justify-center text-white font-bold text-3xl"
                 >
-                  {influencerData.channel_info.charAt(0).toUpperCase()}
+                  {imageUrl ? (
+                    <img
+                      src={imageUrl}
+                      alt={influencerData.channel_info}
+                      className="w-full h-full rounded-full object-cover"
+                    />
+                  ) : (
+                    influencerData.channel_info.charAt(0).toUpperCase()
+                  )}
                 </motion.div>
                 <motion.div
                   initial={{ x: -20, opacity: 0 }}
@@ -231,22 +284,21 @@ const Search = ({ isEmbedded = false }) => {
                   },
                 ].map((stat, index) => (
                   <motion.div
-                      key={index}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ 
-                        duration: 0.4,
-                        delay: 0.3 + index * 0.08,
-                        ease: "easeOut"
-                      }}
-                      whileHover={{ 
-                        scale: 1.03,
-                        transition: { duration: 0.2, ease: "easeInOut" }
-                      }}
-                      whileTap={{ scale: 0.98 }}
-                      className={`bg-gradient-to-br ${stat.gradient} p-5 rounded-xl border border-white/10 backdrop-blur-sm shadow-lg`}
-                    >
-
+                    key={index}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{
+                      duration: 0.4,
+                      delay: 0.3 + index * 0.08,
+                      ease: "easeOut",
+                    }}
+                    whileHover={{
+                      scale: 1.03,
+                      transition: { duration: 0.2, ease: "easeInOut" },
+                    }}
+                    whileTap={{ scale: 0.98 }}
+                    className={`bg-gradient-to-br ${stat.gradient} p-5 rounded-xl border border-white/10 backdrop-blur-sm shadow-lg`}
+                  >
                     <div className="flex items-center justify-between mb-2">
                       <p className="text-white/70 font-medium">{stat.title}</p>
                       {stat.icon}
@@ -289,7 +341,7 @@ const Search = ({ isEmbedded = false }) => {
                 </div>
               </motion.div>
 
-              {/* Modified Call to action with navigation */}
+              {/* Call to action with navigation */}
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -353,7 +405,9 @@ const Search = ({ isEmbedded = false }) => {
             searchQuery={searchQuery}
             handleInputChange={handleInputChange}
             handleSearch={handleSearch}
+            users={users}
             isLoading={isLoading}
+            setSearchQuery={setSearchQuery}
           />
 
           {error && (
@@ -385,7 +439,15 @@ const Search = ({ isEmbedded = false }) => {
                     transition={{ delay: 0.3, type: "spring" }}
                     className="w-20 h-20 bg-white/10 backdrop-blur-md rounded-full flex items-center justify-center text-white font-bold text-3xl"
                   >
-                    {influencerData.channel_info.charAt(0).toUpperCase()}
+                    {imageUrl ? (
+                      <img
+                        src={imageUrl}
+                        alt={influencerData.channel_info}
+                        className="w-full h-full rounded-full object-cover"
+                      />
+                    ) : (
+                      influencerData.channel_info.charAt(0).toUpperCase()
+                    )}
                   </motion.div>
                   <motion.div
                     initial={{ x: -20, opacity: 0 }}
@@ -503,7 +565,7 @@ const Search = ({ isEmbedded = false }) => {
                   </div>
                 </motion.div>
 
-                {/* Modified Call to action with navigation */}
+                {/* Call to action with navigation */}
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
