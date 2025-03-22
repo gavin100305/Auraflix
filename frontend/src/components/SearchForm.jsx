@@ -15,7 +15,6 @@ const SearchForm = ({
   const dropdownRef = useRef(null);
   const justSelectedRef = useRef(false);
 
-
   // Filter users based on input
   // Filter users based on input
 useEffect(() => {
@@ -25,8 +24,11 @@ useEffect(() => {
   }
   if (searchQuery && users?.length > 0) {
     const filtered = users
-      .filter(user => user.toLowerCase().includes(searchQuery.toLowerCase()))
-      .slice(0, 8); // Limit to 8 suggestions
+  .filter(user =>
+    user.channel_info.toLowerCase().includes(searchQuery.toLowerCase())
+  )
+  .slice(0, 8);
+
     
     // This is the key change - only update state if there's an actual change
     if (JSON.stringify(filtered) !== JSON.stringify(filteredUsers)) {
@@ -90,17 +92,18 @@ useEffect(() => {
               style={{ maxHeight: '15rem' }}
             >
               {filteredUsers.map((user, index) => (
-                <div
-                  key={index}
-                  className="px-4 py-3 hover:bg-purple-900/40 cursor-pointer flex items-center gap-2 text-white transition"
-                  onClick={() => handleUserSelect(user)}
-                >
-                  <div className="w-8 h-8 bg-white/10 rounded-full flex items-center justify-center text-white/70">
-                    {user.charAt(0).toUpperCase()}
-                  </div>
-                  <span>{user}</span>
-                </div>
-              ))}
+  <div
+    key={index}
+    className="px-4 py-3 hover:bg-purple-900/40 cursor-pointer flex items-center gap-2 text-white transition"
+    onClick={() => handleUserSelect(user.channel_info)}
+  >
+    <div className="w-8 h-8 bg-white/10 rounded-full flex items-center justify-center text-white/70">
+      {user.channel_info.charAt(0).toUpperCase()}
+    </div>
+    <span>{user.channel_info}</span>
+  </div>
+))}
+
             </motion.div>
           )}
           

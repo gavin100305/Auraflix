@@ -2682,10 +2682,10 @@
         "new_post_avg_like": "0",
         "total_likes": "1.2b",
         "country": 0,
-        "credibility_score": NaN,
+        "credibility_score": 0,
         "longevity_score": 4.709530201312334,
         "engagement_quality_score": 29.45945945945946,
-        "influenceiq_score": NaN
+        "influenceiq_score": 0
     },
     {
         "rank": 169,
