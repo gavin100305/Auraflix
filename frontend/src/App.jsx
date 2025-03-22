@@ -1,7 +1,9 @@
+import InstagramAnalysisPage from "./components/InstagramAnalysisPage";
+
 function App() {
   return (
     <>
-      <h1>React App</h1>
+    <InstagramAnalysisPage/>
     </>
   );
 }

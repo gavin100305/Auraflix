@@ -2,7 +2,7 @@ import pandas as pd
 import json
 
 # Define the CSV file path and the output JSON file path
-csv_file_path = 'analytics.csv'
+csv_file_path = 'insta.csv'
 json_file_path = 'output_file.json'
 
 # Define the chunk size (number of rows to process at a time)
@@ -13,6 +13,10 @@ all_data = []
 
 # Read the CSV file in chunks
 for chunk in pd.read_csv(csv_file_path, chunksize=chunk_size):
+    # Clean the data in each chunk
+    chunk = chunk.applymap(lambda x: x.strip() if isinstance(x, str) else x)  # Strip whitespace from strings
+    chunk = chunk.where(pd.notnull(chunk), None)  # Replace NaN with None for proper JSON serialization
+
     # Convert each chunk to a list of dictionaries (JSON-like structure)
     chunk_data = chunk.to_dict(orient='records')
     # Append the chunk data to the main list

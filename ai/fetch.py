@@ -22,15 +22,20 @@ def get_data():
     """
     return json_data
 
-# Define an API endpoint to fetch a specific item by its index
-@app.get("/data/{index}")
-def get_item(index: int):
+# Define an API endpoint to fetch a specific influencer by their rank
+@app.get("/data/rank/{rank}")
+def get_influencer_by_rank(rank: int):
     """
-    Endpoint to fetch a specific item by its index.
+    Endpoint to fetch a specific influencer by their rank.
     """
-    if index < 0 or index >= len(json_data):
-        raise HTTPException(status_code=404, detail="Item not found")
-    return json_data[index]
+    # Search for the influencer with the given rank
+    influencer = next((item for item in json_data if item["rank"] == rank), None)
+    
+    # If no influencer is found, raise a 404 error
+    if influencer is None:
+        raise HTTPException(status_code=404, detail=f"Influencer with rank {rank} not found")
+    
+    return influencer
 
 # Run the API using Uvicorn
 if __name__ == "__main__":
