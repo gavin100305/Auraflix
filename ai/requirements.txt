@@ -1,1 +1,6 @@
 pandas
+google.generativeai
+uvicorn
+fastapi
+pydantic
+

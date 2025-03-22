@@ -3310,5 +3310,21 @@
             "twitter": "",
             "linkedin": ""
         }
+    },
+    {
+        "businessName": "nigga",
+        "email": "nigga@jigga.com",
+        "businessCategory": "food",
+        "description": "i eat food",
+        "contact": {
+            "phone": "6969696969",
+            "address": "malad"
+        },
+        "website": "https://google.com",
+        "socialMedia": {
+            "instagram": "https://instagram.com/mybusiness",
+            "twitter": "https://twitter.com/mybusiness",
+            "linkedin": "https://linkedin.com/mybusiness"
+        }
     }
 ]
