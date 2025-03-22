@@ -3,7 +3,6 @@ import Landing from "./pages/Landing";
 import Auth from "./pages/Auth";
 import Influencers from "./pages/Influencers"; // Import the new Influencers page
 import ProtectedRoute from "./components/ProtectedRoute";
-import InfluencerList from "./components/InfluencerList";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 function App() {
