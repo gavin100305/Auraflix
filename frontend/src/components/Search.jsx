@@ -22,9 +22,8 @@ const Search = ({ isEmbedded = false }) => {
     const fetchUsers = async () => {
       try {
         const response = await fetch("http://127.0.0.1:8000/data");
-        const response = await fetch("http://127.0.0.1:8000/data");
         const data = await response.json();
-        console.log("User data is",  data);
+        console.log("User data is", data);
         if (data.users && Array.isArray(data.users)) {
           setUsers(data.users);
         }
@@ -75,7 +74,7 @@ const Search = ({ isEmbedded = false }) => {
       }
     } catch (error) {
       console.error("Error fetching Wikipedia image:", error);
-      }
+    }
   };
 
   // Handle search
@@ -163,7 +162,9 @@ const Search = ({ isEmbedded = false }) => {
 
   // Update graph influencer
   useEffect(() => {
-    setGraphInfluencer(users.filter((user) => user.channel_info === searchQuery)[0]);
+    setGraphInfluencer(
+      users.filter((user) => user.channel_info === searchQuery)[0]
+    );
   }, [searchQuery, users]);
 
   // If component is embedded on the landing page, only render the search form
@@ -521,7 +522,9 @@ const Search = ({ isEmbedded = false }) => {
                       className={`bg-gradient-to-br ${stat.gradient} p-5 rounded-xl border border-white/10 backdrop-blur-sm`}
                     >
                       <div className="flex items-center justify-between mb-2">
-                        <p className="text-white/70 font-medium">{stat.title}</p>
+                        <p className="text-white/70 font-medium">
+                          {stat.title}
+                        </p>
                         {stat.icon}
                       </div>
                       <p className="text-2xl font-bold text-white">
