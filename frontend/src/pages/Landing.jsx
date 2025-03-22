@@ -52,8 +52,8 @@ const Landing = () => {
       </div>
 
       <Features />
-
       <RomFooter />
+
     </div>
   );
 };

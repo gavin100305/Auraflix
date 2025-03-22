@@ -58,6 +58,13 @@ def get_influencer_by_rank(rank: int):
     
     return influencer
 
+# Add this endpoint to fetch all usernames
+@app.get("/users")
+def get_usernames():
+    logger.info("Fetching all usernames")
+    usernames = [item.get("channel_info") for item in json_data if "channel_info" in item]
+    return {"users": usernames}
+
 # Health check endpoint
 @app.get("/health")
 def health_check():

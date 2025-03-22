@@ -9,6 +9,54 @@ const InfluencerList = () => {
   const [itemsPerPage] = useState(10);
   const [error, setError] = useState(null);
   const [hasMore, setHasMore] = useState(true);
+  const [countryFlags, setCountryFlags] = useState({});
+  const [flagsLoading, setFlagsLoading] = useState(true);
+
+  // Fetch country flags data
+  useEffect(() => {
+    const fetchCountryData = async () => {
+      try {
+        setFlagsLoading(true);
+        const response = await fetch('https://restcountries.com/v3.1/all?fields=name,cca2,flags');
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        
+        // Create mappings: full names, common names, alternative names, and codes to flag URLs
+        const flagMap = {};
+        data.forEach(country => {
+          // Store both full name and common name for better matching
+          const commonName = country.name.common.toLowerCase();
+          const officialName = country.name.official.toLowerCase();
+          const countryCode = country.cca2.toLowerCase();
+          
+          flagMap[commonName] = country.flags.svg;
+          flagMap[officialName] = country.flags.svg;
+          flagMap[countryCode] = country.flags.svg;
+          
+          // Add alternative spellings and common abbreviations for popular countries
+          if (commonName === "united states of america" || commonName === "united states") {
+            flagMap["usa"] = country.flags.svg;
+            flagMap["us"] = country.flags.svg;
+          } else if (commonName === "united kingdom") {
+            flagMap["uk"] = country.flags.svg;
+            flagMap["great britain"] = country.flags.svg;
+          }
+        });
+        
+        setCountryFlags(flagMap);
+        setFlagsLoading(false);
+      } catch (err) {
+        console.error("Error fetching country flags:", err);
+        setFlagsLoading(false);
+      }
+    };
+    
+    fetchCountryData();
+  }, []);
 
   const fetchInfluencers = async (page = 1) => {
     try {
@@ -105,8 +153,16 @@ const InfluencerList = () => {
     return channelInfo.startsWith("@") ? channelInfo.substring(1) : channelInfo;
   };
 
+  // Get flag URL for a country name, with fallback
+  const getCountryFlag = (countryName) => {
+    if (!countryName || !countryFlags) return null;
+    
+    const normalizedName = countryName.toLowerCase().trim();
+    return countryFlags[normalizedName] || null;
+  };
+
   return (
-    <motion.div
+    <motion.div 
       className="bg-gray-950 rounded-2xl shadow-xl overflow-hidden border border-gray-800 mx-5"
       initial={{ opacity: 0, y: 30 }}
       animate={{ opacity: 1, y: 0 }}
@@ -154,24 +210,24 @@ const InfluencerList = () => {
           </thead>
           <tbody className="divide-y divide-gray-900 bg-gray-950">
             {currentInfluencers.map((influencer, index) => (
-              <motion.tr
-                key={influencer.rank || index}
+              <motion.tr 
+                key={influencer.rank || index} 
                 className="group transition-colors relative z-10"
                 initial={{ opacity: 0, y: 15, scale: 0.97 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
-                transition={{
+                transition={{ 
                   type: "spring",
                   stiffness: 400,
                   damping: 25,
                   mass: 0.8,
-                  delay: Math.min(0.04 * index, 0.4),
+                  delay: Math.min(0.04 * index, 0.4)
                 }}
-                whileHover={{
+                whileHover={{ 
                   scale: 1.01,
                   backgroundColor: "rgba(0, 0, 0, 0.75)",
                   zIndex: 20,
                   y: -3,
-                  transition: { duration: 0.2 },
+                  transition: { duration: 0.2 }
                 }}
                 whileTap={{ scale: 0.98, y: 0 }}
               >
@@ -207,13 +263,31 @@ const InfluencerList = () => {
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="flex items-center">
-                    <motion.span
-                      className="mr-2"
-                      whileHover={{ scale: 1.3, rotate: 360 }}
-                      transition={{ duration: 0.5 }}
-                    >
-                      🌍
-                    </motion.span>
+                    {influencer.country && !flagsLoading ? (
+                      <motion.div 
+                        className="mr-2 w-6 h-4 overflow-hidden rounded-sm border border-gray-700 flex-shrink-0"
+                        whileHover={{ scale: 1.3 }}
+                        transition={{ duration: 0.5 }}
+                      >
+                        {getCountryFlag(influencer.country) ? (
+                          <img 
+                            src={getCountryFlag(influencer.country)} 
+                            alt={`${influencer.country} flag`}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <span className="flex items-center justify-center h-full text-xs">🌍</span>
+                        )}
+                      </motion.div>
+                    ) : (
+                      <motion.span 
+                        className="mr-2"
+                        whileHover={{ scale: 1.3, rotate: 360 }}
+                        transition={{ duration: 0.5 }}
+                      >
+                        🌍
+                      </motion.span>
+                    )}
                     <span className="text-gray-400 group-hover:text-gray-200 transition-colors">
                       {influencer.country || "Unknown"}
                     </span>
