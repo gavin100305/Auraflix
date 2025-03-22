@@ -12,11 +12,11 @@ const Landing = () => {
 
       <div className="relative flex-1 flex overflow-hidden bg-black/[0.96] antialiased items-center">
         <div
-          className="pointer-events-none absolute inset-0 select-none"
+          className="pointer-events-none absolute inset-0 select-none opacity-80"
           style={{
             backgroundImage:
               "linear-gradient(to right, #171717 1px, transparent 1px), linear-gradient(to bottom, #171717 1px, transparent 1px)",
-            backgroundSize: "40px 40px",
+            backgroundSize: "35px 35px",
           }}
         />
 

@@ -14,11 +14,8 @@
     "@fontsource/inter": "^5.2.5",
     "@tailwindcss/vite": "^4.0.15",
     "axios": "^1.8.4",
-<<<<<<< HEAD
-    "lucide-react": "^0.483.0",
-=======
     "framer-motion": "^12.5.0",
->>>>>>> c134e87b52a4c1bbcf9397632e5aab508ce4ee7c
+    "lucide-react": "^0.483.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-router-dom": "^7.4.0",
