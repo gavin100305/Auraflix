@@ -163,6 +163,70 @@ const SignUp = () => {
         localStorage.setItem("user", JSON.stringify(data.businessUser));
       }
 
+      if (data.suggestions) {
+        let processedSuggestions = data.suggestions;
+
+        // Process suggestions if they're in string format
+        if (typeof data.suggestions === "string") {
+          try {
+            // Try parsing as JSON first in case it's a stringified array
+            const parsed = JSON.parse(data.suggestions);
+
+            if (Array.isArray(parsed)) {
+              if (
+                parsed.length === 1 &&
+                typeof parsed[0] === "string" &&
+                parsed[0].includes("\\n")
+              ) {
+                // Handle the case of an array with a single string containing newlines
+                processedSuggestions = parsed[0]
+                  .replace(/"/g, "")
+                  .split("\\n")
+                  .filter((name) => name.trim())
+                  .map((username) => ({
+                    name: username,
+                    username: username,
+                    category: "Social Media",
+                    profile_url: `https://www.instagram.com/${username}/`,
+                  }));
+              } else {
+                // It's already a proper array
+                processedSuggestions = parsed;
+              }
+            }
+          } catch (parseError) {
+            // If JSON parsing fails, handle as a direct string with newlines
+            processedSuggestions = data.suggestions
+              .replace(/"/g, "")
+              .split("\\n")
+              .filter((name) => name.trim())
+              .map((username) => ({
+                name: username,
+                username: username,
+                category: "Social Media",
+                profile_url: `https://www.instagram.com/${username}/`,
+              }));
+          }
+        }
+
+        // Store the processed suggestions
+        localStorage.setItem(
+          "suggestedInfluencers",
+          JSON.stringify(processedSuggestions)
+        );
+        console.log("Stored suggested influencers:", processedSuggestions);
+      } else if (data.businessUser && data.businessUser.suggestedInfluencers) {
+        // If suggestions are in the user object instead
+        localStorage.setItem(
+          "suggestedInfluencers",
+          JSON.stringify(data.businessUser.suggestedInfluencers)
+        );
+        console.log(
+          "Stored suggested influencers from user data:",
+          data.businessUser.suggestedInfluencers
+        );
+      }
+
       navigate("/analysis");
     } catch (error) {
       console.error("Registration error:", error);

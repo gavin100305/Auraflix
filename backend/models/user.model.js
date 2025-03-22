@@ -1,4 +1,3 @@
-
 const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
 
@@ -38,6 +37,10 @@ const BusinessUserSchema = new mongoose.Schema({
   createdAt: {
     type: Date,
     default: Date.now,
+  },
+  suggestedInfluencers: {
+    type: Array,
+    default: [],
   },
 });
 

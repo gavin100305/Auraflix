@@ -1,6 +1,5 @@
 import React from "react";
 import { motion } from "framer-motion";
-import Spotlight from "../components/Spotlight";
 import Header from "../components/Header";
 import RomFooter from "../components/RomFooter";
 import InfluencerList from "../components/InfluencerList";
