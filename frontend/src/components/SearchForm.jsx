@@ -25,9 +25,11 @@ useEffect(() => {
   if (searchQuery && users?.length > 0) {
     const filtered = users
   .filter(user =>
+    user.channel_info &&
     user.channel_info.toLowerCase().includes(searchQuery.toLowerCase())
   )
   .slice(0, 8);
+
 
     
     // This is the key change - only update state if there's an actual change

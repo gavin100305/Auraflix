@@ -9,6 +9,7 @@ import Suggestions from "./components/Analysis";
 
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
+
 function App() {
   return (
     <>
