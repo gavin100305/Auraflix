@@ -2,6 +2,7 @@ import React from "react";
 import Navbar from "../components/Navbar";
 import Search from "../components/Search";
 import Footer from "../components/Footer";
+import InfluencerList from "../components/InfluencerList";
 
 const Analysis = () => {
   return (
