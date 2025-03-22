@@ -5,6 +5,7 @@ import Header from "../components/Header";
 import RomFooter from "../components/RomFooter";
 import Features from "../components/Features";
 import Search from "../components/Search";
+import InfluencerList from "../components/InfluencerList";
 const Landing = () => {
   return (
     <div className="min-h-screen flex flex-col bg-black text-white">
@@ -53,7 +54,6 @@ const Landing = () => {
       <Features />
 
       <RomFooter />
-      <InfluencerList/>
     </div>
   );
 };
