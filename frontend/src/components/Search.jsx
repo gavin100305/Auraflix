@@ -237,7 +237,7 @@ const Search = ({ isEmbedded = false }) => {
                   <div className="transform transition-all duration-500 hover:translate-x-1">
                     <p className="text-sm text-white/50">Total Likes</p>
                     <p className="text-xl font-bold text-white">
-                      {formatDisplayNumber(influencerData.total_likes)}
+                      {influencerData.total_likes}
                     </p>
                   </div>
                   <div className="transform transition-all duration-500 hover:translate-x-1">
