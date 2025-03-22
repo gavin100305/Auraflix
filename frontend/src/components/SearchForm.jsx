@@ -1,69 +1,143 @@
 import { motion } from "framer-motion";
 import { Search as SearchIcon } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
 
 const SearchForm = ({
   searchQuery,
   handleInputChange,
   handleSearch,
   isLoading,
-}) => (
-  <motion.div
-    initial={{ opacity: 0, y: 20 }}
-    animate={{ opacity: 1, y: 0 }}
-    transition={{ duration: 0.6, delay: 0.3 }}
-    className="max-w-2xl mx-auto mb-8"
-  >
-    <form onSubmit={handleSearch} className="relative">
-      <div className="relative">
-        <input
-          type="text"
-          placeholder="Enter influencer username..."
-          value={searchQuery}
-          onChange={(e) => handleInputChange(e.target.value)}
-          className="w-full bg-white/10 border border-white/20 rounded-lg px-5 py-4 text-white focus:outline-none focus:ring-2 focus:ring-white/30 pl-12"
-        />
-        <SearchIcon
-          className="absolute left-4 top-1/2 transform -translate-y-1/2 text-white/50"
-          size={20}
-        />
-        <motion.button
-          type="submit"
-          disabled={isLoading}
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          className="absolute right-3 top-1/2 transform -translate-y-1/2 bg-white text-black px-6 py-2 rounded-md hover:bg-opacity-90 transition-all disabled:opacity-50 font-medium"
-        >
-          {isLoading ? (
-            <span className="flex items-center gap-2">
-              <svg
-                className="animate-spin h-5 w-5 text-black"
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-              >
-                <circle
-                  className="opacity-25"
-                  cx="12"
-                  cy="12"
-                  r="10"
-                  stroke="currentColor"
-                  strokeWidth="4"
-                ></circle>
-                <path
-                  className="opacity-75"
-                  fill="currentColor"
-                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                ></path>
-              </svg>
-              Searching
-            </span>
-          ) : (
-            "Search"
+  users = [],
+  setSearchQuery,
+}) => {
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [filteredUsers, setFilteredUsers] = useState([]);
+  const dropdownRef = useRef(null);
+
+  // Filter users based on input
+  // Filter users based on input
+useEffect(() => {
+  if (searchQuery && users?.length > 0) {
+    const filtered = users
+      .filter(user => user.toLowerCase().includes(searchQuery.toLowerCase()))
+      .slice(0, 8); // Limit to 8 suggestions
+    
+    // This is the key change - only update state if there's an actual change
+    if (JSON.stringify(filtered) !== JSON.stringify(filteredUsers)) {
+      setFilteredUsers(filtered);
+      setIsDropdownOpen(filtered.length > 0);
+    }
+  } else if (filteredUsers.length > 0) {
+    // Only update if necessary
+    setFilteredUsers([]);
+    setIsDropdownOpen(false);
+  }
+}, [searchQuery, users]);
+
+console.log(users);
+console.log(searchQuery);
+console.log(filteredUsers);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsDropdownOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  const handleUserSelect = (username) => {
+    setSearchQuery(username);
+    setIsDropdownOpen(false);
+  };
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.6, delay: 0.3 }}
+      className="max-w-2xl mx-auto mb-8"
+    >
+      <form onSubmit={handleSearch} className="relative">
+        <div className="relative" ref={dropdownRef}>
+          <input
+            type="text"
+            placeholder="Enter influencer username..."
+            value={searchQuery}
+            onChange={(e) => handleInputChange(e.target.value)}
+            className="w-full bg-white/10 border border-white/20 rounded-lg px-5 py-4 text-white focus:outline-none focus:ring-2 focus:ring-white/30 pl-12"
+            onFocus={() => searchQuery && filteredUsers.length > 0 && setIsDropdownOpen(true)}
+          />
+          <SearchIcon
+            className="absolute left-4 top-1/2 transform -translate-y-1/2 text-white/50"
+            size={20}
+          />
+          
+          {isDropdownOpen && filteredUsers.length > 0 && (
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="absolute z-50 mt-1 w-full bg-gray-900 border border-white/20 rounded-md shadow-lg max-h-60 overflow-y-auto"
+            >
+              {filteredUsers.map((user, index) => (
+                <div
+                  key={index}
+                  className="px-4 py-3 hover:bg-purple-900/40 cursor-pointer flex items-center gap-2 text-white transition"
+                  onClick={() => handleUserSelect(user)}
+                >
+                  <div className="w-8 h-8 bg-white/10 rounded-full flex items-center justify-center text-white/70">
+                    {user.charAt(0).toUpperCase()}
+                  </div>
+                  <span>{user}</span>
+                </div>
+              ))}
+            </motion.div>
           )}
-        </motion.button>
-      </div>
-    </form>
-  </motion.div>
-);
+          
+          <motion.button
+            type="submit"
+            disabled={isLoading}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className="absolute right-3 top-1/2 transform -translate-y-1/2 bg-white text-black px-6 py-2 rounded-md hover:bg-opacity-90 transition-all disabled:opacity-50 font-medium"
+          >
+            {isLoading ? (
+              <span className="flex items-center gap-2">
+                <svg
+                  className="animate-spin h-5 w-5 text-black"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  ></circle>
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                  ></path>
+                </svg>
+                Searching
+              </span>
+            ) : (
+              "Search"
+            )}
+          </motion.button>
+        </div>
+      </form>
+    </motion.div>
+  );
+};
 
 export default SearchForm;

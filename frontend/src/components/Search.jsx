@@ -11,6 +11,25 @@ const Search = ({ isEmbedded = false }) => {
   const [influencerData, setInfluencerData] = useState(null);
   const [error, setError] = useState("");
   const [isResultVisible, setIsResultVisible] = useState(false);
+  const [users, setUsers] = useState([]);
+
+  useEffect(() => {
+    console.log("Fetching users...");
+    const fetchUsers = async () => {
+      try {
+        const response = await fetch("http://127.0.0.1:8000/users");
+        const data = await response.json();
+        console.log("User data is",data);
+        if (data.users && Array.isArray(data.users)) {
+          setUsers(data.users);
+        }
+      } catch (err) {
+        console.error("Failed to fetch users:", err);
+      }
+    };
+    
+    fetchUsers();
+  }, []);
 
   useEffect(() => {
     if (influencerData) {
@@ -36,7 +55,7 @@ const Search = ({ isEmbedded = false }) => {
     try {
       const response = await fetch("http://127.0.0.1:8000/data");
       const data = await response.json();
-
+      console.log(data);
       const matchedInfluencer = data.find(
         (item) => item.channel_info.toLowerCase() === searchQuery.toLowerCase()
       );
@@ -106,6 +125,7 @@ const Search = ({ isEmbedded = false }) => {
           searchQuery={searchQuery}
           handleInputChange={handleInputChange}
           handleSearch={handleSearch}
+          users={users}
           isLoading={isLoading}
         />
 
