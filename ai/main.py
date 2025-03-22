@@ -33,8 +33,11 @@ def calculate_scores(influencer):
         avg_likes = convert_value(influencer.get("avg_likes", "0m"))  # Default to "0m" if missing
         followers = convert_value(influencer.get("followers", "0m"))  # Default to "0m" if missing
 
-        # Calculate Credibility Score
-        credibility_score = influence_score * engagement_rate
+        # Reputation score (hypothetical value)
+        reputation_score = 50  # Adjust based on brand reputation
+
+        # Calculate Credibility Score (enhanced formula)
+        credibility_score = (0.4 * influence_score) + (0.3 * engagement_rate * 100) + (0.3 * reputation_score)
 
         # Calculate Longevity Score
         longevity_score = math.log(posts + 1)  # Add 1 to avoid log(0)
