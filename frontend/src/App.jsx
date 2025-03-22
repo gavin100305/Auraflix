@@ -1,8 +1,8 @@
 import Analysis from "./pages/Analysis";
 import Landing from "./pages/Landing";
 import Auth from "./pages/Auth";
+import InfluencerList from "./pages/InfluencerList";
 import ProtectedRoute from "./components/ProtectedRoute";
-import InfluencerList from "./components/InfluencerList";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 function App() {

@@ -28,7 +28,7 @@ const SignUp = () => {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);
-  const totalSteps = 2;
+  const totalSteps = 5;
 
   const businessCategories = [
     { value: "sports", label: "Sports" },
@@ -68,32 +68,52 @@ const SignUp = () => {
     }
   };
 
+  const validateStep = () => {
+    switch (currentStep) {
+      case 1:
+        if (!formData.businessName.trim()) {
+          setError("Business name is required");
+          return false;
+        }
+        if (!formData.email.trim() || !/\S+@\S+\.\S+/.test(formData.email)) {
+          setError("Valid email is required");
+          return false;
+        }
+        return true;
+      case 2:
+        if (formData.password.length < 8) {
+          setError("Password must be at least 8 characters");
+          return false;
+        }
+        if (formData.password !== formData.confirmPassword) {
+          setError("Passwords don't match");
+          return false;
+        }
+        return true;
+      case 3:
+        if (!formData.businessCategory) {
+          setError("Please select a business category");
+          return false;
+        }
+        if (!formData.description.trim()) {
+          setError("Business description is required");
+          return false;
+        }
+        return true;
+      default:
+        return true;
+    }
+  };
+
   const nextStep = () => {
-    if (!formData.businessName.trim()) {
-      setError("Business name is required");
-      return;
+    if (validateStep()) {
+      setError("");
+      setCurrentStep(currentStep + 1);
     }
-
-    if (!formData.email.trim() || !/\S+@\S+\.\S+/.test(formData.email)) {
-      setError("Valid email is required");
-      return;
-    }
-
-    if (formData.password.length < 8) {
-      setError("Password must be at least 8 characters");
-      return;
-    }
-
-    if (formData.password !== formData.confirmPassword) {
-      setError("Passwords don't match");
-      return;
-    }
-
-    setError("");
-    setCurrentStep(currentStep + 1);
   };
 
   const prevStep = () => {
+    setError("");
     setCurrentStep(currentStep - 1);
   };
 
@@ -101,18 +121,6 @@ const SignUp = () => {
     e.preventDefault();
     setError("");
     setLoading(true);
-
-    if (!formData.businessCategory) {
-      setError("Please select a business category");
-      setLoading(false);
-      return;
-    }
-
-    if (!formData.description.trim()) {
-      setError("Business description is required");
-      setLoading(false);
-      return;
-    }
 
     try {
       // Prepare data for API
@@ -164,17 +172,240 @@ const SignUp = () => {
     }
   };
 
+  const stepTitles = [
+    "Business Info",
+    "Security",
+    "Business Details",
+    "Contact Info",
+    "Social Media",
+  ];
+
+  const renderStepContent = () => {
+    switch (currentStep) {
+      case 1:
+        return (
+          <div className="space-y-5">
+            <h3 className="text-xl font-medium text-white text-center mb-4">
+              Tell us about your business
+            </h3>
+            <InputField
+              label="Business Name"
+              id="businessName"
+              type="text"
+              placeholder="Your Business Name"
+              value={formData.businessName}
+              onChange={handleChange}
+              required
+            />
+            <InputField
+              label="Email"
+              id="email"
+              type="email"
+              placeholder="business@example.com"
+              value={formData.email}
+              onChange={handleChange}
+              required
+            />
+          </div>
+        );
+
+      case 2:
+        return (
+          <div className="space-y-5">
+            <h3 className="text-xl font-medium text-white text-center mb-4">
+              Create a secure account
+            </h3>
+            <InputField
+              label="Password"
+              id="password"
+              type="password"
+              placeholder="••••••••"
+              value={formData.password}
+              onChange={handleChange}
+              required
+            />
+            <InputField
+              label="Confirm Password"
+              id="confirmPassword"
+              type="password"
+              placeholder="••••••••"
+              value={formData.confirmPassword}
+              onChange={handleChange}
+              required
+            />
+          </div>
+        );
+
+      case 3:
+        return (
+          <div className="space-y-5">
+            <h3 className="text-xl font-medium text-white text-center mb-4">
+              Business details
+            </h3>
+            <div className="space-y-2">
+              <label
+                htmlFor="businessCategory"
+                className="block text-sm font-medium text-neutral-300"
+              >
+                Business Category
+              </label>
+              <div className="relative">
+                <select
+                  id="businessCategory"
+                  value={formData.businessCategory}
+                  onChange={handleChange}
+                  className="w-full px-4 py-2 rounded-lg bg-[#121212] text-white placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-blue-500/40 focus:border-transparent transition-colors appearance-none pr-10 cursor-pointer"
+                  style={{
+                    WebkitAppearance: "none",
+                    MozAppearance: "none",
+                  }}
+                  required
+                >
+                  <option
+                    value=""
+                    disabled
+                    style={{
+                      backgroundColor: "#1f1f1f",
+                      color: "#d4d4d4",
+                      padding: "10px",
+                      margin: "4px 0",
+                    }}
+                  >
+                    Select a category
+                  </option>
+                  {businessCategories.map((category) => (
+                    <option
+                      key={category.value}
+                      value={category.value}
+                      style={{
+                        backgroundColor: "#1f1f1f",
+                        color: "white",
+                        padding: "10px",
+                        margin: "4px 0",
+                        borderBottom: "1px solid rgba(255,255,255,0.1)",
+                        cursor: "pointer",
+                      }}
+                    >
+                      {category.label}
+                    </option>
+                  ))}
+                </select>
+                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-neutral-300">
+                  <svg className="h-4 w-4 fill-current" viewBox="0 0 20 20">
+                    <path
+                      fillRule="evenodd"
+                      d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                </div>
+              </div>
+            </div>
+            <div className="space-y-2">
+              <label
+                htmlFor="description"
+                className="block text-sm font-medium text-neutral-300"
+              >
+                Business Description
+              </label>
+              <textarea
+                id="description"
+                value={formData.description}
+                onChange={handleChange}
+                placeholder="Describe your business in a few sentences..."
+                rows="3"
+                className="w-full px-4 py-2 rounded-lg border border-white/10 bg-white/5 text-white placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-blue-500/40 focus:border-transparent transition-colors"
+                required
+              />
+            </div>
+          </div>
+        );
+
+      case 4:
+        return (
+          <div className="space-y-5">
+            <h3 className="text-xl font-medium text-white text-center mb-4">
+              Contact Information
+            </h3>
+            <InputField
+              label="Phone Number"
+              id="contact-phone"
+              type="tel"
+              placeholder="+1 123 456 7890"
+              value={formData.contact.phone}
+              onChange={handleChange}
+              required
+            />
+            <InputField
+              label="Address"
+              id="contact-address"
+              type="text"
+              placeholder="123 Business St, City, State"
+              value={formData.contact.address}
+              onChange={handleChange}
+              required
+            />
+            <InputField
+              label="Website"
+              id="website"
+              type="url"
+              placeholder="https://yourbusiness.com"
+              value={formData.website}
+              onChange={handleChange}
+              required
+            />
+          </div>
+        );
+
+      case 5:
+        return (
+          <div className="space-y-6">
+            <h3 className="text-xl font-medium text-white text-center mb-4">
+              Social media (optional)
+            </h3>
+            <InputField
+              label="Instagram"
+              id="social-instagram"
+              type="url"
+              placeholder="https://instagram.com/yourbusiness"
+              value={formData.socialMedia.instagram}
+              onChange={handleChange}
+            />
+            <InputField
+              label="Twitter"
+              id="social-twitter"
+              type="url"
+              placeholder="https://twitter.com/yourbusiness"
+              value={formData.socialMedia.twitter}
+              onChange={handleChange}
+            />
+            <InputField
+              label="LinkedIn"
+              id="social-linkedin"
+              type="url"
+              placeholder="https://linkedin.com/company/yourbusiness"
+              value={formData.socialMedia.linkedin}
+              onChange={handleChange}
+            />
+          </div>
+        );
+
+      default:
+        return null;
+    }
+  };
+
   return (
     <motion.form
-      initial={{ opacity: 0, x: -20 }}
-      animate={{ opacity: 1, x: 0 }}
-      exit={{ opacity: 0, x: 20 }}
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -10 }}
       transition={{ duration: 0.3 }}
-      onSubmit={handleSubmit}
-      className="space-y-4"
+      onSubmit={(e) => e.preventDefault()}
+      className="max-w-md mx-auto"
     >
       {error && (
-        <div className="bg-red-500/10 border border-red-500/20 text-red-500 px-4 py-2 rounded-lg text-sm">
+        <div className="bg-red-500/10 border border-red-500/20 text-red-500 px-4 py-2 rounded-lg text-sm mb-4">
           {error}
         </div>
       )}
@@ -193,181 +424,43 @@ const SignUp = () => {
           ))}
         </div>
         <p className="text-center text-xs text-neutral-400">
+          <span className="font-medium">{stepTitles[currentStep - 1]}</span> -
           Step {currentStep} of {totalSteps}
         </p>
       </div>
 
-      {currentStep === 1 ? (
-        <div className="space-y-4">
-          <InputField
-            label="Business Name"
-            id="businessName"
-            type="text"
-            placeholder="Your Business Name"
-            value={formData.businessName}
-            onChange={handleChange}
-            required
-          />
-          <InputField
-            label="Email"
-            id="email"
-            type="email"
-            placeholder="business@example.com"
-            value={formData.email}
-            onChange={handleChange}
-            required
-          />
-          <InputField
-            label="Password"
-            id="password"
-            type="password"
-            placeholder="••••••••"
-            value={formData.password}
-            onChange={handleChange}
-            required
-          />
-          <InputField
-            label="Confirm Password"
-            id="confirmPassword"
-            type="password"
-            placeholder="••••••••"
-            value={formData.confirmPassword}
-            onChange={handleChange}
-            required
-          />
+      <div className="bg-white/5 border border-white/10 p-6 rounded-xl shadow-xl">
+        {renderStepContent()}
 
-          <button
-            type="button"
-            onClick={nextStep}
-            className="group relative w-full rounded-lg overflow-hidden bg-gradient-to-r from-blue-600 to-purple-600 py-2 px-4 text-white font-medium hover:from-blue-700 hover:to-purple-700 transition-all duration-300"
-          >
-            Next
-            <BottomGradientEffect />
-          </button>
-        </div>
-      ) : (
-        <div className="space-y-4">
-          <div className="space-y-1">
-            <label
-              htmlFor="businessCategory"
-              className="block text-sm font-medium text-neutral-300"
-            >
-              Business Category
-            </label>
-            <select
-              id="businessCategory"
-              value={formData.businessCategory}
-              onChange={handleChange}
-              className="w-full px-4 py-2 rounded-lg border border-white/10 bg-white/5 text-white placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-blue-500/40 focus:border-transparent transition-colors"
-              required
-            >
-              <option value="" disabled>
-                Select a category
-              </option>
-              {businessCategories.map((category) => (
-                <option key={category.value} value={category.value}>
-                  {category.label}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div className="space-y-1">
-            <label
-              htmlFor="description"
-              className="block text-sm font-medium text-neutral-300"
-            >
-              Business Description
-            </label>
-            <textarea
-              id="description"
-              value={formData.description}
-              onChange={handleChange}
-              placeholder="Describe your business in a few sentences..."
-              rows="3"
-              className="w-full px-4 py-2 rounded-lg border border-white/10 bg-white/5 text-white placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-blue-500/40 focus:border-transparent transition-colors"
-              required
-            />
-          </div>
-
-          <div className="space-y-1">
-            <label className="block text-sm font-medium text-neutral-300">
-              Contact Information
-            </label>
-            <InputField
-              label="Phone Number"
-              id="contact-phone"
-              type="tel"
-              placeholder="+1 123 456 7890"
-              value={formData.contact.phone}
-              onChange={handleChange}
-              noMargin
-            />
-            <InputField
-              label="Address"
-              id="contact-address"
-              type="text"
-              placeholder="123 Business St, City, State"
-              value={formData.contact.address}
-              onChange={handleChange}
-              noMargin
-            />
-          </div>
-
-          <InputField
-            label="Website"
-            id="website"
-            type="url"
-            placeholder="https://yourbusiness.com"
-            value={formData.website}
-            onChange={handleChange}
-          />
-
-          <div className="space-y-1">
-            <label className="block text-sm font-medium text-neutral-300">
-              Social Media (Optional)
-            </label>
-            <InputField
-              label="Instagram"
-              id="social-instagram"
-              type="url"
-              placeholder="https://instagram.com/yourbusiness"
-              value={formData.socialMedia.instagram}
-              onChange={handleChange}
-              noMargin
-            />
-            <InputField
-              label="Twitter"
-              id="social-twitter"
-              type="url"
-              placeholder="https://twitter.com/yourbusiness"
-              value={formData.socialMedia.twitter}
-              onChange={handleChange}
-              noMargin
-            />
-            <InputField
-              label="LinkedIn"
-              id="social-linkedin"
-              type="url"
-              placeholder="https://linkedin.com/company/yourbusiness"
-              value={formData.socialMedia.linkedin}
-              onChange={handleChange}
-              noMargin
-            />
-          </div>
-
-          <div className="flex gap-4">
+        <div
+          className={`flex ${
+            currentStep === 1 ? "justify-end" : "justify-between"
+          } mt-8`}
+        >
+          {currentStep > 1 && (
             <button
               type="button"
               onClick={prevStep}
-              className="flex-1 py-2 px-4 rounded-lg border border-white/10 hover:bg-white/5 transition-all text-neutral-300"
+              className="py-2 px-4 rounded-lg border border-white/10 hover:bg-white/5 transition-all text-neutral-300"
             >
               Back
             </button>
+          )}
+          {currentStep < totalSteps ? (
             <button
-              type="submit"
+              type="button"
+              onClick={nextStep}
+              className="group relative rounded-lg overflow-hidden bg-gradient-to-r from-blue-600 to-purple-600 py-2 px-6 text-white font-medium hover:from-blue-700 hover:to-purple-700 transition-all duration-300"
+            >
+              Next
+              <BottomGradientEffect />
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={handleSubmit}
               disabled={loading}
-              className="flex-1 group relative rounded-lg overflow-hidden bg-gradient-to-r from-blue-600 to-purple-600 py-2 px-4 text-white font-medium hover:from-blue-700 hover:to-purple-700 transition-all duration-300 disabled:opacity-70 disabled:cursor-not-allowed"
+              className="group relative rounded-lg overflow-hidden bg-gradient-to-r from-blue-600 to-purple-600 py-2 px-4 text-white font-medium hover:from-blue-700 hover:to-purple-700 transition-all duration-300 disabled:opacity-70 disabled:cursor-not-allowed"
             >
               {loading ? (
                 <span className="flex items-center justify-center">
@@ -394,13 +487,13 @@ const SignUp = () => {
                   Registering...
                 </span>
               ) : (
-                "Register"
+                "Complete Registration"
               )}
               <BottomGradientEffect />
             </button>
-          </div>
+          )}
         </div>
-      )}
+      </div>
     </motion.form>
   );
 };
