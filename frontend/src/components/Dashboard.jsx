@@ -5,6 +5,23 @@ import Spotlight from "./Spotlight"; // Import the Spotlight component
 import RomFooter from "./RomFooter";
 
 const Dashboard = () => {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    const checkLoginStatus = () => {
+      const userToken = localStorage.getItem("authToken");
+      setIsLoggedIn(!!userToken);
+    };
+
+    checkLoginStatus();
+  }, []);
+
+  const handleLogout = () => {
+    localStorage.removeItem("authToken");
+    setIsLoggedIn(false);
+    navigate("/");
+  };
+
   return (
     <div className="min-h-screen flex flex-col bg-black text-white relative">
       {/* Spotlight */}
@@ -58,6 +75,18 @@ const Dashboard = () => {
               >
                 Suggestions
               </Link>
+
+              {isLoggedIn && (
+                <motion.button
+                  initial="rest"
+                  whileHover="hover"
+                  variants={buttonHover}
+                  onClick={handleLogout}
+                  className="bg-red-500/90 text-white px-5 py-2 rounded-full font-inter text-sm font-bold hover:bg-red-600 transition-all"
+                >
+                  Logout
+                </motion.button>
+              )}
             </div>
           </div>
         </div>
