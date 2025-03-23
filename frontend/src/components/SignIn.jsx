@@ -50,6 +50,8 @@ const SignIn = () => {
         throw new Error(data.message || "Login failed");
       }
 
+      console.log(data);
+
       // Store auth data
       localStorage.setItem("authToken", data.token);
 
@@ -88,7 +90,7 @@ const SignIn = () => {
         localStorage.getItem("suggestedInfluencers")
       );
 
-      navigate("/dashboard");
+      navigate("/");
     } catch (error) {
       console.error("Login error:", error);
       setError(error.message || "Login failed. Please check your credentials.");

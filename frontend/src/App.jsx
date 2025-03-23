@@ -8,6 +8,7 @@ import InfluencerDetail from "./components/InfluencerDetail";
 import Suggestions from "./components/Analysis";
 
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import InfluencerSuggestions from "./components/Analysis";
 
 
 function App() {
@@ -15,7 +16,7 @@ function App() {
     <>
       <BrowserRouter>
         <Routes>
-          <Route path="/test" element={<Suggestions />} />
+          <Route path="/test" element={<InfluencerSuggestions />} />
           <Route path="/" element={<Landing />} />
           <Route path="/auth" element={<Auth />} />
           <Route
