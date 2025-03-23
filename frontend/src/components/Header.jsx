@@ -38,14 +38,14 @@ const Header = () => {
                 </motion.h1>
               </Link> 
             
-            <Link to={isLoggedIn ? "/influencers" : "/auth"}>
+            <Link to={isLoggedIn ? "/dashboard" : "/auth"}>
               <motion.button
                 initial="rest"
                 whileHover="hover"
                 variants={buttonHover}
                 className="bg-white/90 text-black px-5 py-2 rounded-full font-inter text-sm font-bold hover:bg-white transition-all"
               >
-                {isLoggedIn ? "Top Influencers" : "Get Started"}
+                {isLoggedIn ? "Dashboard" : "Get Started"}
               </motion.button>
             </Link>
           </div>
