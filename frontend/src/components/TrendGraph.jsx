@@ -479,7 +479,7 @@ const TrendGraph = ({ influencer }) => {
             Analysis
           </h2>
           <p className="text-gray-400 text-sm">
-            3-year metric trends with 12-month forecast
+            3-year metric trends with 9-month forecast
           </p>
         </div>
         <div className="flex gap-2">
