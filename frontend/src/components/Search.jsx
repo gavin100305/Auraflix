@@ -3,7 +3,7 @@ import { User, Heart, Image, TrendingUp } from "lucide-react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import SearchForm from "./SearchForm";
-import TrendGraph from "./TrendGraph";
+// import TrendGraph from "./TrendGraph";
 
 const Search = ({ isEmbedded = false }) => {
   const navigate = useNavigate();
@@ -371,7 +371,7 @@ const Search = ({ isEmbedded = false }) => {
                 </motion.button>
               </motion.div>
             </div>
-            <TrendGraph influencer={graphInfluencer} />
+            {/* <TrendGraph influencer={graphInfluencer} /> */}
           </motion.div>
         )}
       </>
@@ -595,7 +595,7 @@ const Search = ({ isEmbedded = false }) => {
                   </motion.button>
                 </motion.div>
               </div>
-              <TrendGraph influencer={graphInfluencer} />
+              {/* <TrendGraph influencer={graphInfluencer} /> */}
             </motion.div>
           )}
         </div>
