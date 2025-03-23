@@ -227,7 +227,7 @@ const SignUp = () => {
         );
       }
 
-      navigate("/analysis");
+      navigate("/dashboard");
     } catch (error) {
       console.error("Registration error:", error);
       setError(error.message || "Registration failed");
