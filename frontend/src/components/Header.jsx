@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
-import { Navigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 const Header = () => {
-  const navigate = Navigate();
+  const navigate = useNavigate();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => {
