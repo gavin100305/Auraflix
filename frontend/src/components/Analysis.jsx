@@ -2,17 +2,43 @@ import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { User, Image, Heart, TrendingUp, Award, Calendar, MessageCircle, BarChart2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import InfluencerComparison from "./InfluencerComparision"; // Make sure path is correct
 
 const InfluencerSuggestions = () => {
   const [filteredUsers, setFilteredUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const navigate = useNavigate(); // Fixed: Changed from const { navigate } = useNavigate();
+  const [showComparisonSidebar, setShowComparisonSidebar] = useState(false);
+  const [selectedForComparison, setSelectedForComparison] = useState([]);
+  const [showComparisonView, setShowComparisonView] = useState(false); // New state to control comparison view
+  const navigate = useNavigate();
 
-
-  const handleNavigateToAnalysis = (influencerData) => { // Fixed: Added parameter to receive the user data
-    const username = influencerData.channel_info; // Get the username from influencerData
+  const handleNavigateToAnalysis = (influencerData) => {
+    const username = influencerData.channel_info;
     navigate(`/influencers/${username}`, { state: { influencer: influencerData } });
+  };
+
+  const handleAddToComparison = (influencer) => {
+    if (selectedForComparison.length >= 2) {
+      // Replace the second one
+      setSelectedForComparison([selectedForComparison[0], influencer]);
+    } else if (selectedForComparison.find(item => item.channel_info === influencer.channel_info)) {
+      // Already selected, remove it
+      setSelectedForComparison(selectedForComparison.filter(item => item.channel_info !== influencer.channel_info));
+    } else {
+      // Add to selection
+      setSelectedForComparison([...selectedForComparison, influencer]);
+    }
+  };
+
+  const handleComparisonClick = () => {
+    setShowComparisonView(true); // Show comparison component
+    setShowComparisonSidebar(false); // Hide sidebar when showing comparison
+  };
+
+  // Function to go back to suggestions view
+  const handleBackToSuggestions = () => {
+    setShowComparisonView(false);
   };
 
   useEffect(() => {
@@ -81,13 +107,24 @@ const InfluencerSuggestions = () => {
   };
 
   const calculateEngagementRate = (likes, followers) => {
-  const likesNum = typeof likes === 'number' ? likes : parseFormattedNumber(likes);
-  const followersNum = typeof followers === 'number' ? followers : parseFormattedNumber(followers);
-  
-  if (!followersNum) return "0";
-  return ((likesNum / followersNum) * 100).toFixed(2);
-};
+    const likesNum = typeof likes === 'number' ? likes : parseFormattedNumber(likes);
+    const followersNum = typeof followers === 'number' ? followers : parseFormattedNumber(followers);
+    
+    if (!followersNum) return "0";
+    return ((likesNum / followersNum) * 100).toFixed(2);
+  };
 
+  // Render influencer comparison if showComparisonView is true
+  if (showComparisonView && selectedForComparison.length === 2) {
+    return (
+      <InfluencerComparison 
+        initialInfluencers={selectedForComparison} 
+        onGoBack={handleBackToSuggestions} 
+      />
+    );
+  }
+
+  // Otherwise render the suggestions view
   return (
     <div className="min-h-screen flex flex-col bg-black text-white">
       <div className="relative flex-1 flex overflow-hidden bg-black/[0.96] antialiased">
@@ -319,33 +356,51 @@ const InfluencerSuggestions = () => {
                       View Profile
                     </motion.a>
                     <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 1.2 + index * 0.1 }}
-                    className="flex justify-center mt-3"
-                  >
-                    <motion.button
-                      whileHover={{ scale: 1.1 }}
-                      whileTap={{ scale: 0.95 }}
-                      className="bg-white text-black px-4 py-2 rounded-md hover:bg-opacity-90 transition-all font-medium flex items-center gap-2 text-sm"
-                      onClick={() => handleNavigateToAnalysis(user)} 
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 1.2 + index * 0.1 }}
+                      className="flex justify-center mt-3"
                     >
-                      View Detailed Analytics
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="16"
-                        height="16"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
+                      <motion.button
+                        whileHover={{ scale: 1.1 }}
+                        whileTap={{ scale: 0.95 }}
+                        className="bg-white text-black px-4 py-2 rounded-md hover:bg-opacity-90 transition-all font-medium flex items-center gap-2 text-sm"
+                        onClick={() => handleNavigateToAnalysis(user)} 
                       >
-                        <path d="m9 18 6-6-6-6" />
-                      </svg>
+                        View Detailed Analytics
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="16"
+                          height="16"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
+                          <path d="m9 18 6-6-6-6" />
+                        </svg>
+                      </motion.button>
+                    </motion.div>
+
+                    <motion.button
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleAddToComparison(user);
+                      }}
+                      className={`mt-2 w-full bg-gray-800 text-white px-4 py-2 rounded-md hover:bg-gray-700 transition-all font-medium flex items-center justify-center gap-2 text-sm ${
+                        selectedForComparison.some(inf => inf.channel_info === user.channel_info) 
+                          ? 'bg-purple-800 hover:bg-purple-700' 
+                          : ''
+                      }`}
+                    >
+                      {selectedForComparison.some(inf => inf.channel_info === user.channel_info) 
+                        ? 'Remove from Comparison' 
+                        : 'Add to Comparison'}
                     </motion.button>
-                  </motion.div>
                   </div>
                 </motion.div>
               ))}
@@ -353,6 +408,76 @@ const InfluencerSuggestions = () => {
           )}
         </div>
       </div>
+      <motion.div 
+        className={`fixed right-0 top-0 h-full w-72 bg-black/90 border-l border-white/20 p-4 transform transition-all duration-300 z-50 ${showComparisonSidebar ? 'translate-x-0' : 'translate-x-full'}`}
+        initial={false}
+      >
+        <div className="flex justify-between items-center mb-4">
+          <h3 className="text-lg font-semibold text-white">Compare Influencers</h3>
+          <button 
+            onClick={() => setShowComparisonSidebar(false)}
+            className="text-white/70 hover:text-white"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M18 6L6 18"></path>
+              <path d="M6 6l12 12"></path>
+            </svg>
+          </button>
+        </div>
+        
+        <div className="mb-4">
+          <p className="text-white/70 text-sm mb-2">Selected for comparison ({selectedForComparison.length}/2):</p>
+          <div className="space-y-2">
+            {selectedForComparison.map((inf, idx) => (
+              <div key={idx} className="bg-white/10 p-2 rounded flex justify-between items-center">
+                <span>@{inf.channel_info}</span>
+                <button 
+                  onClick={() => handleAddToComparison(inf)}
+                  className="text-red-400 hover:text-red-300"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M18 6L6 18"></path>
+                    <path d="M6 6l12 12"></path>
+                  </svg>
+                </button>
+              </div>
+            ))}
+            
+            {selectedForComparison.length < 2 && (
+              <div className="bg-white/5 p-2 rounded border border-dashed border-white/20 text-center text-white/50 text-sm">
+                Select {2 - selectedForComparison.length} more influencer{selectedForComparison.length === 0 ? 's' : ''}
+              </div>
+            )}
+          </div>
+        </div>
+        
+        <button
+          onClick={handleComparisonClick}
+          disabled={selectedForComparison.length < 2}
+          className={`w-full py-2 rounded-md text-white font-medium transition-all ${
+            selectedForComparison.length === 2 
+              ? 'bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700' 
+              : 'bg-gray-700 cursor-not-allowed opacity-50'
+          }`}
+        >
+          Compare Influencers
+        </button>
+      </motion.div>
+
+      {/* Comparison Toggle Button */}
+      <motion.button
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.2 }}
+        onClick={() => setShowComparisonSidebar(true)}
+        className="fixed bottom-6 right-6 bg-gradient-to-r from-purple-600 to-blue-600 p-3 rounded-full shadow-lg text-white hover:from-purple-700 hover:to-blue-700 transition-all z-40"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <polyline points="21 8 21 21 3 21 3 8"></polyline>
+          <rect x="1" y="3" width="22" height="5"></rect>
+          <line x1="10" y1="12" x2="14" y2="12"></line>
+        </svg>
+      </motion.button>
     </div>
   );
 };
