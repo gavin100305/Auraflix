@@ -1,6 +1,17 @@
 import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { User, Image, Heart, TrendingUp, Award, Calendar, MessageCircle, BarChart2, ChevronLeft, ChevronRight } from "lucide-react";
+import {
+  User,
+  Image,
+  Heart,
+  TrendingUp,
+  Award,
+  Calendar,
+  MessageCircle,
+  BarChart2,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import InfluencerComparison from "./InfluencerComparision"; // Make sure path is correct
 
@@ -14,7 +25,7 @@ const InfluencerSuggestions = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const influencersPerView = 3; // Changed from 4 to 3
   const navigate = useNavigate();
-  
+
   // Track sidebar state for debugging
   useEffect(() => {
     console.log("Sidebar visibility changed:", showComparisonSidebar);
@@ -22,7 +33,9 @@ const InfluencerSuggestions = () => {
 
   const handleNavigateToAnalysis = (influencerData) => {
     const username = influencerData.channel_info;
-    navigate(`/influencers/${username}`, { state: { influencer: influencerData } });
+    navigate(`/influencers/${username}`, {
+      state: { influencer: influencerData },
+    });
   };
 
   const handleAddToComparison = (influencer) => {
@@ -31,7 +44,7 @@ const InfluencerSuggestions = () => {
       const isAlreadySelected = prevSelected.some(
         (item) => item.channel_info === influencer.channel_info
       );
-  
+
       if (isAlreadySelected) {
         // If already selected, remove them from the comparison list
         return prevSelected.filter(
@@ -62,7 +75,12 @@ const InfluencerSuggestions = () => {
   };
 
   const goToNext = () => {
-    setCurrentIndex((prev) => Math.min(filteredUsers.length - influencersPerView, prev + influencersPerView));
+    setCurrentIndex((prev) =>
+      Math.min(
+        filteredUsers.length - influencersPerView,
+        prev + influencersPerView
+      )
+    );
   };
 
   // Clear and defined function to close sidebar
@@ -92,7 +110,7 @@ const InfluencerSuggestions = () => {
           sugg.username.split("\n").map((uname) => uname.trim().toLowerCase())
         );
 
-        const response = await fetch("http://127.0.0.1:8000/users");
+        const response = await fetch("https://influenceiq.onrender.com/users");
         if (!response.ok) {
           throw new Error("Failed to fetch user data from server.");
         }
@@ -118,7 +136,7 @@ const InfluencerSuggestions = () => {
 
   const formatDisplayNumber = (num) => {
     if (!num) return "0";
-    
+
     if (num >= 1000000) {
       return (num / 1000000).toFixed(1) + "M";
     } else if (num >= 1000) {
@@ -129,23 +147,27 @@ const InfluencerSuggestions = () => {
   };
 
   const parseFormattedNumber = (formatted) => {
-    if (!formatted || typeof formatted !== 'string') return 0;
-    
-    if (formatted.endsWith('k') || formatted.endsWith('K')) {
+    if (!formatted || typeof formatted !== "string") return 0;
+
+    if (formatted.endsWith("k") || formatted.endsWith("K")) {
       return parseFloat(formatted) * 1000;
-    } else if (formatted.endsWith('m') || formatted.endsWith('M')) {
+    } else if (formatted.endsWith("m") || formatted.endsWith("M")) {
       return parseFloat(formatted) * 1000000;
-    } else if (formatted.endsWith('b') || formatted.endsWith('B')) {
+    } else if (formatted.endsWith("b") || formatted.endsWith("B")) {
       return parseFloat(formatted) * 1000000000;
     }
-    
+
     return parseFloat(formatted) || 0;
   };
 
   const calculateEngagementRate = (likes, followers) => {
-    const likesNum = typeof likes === 'number' ? likes : parseFormattedNumber(likes);
-    const followersNum = typeof followers === 'number' ? followers : parseFormattedNumber(followers);
-    
+    const likesNum =
+      typeof likes === "number" ? likes : parseFormattedNumber(likes);
+    const followersNum =
+      typeof followers === "number"
+        ? followers
+        : parseFormattedNumber(followers);
+
     if (!followersNum) return "0";
     return ((likesNum / followersNum) * 100).toFixed(2);
   };
@@ -153,22 +175,25 @@ const InfluencerSuggestions = () => {
   // Format score to show only two decimal places
   const formatScore = (score) => {
     if (score === undefined || score === null) return "N/A";
-    return typeof score === 'number' ? score.toFixed(2) : score;
+    return typeof score === "number" ? score.toFixed(2) : score;
   };
 
   // Calculate if next/prev buttons should be disabled
   const canGoBack = currentIndex > 0;
   const canGoForward = currentIndex + influencersPerView < filteredUsers.length;
-  
+
   // Current visible influencers
-  const visibleInfluencers = filteredUsers.slice(currentIndex, currentIndex + influencersPerView);
+  const visibleInfluencers = filteredUsers.slice(
+    currentIndex,
+    currentIndex + influencersPerView
+  );
 
   // Render influencer comparison if showComparisonView is true
   if (showComparisonView && selectedForComparison.length === 2) {
     return (
-      <InfluencerComparison 
-        initialInfluencers={selectedForComparison} 
-        onGoBack={handleBackToSuggestions} 
+      <InfluencerComparison
+        initialInfluencers={selectedForComparison}
+        onGoBack={handleBackToSuggestions}
       />
     );
   }
@@ -271,7 +296,10 @@ const InfluencerSuggestions = () => {
                         <motion.div
                           initial={{ scale: 0 }}
                           animate={{ scale: 1 }}
-                          transition={{ delay: 0.3 + index * 0.1, type: "spring" }}
+                          transition={{
+                            delay: 0.3 + index * 0.1,
+                            type: "spring",
+                          }}
                           className="w-12 h-12 bg-white/10 backdrop-blur-md rounded-full flex items-center justify-center text-white font-bold text-xl"
                         >
                           {user.channel_info.charAt(0).toUpperCase()}
@@ -281,33 +309,36 @@ const InfluencerSuggestions = () => {
                           animate={{ x: 0, opacity: 1 }}
                           transition={{ delay: 0.4 + index * 0.1 }}
                         >
-                        <a 
-                          href={`https://www.instagram.com/${user.channel_info.replace('@', '')}`} 
-                          target="_blank" 
-                          rel="noopener noreferrer"
-                          className="group inline-flex items-center gap-1 transition-all duration-300 hover:translate-y-[-2px]"
-                        >
-                          <motion.h1 
-                            initial={{ opacity: 0, y: 10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.5, delay: 0.4 }}
-                            className="text-lg font-bold bg-gradient-to-r from-white to-gray-200 bg-clip-text text-transparent group-hover:from-blue-300 group-hover:to-purple-400"
+                          <a
+                            href={`https://www.instagram.com/${user.channel_info.replace(
+                              "@",
+                              ""
+                            )}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="group inline-flex items-center gap-1 transition-all duration-300 hover:translate-y-[-2px]"
                           >
-                            @{user.channel_info}
-                          </motion.h1>
-                          <svg 
-                            xmlns="http://www.w3.org/2000/svg" 
-                            viewBox="0 0 24 24" 
-                            fill="none" 
-                            stroke="currentColor" 
-                            className="w-4 h-4 text-gray-400 group-hover:text-purple-400 transition-all duration-300 opacity-0 group-hover:opacity-100 transform group-hover:translate-x-1"
-                            strokeWidth="2" 
-                            strokeLinecap="round" 
-                            strokeLinejoin="round"
-                          >
-                            <path d="M7 17l9.2-9.2M17 17V7H7" />
-                          </svg>
-                        </a>
+                            <motion.h1
+                              initial={{ opacity: 0, y: 10 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              transition={{ duration: 0.5, delay: 0.4 }}
+                              className="text-lg font-bold bg-gradient-to-r from-white to-gray-200 bg-clip-text text-transparent group-hover:from-blue-300 group-hover:to-purple-400"
+                            >
+                              @{user.channel_info}
+                            </motion.h1>
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              className="w-4 h-4 text-gray-400 group-hover:text-purple-400 transition-all duration-300 opacity-0 group-hover:opacity-100 transform group-hover:translate-x-1"
+                              strokeWidth="2"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            >
+                              <path d="M7 17l9.2-9.2M17 17V7H7" />
+                            </svg>
+                          </a>
                           <div className="flex items-center mt-1 text-white/70 text-xs">
                             <div className="flex items-center gap-1">
                               <span>📍</span>
@@ -345,7 +376,9 @@ const InfluencerSuggestions = () => {
                           {
                             title: "Posts",
                             value: formatDisplayNumber(user.posts),
-                            icon: <Image size={14} className="text-green-400" />,
+                            icon: (
+                              <Image size={14} className="text-green-400" />
+                            ),
                             gradient: "from-green-900/30 to-green-800/30",
                           },
                           {
@@ -360,7 +393,12 @@ const InfluencerSuggestions = () => {
                               user.avg_likes,
                               user.followers
                             )}%`,
-                            icon: <TrendingUp size={14} className="text-amber-400" />,
+                            icon: (
+                              <TrendingUp
+                                size={14}
+                                className="text-amber-400"
+                              />
+                            ),
                             gradient: "from-amber-900/30 to-amber-800/30",
                           },
                         ].map((stat, statIndex) => (
@@ -368,7 +406,9 @@ const InfluencerSuggestions = () => {
                             key={statIndex}
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.6 + index * 0.1 + statIndex * 0.1 }}
+                            transition={{
+                              delay: 0.6 + index * 0.1 + statIndex * 0.1,
+                            }}
                             whileHover={{ scale: 1.05 }}
                             className={`bg-gradient-to-br ${stat.gradient} p-4 rounded-xl border border-white/10 backdrop-blur-sm`}
                           >
@@ -400,35 +440,58 @@ const InfluencerSuggestions = () => {
                             {
                               label: "InfluenceIQ",
                               value: formatScore(user.influenceiq_score),
-                              icon: <Award size={12} className="text-purple-400" />
+                              icon: (
+                                <Award size={12} className="text-purple-400" />
+                              ),
                             },
                             {
                               label: "Influence",
                               value: formatScore(user.influence_score),
-                              icon: <TrendingUp size={12} className="text-blue-400" />
+                              icon: (
+                                <TrendingUp
+                                  size={12}
+                                  className="text-blue-400"
+                                />
+                              ),
                             },
                             {
                               label: "Credibility",
                               value: formatScore(user.credibility_score),
-                              icon: <BarChart2 size={12} className="text-green-400" />
+                              icon: (
+                                <BarChart2
+                                  size={12}
+                                  className="text-green-400"
+                                />
+                              ),
                             },
                             {
                               label: "Engagement",
                               value: formatScore(user.engagement_quality_score),
-                              icon: <MessageCircle size={12} className="text-pink-400" />
-                            }
+                              icon: (
+                                <MessageCircle
+                                  size={12}
+                                  className="text-pink-400"
+                                />
+                              ),
+                            },
                           ].map((item, itemIndex) => (
-                            <motion.div 
+                            <motion.div
                               key={itemIndex}
                               className="transform transition-all duration-500 hover:translate-x-1 flex items-center gap-2"
                               initial={{ opacity: 0 }}
                               animate={{ opacity: 1 }}
-                              transition={{ delay: 1.1 + index * 0.1 + itemIndex * 0.05 }}
+                              transition={{
+                                delay: 1.1 + index * 0.1 + itemIndex * 0.05,
+                              }}
                             >
                               {item.icon}
                               <div>
-                                <p className="text-xs text-white/50">{item.label}</p>
-                                <p className="text-xs font-bold text-white">{item.value}</p>
+                                <p className="text-xs text-white/50">
+                                  {item.label}
+                                </p>
+                                <p className="text-xs font-bold text-white">
+                                  {item.value}
+                                </p>
                               </div>
                             </motion.div>
                           ))}
@@ -444,7 +507,7 @@ const InfluencerSuggestions = () => {
                           whileHover={{ scale: 1.05 }}
                           whileTap={{ scale: 0.95 }}
                           className="w-full bg-white text-black px-4 py-3 rounded-md hover:bg-opacity-90 transition-all font-medium flex items-center justify-center gap-2 text-sm"
-                          onClick={() => handleNavigateToAnalysis(user)} 
+                          onClick={() => handleNavigateToAnalysis(user)}
                         >
                           View Analytics
                           <svg
@@ -470,14 +533,18 @@ const InfluencerSuggestions = () => {
                             handleAddToComparison(user);
                           }}
                           className={`w-full px-4 py-3 rounded-md transition-all font-medium flex items-center justify-center gap-2 text-xs ${
-                            selectedForComparison.some(inf => inf.channel_info === user.channel_info)
-                              ? 'bg-purple-600 hover:bg-purple-500 text-white' 
-                              : 'bg-gray-800 hover:bg-gray-700 text-white'
+                            selectedForComparison.some(
+                              (inf) => inf.channel_info === user.channel_info
+                            )
+                              ? "bg-purple-600 hover:bg-purple-500 text-white"
+                              : "bg-gray-800 hover:bg-gray-700 text-white"
                           }`}
                         >
-                          {selectedForComparison.some(inf => inf.channel_info === user.channel_info) 
-                            ? 'Remove from Comparison' 
-                            : 'Add to Comparison'}
+                          {selectedForComparison.some(
+                            (inf) => inf.channel_info === user.channel_info
+                          )
+                            ? "Remove from Comparison"
+                            : "Add to Comparison"}
                         </motion.button>
                       </div>
                     </div>
@@ -488,7 +555,11 @@ const InfluencerSuggestions = () => {
               {/* Pagination Indicators */}
               {filteredUsers.length > influencersPerView && (
                 <div className="flex justify-center space-x-2 mt-6">
-                  {Array.from({ length: Math.ceil(filteredUsers.length / influencersPerView) }).map((_, i) => (
+                  {Array.from({
+                    length: Math.ceil(
+                      filteredUsers.length / influencersPerView
+                    ),
+                  }).map((_, i) => (
                     <button
                       key={i}
                       onClick={() => setCurrentIndex(i * influencersPerView)}
@@ -510,55 +581,73 @@ const InfluencerSuggestions = () => {
       {/* Comparison Sidebar - FIXED VERSION */}
       {/* Added a separate div with full opacity for the backdrop that handles clicks */}
       {showComparisonSidebar && (
-        <div 
+        <div
           className="fixed inset-0 bg-black/50 z-40"
           onClick={closeSidebar}
         />
       )}
-      
-      <motion.div 
+
+      <motion.div
         className={`fixed right-0 top-0 h-full w-72 bg-black/90 border-l border-white/20 p-6 transform transition-all duration-300 ease-in-out z-50 ${
-          showComparisonSidebar ? 'translate-x-0' : 'translate-x-full'
+          showComparisonSidebar ? "translate-x-0" : "translate-x-full"
         }`}
         initial={false}
       >
         <div className="mb-6">
-          <h3 className="text-lg font-semibold text-white">Compare Influencers</h3>
+          <h3 className="text-lg font-semibold text-white">
+            Compare Influencers
+          </h3>
         </div>
-        
+
         <div className="mb-6">
-          <p className="text-white/70 text-sm mb-3">Selected for comparison ({selectedForComparison.length}/2):</p>
+          <p className="text-white/70 text-sm mb-3">
+            Selected for comparison ({selectedForComparison.length}/2):
+          </p>
           <div className="space-y-3">
             {selectedForComparison.map((inf, idx) => (
-              <div key={idx} className="bg-white/10 p-3 rounded flex justify-between items-center">
+              <div
+                key={idx}
+                className="bg-white/10 p-3 rounded flex justify-between items-center"
+              >
                 <span>@{inf.channel_info}</span>
-                <button 
+                <button
                   onClick={() => handleAddToComparison(inf)}
                   className="text-red-400 hover:text-red-300 p-1 rounded"
                 >
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
                     <path d="M18 6L6 18"></path>
                     <path d="M6 6l12 12"></path>
                   </svg>
                 </button>
               </div>
             ))}
-            
+
             {selectedForComparison.length < 2 && (
               <div className="bg-white/5 p-3 rounded border border-dashed border-white/20 text-center text-white/50 text-sm">
-                Select {2 - selectedForComparison.length} more influencer{selectedForComparison.length === 0 ? 's' : ''}
+                Select {2 - selectedForComparison.length} more influencer
+                {selectedForComparison.length === 0 ? "s" : ""}
               </div>
             )}
           </div>
         </div>
-        
+
         <button
           onClick={handleComparisonClick}
           disabled={selectedForComparison.length < 2}
           className={`w-full py-3 rounded-md text-white font-medium transition-all ${
-            selectedForComparison.length === 2 
-              ? 'bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700' 
-              : 'bg-gray-700 cursor-not-allowed opacity-50'
+            selectedForComparison.length === 2
+              ? "bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
+              : "bg-gray-700 cursor-not-allowed opacity-50"
           }`}
         >
           Compare Influencers
@@ -573,7 +662,17 @@ const InfluencerSuggestions = () => {
         onClick={openSidebar}
         className="fixed bottom-6 right-6 bg-gradient-to-r from-purple-600 to-blue-600 p-4 rounded-full shadow-lg text-white hover:from-purple-700 hover:to-blue-700 transition-all z-40"
       >
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
           <polyline points="21 8 21 21 3 21 3 8"></polyline>
           <rect x="1" y="3" width="22" height="5"></rect>
           <line x1="10" y1="12" x2="14" y2="12"></line>

@@ -1,14 +1,24 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { 
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, 
-  ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, 
-  PolarRadiusAxis, Radar 
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+  RadarChart,
+  PolarGrid,
+  PolarAngleAxis,
+  PolarRadiusAxis,
+  Radar,
 } from "recharts";
 import { ChevronLeft, RefreshCw, Download } from "lucide-react";
-import html2canvas from 'html2canvas';
-import jsPDF from 'jspdf';
-import domtoimage from 'dom-to-image';
+import html2canvas from "html2canvas";
+import jsPDF from "jspdf";
+import domtoimage from "dom-to-image";
 
 const InfluencerComparison = ({ initialInfluencers = [], onGoBack }) => {
   const [influencers, setInfluencers] = useState([]);
@@ -18,17 +28,18 @@ const InfluencerComparison = ({ initialInfluencers = [], onGoBack }) => {
 
   // Parse formatted numbers (e.g. "34.7m", "367.8k") to actual numbers
   const parseFormattedNumber = (formatted) => {
-    if (!formatted || typeof formatted !== 'string') return 0;
-    
-    const numPart = formatted.replace(/[^0-9.]/g, '');
-    const multiplier = formatted.endsWith('k') || formatted.endsWith('K') 
-      ? 1000 
-      : formatted.endsWith('m') || formatted.endsWith('M') 
-        ? 1000000 
-        : formatted.endsWith('b') || formatted.endsWith('B') 
-          ? 1000000000 
-          : 1;
-    
+    if (!formatted || typeof formatted !== "string") return 0;
+
+    const numPart = formatted.replace(/[^0-9.]/g, "");
+    const multiplier =
+      formatted.endsWith("k") || formatted.endsWith("K")
+        ? 1000
+        : formatted.endsWith("m") || formatted.endsWith("M")
+        ? 1000000
+        : formatted.endsWith("b") || formatted.endsWith("B")
+        ? 1000000000
+        : 1;
+
     return parseFloat(numPart) * multiplier || 0;
   };
 
@@ -39,11 +50,11 @@ const InfluencerComparison = ({ initialInfluencers = [], onGoBack }) => {
         if (initialInfluencers && initialInfluencers.length > 0) {
           setSelectedInfluencers([
             initialInfluencers[0] || null,
-            initialInfluencers[1] || null
+            initialInfluencers[1] || null,
           ]);
         }
 
-        const response = await fetch("http://127.0.0.1:8000/users");
+        const response = await fetch("https://influenceiq.onrender.com/users");
         if (!response.ok) {
           throw new Error("Failed to fetch user data from server.");
         }
@@ -72,15 +83,15 @@ const InfluencerComparison = ({ initialInfluencers = [], onGoBack }) => {
     if (num === null || num === undefined || isNaN(num) || !isFinite(num)) {
       return "0";
     }
-    
+
     num = Math.abs(num); // Handle negative numbers by taking absolute value
-    
+
     if (num >= 1000000000) {
-      return (num / 1000000000).toFixed(1) + 'B';
+      return (num / 1000000000).toFixed(1) + "B";
     } else if (num >= 1000000) {
-      return (num / 1000000).toFixed(1) + 'M';
+      return (num / 1000000).toFixed(1) + "M";
     } else if (num >= 1000) {
-      return (num / 1000).toFixed(1) + 'K';
+      return (num / 1000).toFixed(1) + "K";
     }
     return Math.round(num).toString(); // Ensure whole numbers
   };
@@ -94,16 +105,28 @@ const InfluencerComparison = ({ initialInfluencers = [], onGoBack }) => {
   // Prepare data for followers and likes comparison with normalized values for visualization
   const prepareAudienceData = () => {
     const data = [];
-    
+
     if (selectedInfluencers[0] || selectedInfluencers[1]) {
       // For normalized chart, we create both actual values and normalized values
-      const follower1 = selectedInfluencers[0] ? parseFormattedNumber(selectedInfluencers[0].followers) : 0;
-      const follower2 = selectedInfluencers[1] ? parseFormattedNumber(selectedInfluencers[1].followers) : 0;
-      const likes1 = selectedInfluencers[0] ? parseFormattedNumber(selectedInfluencers[0].avg_likes) : 0;
-      const likes2 = selectedInfluencers[1] ? parseFormattedNumber(selectedInfluencers[1].avg_likes) : 0;
-      const posts1 = selectedInfluencers[0] ? parseFormattedNumber(selectedInfluencers[0].posts) : 0;
-      const posts2 = selectedInfluencers[1] ? parseFormattedNumber(selectedInfluencers[1].posts) : 0;
-      
+      const follower1 = selectedInfluencers[0]
+        ? parseFormattedNumber(selectedInfluencers[0].followers)
+        : 0;
+      const follower2 = selectedInfluencers[1]
+        ? parseFormattedNumber(selectedInfluencers[1].followers)
+        : 0;
+      const likes1 = selectedInfluencers[0]
+        ? parseFormattedNumber(selectedInfluencers[0].avg_likes)
+        : 0;
+      const likes2 = selectedInfluencers[1]
+        ? parseFormattedNumber(selectedInfluencers[1].avg_likes)
+        : 0;
+      const posts1 = selectedInfluencers[0]
+        ? parseFormattedNumber(selectedInfluencers[0].posts)
+        : 0;
+      const posts2 = selectedInfluencers[1]
+        ? parseFormattedNumber(selectedInfluencers[1].posts)
+        : 0;
+
       // Store actual values for tooltip display
       data.push({
         name: "Followers",
@@ -111,38 +134,38 @@ const InfluencerComparison = ({ initialInfluencers = [], onGoBack }) => {
         [selectedInfluencers[1]?.channel_info || "Influencer 2"]: follower2,
         actualValues: {
           [selectedInfluencers[0]?.channel_info || "Influencer 1"]: follower1,
-          [selectedInfluencers[1]?.channel_info || "Influencer 2"]: follower2
-        }
+          [selectedInfluencers[1]?.channel_info || "Influencer 2"]: follower2,
+        },
       });
-      
+
       data.push({
         name: "Average Likes",
         [selectedInfluencers[0]?.channel_info || "Influencer 1"]: likes1,
         [selectedInfluencers[1]?.channel_info || "Influencer 2"]: likes2,
         actualValues: {
           [selectedInfluencers[0]?.channel_info || "Influencer 1"]: likes1,
-          [selectedInfluencers[1]?.channel_info || "Influencer 2"]: likes2
-        }
+          [selectedInfluencers[1]?.channel_info || "Influencer 2"]: likes2,
+        },
       });
-      
+
       data.push({
         name: "Total Posts",
         [selectedInfluencers[0]?.channel_info || "Influencer 1"]: posts1,
         [selectedInfluencers[1]?.channel_info || "Influencer 2"]: posts2,
         actualValues: {
           [selectedInfluencers[0]?.channel_info || "Influencer 1"]: posts1,
-          [selectedInfluencers[1]?.channel_info || "Influencer 2"]: posts2
-        }
+          [selectedInfluencers[1]?.channel_info || "Influencer 2"]: posts2,
+        },
       });
     }
-    
+
     return data;
   };
 
   // Prepare data for scores comparison - normalize radar chart values to 0-100 scale
   const prepareScoreData = () => {
     const scoreData = [];
-    
+
     if (selectedInfluencers[0] && selectedInfluencers[1]) {
       // Influence score (already 0-100)
       scoreData.push({
@@ -152,9 +175,9 @@ const InfluencerComparison = ({ initialInfluencers = [], onGoBack }) => {
         fullMark: 100,
         // Store original values for tooltip display
         originalA: selectedInfluencers[0].influence_score || 0,
-        originalB: selectedInfluencers[1].influence_score || 0
+        originalB: selectedInfluencers[1].influence_score || 0,
       });
-      
+
       // Credibility score (already 0-100)
       scoreData.push({
         subject: "Credibility",
@@ -162,9 +185,9 @@ const InfluencerComparison = ({ initialInfluencers = [], onGoBack }) => {
         B: selectedInfluencers[1].credibility_score || 0,
         fullMark: 100,
         originalA: selectedInfluencers[0].credibility_score || 0,
-        originalB: selectedInfluencers[1].credibility_score || 0
+        originalB: selectedInfluencers[1].credibility_score || 0,
       });
-      
+
       // Engagement Quality (0-10 scale, normalize to 0-100)
       scoreData.push({
         subject: "Engagement Quality",
@@ -172,9 +195,9 @@ const InfluencerComparison = ({ initialInfluencers = [], onGoBack }) => {
         B: (selectedInfluencers[1].engagement_quality_score || 0) * 10, // Scale to 0-100
         fullMark: 100,
         originalA: selectedInfluencers[0].engagement_quality_score || 0,
-        originalB: selectedInfluencers[1].engagement_quality_score || 0
+        originalB: selectedInfluencers[1].engagement_quality_score || 0,
       });
-      
+
       // Longevity (0-10 scale, normalize to 0-100)
       scoreData.push({
         subject: "Longevity",
@@ -182,9 +205,9 @@ const InfluencerComparison = ({ initialInfluencers = [], onGoBack }) => {
         B: (selectedInfluencers[1].longevity_score || 0) * 10, // Scale to 0-100
         fullMark: 100,
         originalA: selectedInfluencers[0].longevity_score || 0,
-        originalB: selectedInfluencers[1].longevity_score || 0
+        originalB: selectedInfluencers[1].longevity_score || 0,
       });
-      
+
       // InfluenceIQ (already 0-100)
       scoreData.push({
         subject: "InfluenceIQ",
@@ -192,17 +215,17 @@ const InfluencerComparison = ({ initialInfluencers = [], onGoBack }) => {
         B: selectedInfluencers[1].influenceiq_score || 0,
         fullMark: 100,
         originalA: selectedInfluencers[0].influenceiq_score || 0,
-        originalB: selectedInfluencers[1].influenceiq_score || 0
+        originalB: selectedInfluencers[1].influenceiq_score || 0,
       });
     }
-    
+
     return scoreData;
   };
 
   // Prepare data for engagement metrics
   const prepareEngagementData = () => {
     const data = [];
-    
+
     if (selectedInfluencers[0] || selectedInfluencers[1]) {
       // Calculate engagement rate
       const getEngagementRate = (influencer) => {
@@ -211,55 +234,71 @@ const InfluencerComparison = ({ initialInfluencers = [], onGoBack }) => {
         const followers = parseFormattedNumber(influencer.followers);
         return followers > 0 ? (likes / followers) * 100 : 0;
       };
-      
+
       data.push({
         name: "Engagement Rate (%)",
-        [selectedInfluencers[0]?.channel_info || "Influencer 1"]: getEngagementRate(selectedInfluencers[0]),
-        [selectedInfluencers[1]?.channel_info || "Influencer 2"]: getEngagementRate(selectedInfluencers[1]),
+        [selectedInfluencers[0]?.channel_info || "Influencer 1"]:
+          getEngagementRate(selectedInfluencers[0]),
+        [selectedInfluencers[1]?.channel_info || "Influencer 2"]:
+          getEngagementRate(selectedInfluencers[1]),
       });
-      
+
       data.push({
         name: "Engagement Quality",
-        [selectedInfluencers[0]?.channel_info || "Influencer 1"]: selectedInfluencers[0]?.engagement_quality_score || 0,
-        [selectedInfluencers[1]?.channel_info || "Influencer 2"]: selectedInfluencers[1]?.engagement_quality_score || 0,
+        [selectedInfluencers[0]?.channel_info || "Influencer 1"]:
+          selectedInfluencers[0]?.engagement_quality_score || 0,
+        [selectedInfluencers[1]?.channel_info || "Influencer 2"]:
+          selectedInfluencers[1]?.engagement_quality_score || 0,
       });
     }
-    
+
     return data;
   };
 
   // Prepare normalized data for score breakdown
   const prepareScoreBreakdownData = () => {
     if (!selectedInfluencers[0] && !selectedInfluencers[1]) return [];
-    
+
     return [
       {
         name: "Credibility",
-        [selectedInfluencers[0]?.channel_info || "Influencer 1"]: selectedInfluencers[0]?.credibility_score || 0,
-        [selectedInfluencers[1]?.channel_info || "Influencer 2"]: selectedInfluencers[1]?.credibility_score || 0,
+        [selectedInfluencers[0]?.channel_info || "Influencer 1"]:
+          selectedInfluencers[0]?.credibility_score || 0,
+        [selectedInfluencers[1]?.channel_info || "Influencer 2"]:
+          selectedInfluencers[1]?.credibility_score || 0,
         originalValues: {
-          [selectedInfluencers[0]?.channel_info || "Influencer 1"]: selectedInfluencers[0]?.credibility_score || 0,
-          [selectedInfluencers[1]?.channel_info || "Influencer 2"]: selectedInfluencers[1]?.credibility_score || 0
-        }
+          [selectedInfluencers[0]?.channel_info || "Influencer 1"]:
+            selectedInfluencers[0]?.credibility_score || 0,
+          [selectedInfluencers[1]?.channel_info || "Influencer 2"]:
+            selectedInfluencers[1]?.credibility_score || 0,
+        },
       },
       {
         name: "Engagement Quality",
-        [selectedInfluencers[0]?.channel_info || "Influencer 1"]: selectedInfluencers[0]?.engagement_quality_score || 0,
-        [selectedInfluencers[1]?.channel_info || "Influencer 2"]: selectedInfluencers[1]?.engagement_quality_score || 0,
+        [selectedInfluencers[0]?.channel_info || "Influencer 1"]:
+          selectedInfluencers[0]?.engagement_quality_score || 0,
+        [selectedInfluencers[1]?.channel_info || "Influencer 2"]:
+          selectedInfluencers[1]?.engagement_quality_score || 0,
         originalValues: {
-          [selectedInfluencers[0]?.channel_info || "Influencer 1"]: selectedInfluencers[0]?.engagement_quality_score || 0,
-          [selectedInfluencers[1]?.channel_info || "Influencer 2"]: selectedInfluencers[1]?.engagement_quality_score || 0
-        }
+          [selectedInfluencers[0]?.channel_info || "Influencer 1"]:
+            selectedInfluencers[0]?.engagement_quality_score || 0,
+          [selectedInfluencers[1]?.channel_info || "Influencer 2"]:
+            selectedInfluencers[1]?.engagement_quality_score || 0,
+        },
       },
       {
         name: "Longevity",
-        [selectedInfluencers[0]?.channel_info || "Influencer 1"]: selectedInfluencers[0]?.longevity_score || 0,
-        [selectedInfluencers[1]?.channel_info || "Influencer 2"]: selectedInfluencers[1]?.longevity_score || 0,
+        [selectedInfluencers[0]?.channel_info || "Influencer 1"]:
+          selectedInfluencers[0]?.longevity_score || 0,
+        [selectedInfluencers[1]?.channel_info || "Influencer 2"]:
+          selectedInfluencers[1]?.longevity_score || 0,
         originalValues: {
-          [selectedInfluencers[0]?.channel_info || "Influencer 1"]: selectedInfluencers[0]?.longevity_score || 0,
-          [selectedInfluencers[1]?.channel_info || "Influencer 2"]: selectedInfluencers[1]?.longevity_score || 0
-        }
-      }
+          [selectedInfluencers[0]?.channel_info || "Influencer 1"]:
+            selectedInfluencers[0]?.longevity_score || 0,
+          [selectedInfluencers[1]?.channel_info || "Influencer 2"]:
+            selectedInfluencers[1]?.longevity_score || 0,
+        },
+      },
     ];
   };
 
@@ -271,20 +310,30 @@ const InfluencerComparison = ({ initialInfluencers = [], onGoBack }) => {
           <p className="font-medium text-white">{`${label}`}</p>
           {payload.map((entry, index) => {
             // Check if we have actual values stored
-            const actualValue = entry.payload.actualValues?.[entry.name] || entry.payload.originalValues?.[entry.name] || entry.value;
+            const actualValue =
+              entry.payload.actualValues?.[entry.name] ||
+              entry.payload.originalValues?.[entry.name] ||
+              entry.value;
             let displayValue = actualValue;
-            
+
             // Format according to the metric type
-            if (label === "Followers" || label === "Average Likes" || label === "Total Posts") {
+            if (
+              label === "Followers" ||
+              label === "Average Likes" ||
+              label === "Total Posts"
+            ) {
               displayValue = formatLargeNumber(actualValue);
             } else if (label === "Engagement Rate (%)") {
               displayValue = `${actualValue.toFixed(2)}%`;
-            } else if (label === "Engagement Quality" || label === "Longevity") {
+            } else if (
+              label === "Engagement Quality" ||
+              label === "Longevity"
+            ) {
               displayValue = actualValue.toFixed(2);
             } else {
               displayValue = actualValue.toFixed(1);
             }
-            
+
             return (
               <p key={index} style={{ color: entry.color }} className="text-sm">
                 {`${entry.name}: ${displayValue}`}
@@ -305,9 +354,10 @@ const InfluencerComparison = ({ initialInfluencers = [], onGoBack }) => {
           <p className="font-medium text-white">{payload[0].payload.subject}</p>
           {payload.map((entry, index) => {
             // Get the original value (not normalized)
-            const originalKey = entry.dataKey === 'A' ? 'originalA' : 'originalB';
+            const originalKey =
+              entry.dataKey === "A" ? "originalA" : "originalB";
             const originalValue = entry.payload[originalKey];
-            
+
             return (
               <p key={index} style={{ color: entry.color }} className="text-sm">
                 {`${entry.name}: ${originalValue.toFixed(2)}`}
@@ -322,30 +372,33 @@ const InfluencerComparison = ({ initialInfluencers = [], onGoBack }) => {
 
   // Function to handle PDF download
   const handleDownloadPDF = () => {
-    const input = document.getElementById('influencer-comparison'); // Ensure the root div has this ID
+    const input = document.getElementById("influencer-comparison"); // Ensure the root div has this ID
 
     // Capture the DOM element as a PNG image
     domtoimage
       .toPng(input, { quality: 1 }) // Use high quality
       .then((dataUrl) => {
         // Create a new PDF
-        const pdf = new jsPDF('p', 'mm', 'a4'); // A4 size page of PDF
+        const pdf = new jsPDF("p", "mm", "a4"); // A4 size page of PDF
         const imgWidth = 210; // A4 width in mm
         const imgHeight = (imgWidth * input.offsetHeight) / input.offsetWidth; // Maintain aspect ratio
 
         // Add the image to the PDF
-        pdf.addImage(dataUrl, 'PNG', 0, 0, imgWidth, imgHeight);
+        pdf.addImage(dataUrl, "PNG", 0, 0, imgWidth, imgHeight);
 
         // Download the PDF
-        pdf.save('influencer_comparison.pdf');
+        pdf.save("influencer_comparison.pdf");
       })
       .catch((error) => {
-        console.error('Error generating image:', error);
+        console.error("Error generating image:", error);
       });
   };
 
   return (
-    <div id="influencer-comparison" className="min-h-screen flex flex-col bg-black text-white">
+    <div
+      id="influencer-comparison"
+      className="min-h-screen flex flex-col bg-black text-white"
+    >
       <div className="relative flex-1 flex overflow-hidden bg-black/[0.96] antialiased">
         <div
           className="pointer-events-none absolute inset-0 select-none"
@@ -391,7 +444,10 @@ const InfluencerComparison = ({ initialInfluencers = [], onGoBack }) => {
                 className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10"
               >
                 {[0, 1].map((index) => (
-                  <div key={index} className="bg-white/5 p-6 rounded-xl border border-white/10">
+                  <div
+                    key={index}
+                    className="bg-white/5 p-6 rounded-xl border border-white/10"
+                  >
                     <h3 className="text-xl font-medium mb-4 text-white/90">
                       Select Influencer {index + 1}
                     </h3>
@@ -417,13 +473,19 @@ const InfluencerComparison = ({ initialInfluencers = [], onGoBack }) => {
                       <div className="mt-4">
                         <div className="flex items-center gap-3">
                           <div className="w-12 h-12 rounded-full bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center text-xl font-bold">
-                            {selectedInfluencers[index].channel_info.charAt(0).toUpperCase()}
+                            {selectedInfluencers[index].channel_info
+                              .charAt(0)
+                              .toUpperCase()}
                           </div>
                           <div>
-                            <p className="font-medium">@{selectedInfluencers[index].channel_info}</p>
+                            <p className="font-medium">
+                              @{selectedInfluencers[index].channel_info}
+                            </p>
                             <p className="text-sm text-white/60">
-                              Rank #{selectedInfluencers[index].rank} • 
-                              {selectedInfluencers[index].country ? ` ${selectedInfluencers[index].country}` : " Unknown"}
+                              Rank #{selectedInfluencers[index].rank} •
+                              {selectedInfluencers[index].country
+                                ? ` ${selectedInfluencers[index].country}`
+                                : " Unknown"}
                             </p>
                           </div>
                         </div>
@@ -440,161 +502,296 @@ const InfluencerComparison = ({ initialInfluencers = [], onGoBack }) => {
                   animate={{ opacity: 1 }}
                   className="space-y-8"
                 >
+                  {/* Followers, Likes and Posts as Separate Graphs */}
+                  <div className="bg-white/5 p-6 rounded-xl border border-white/10">
+                    <h3 className="text-xl font-medium mb-6 text-white/90">
+                      Audience & Content Metrics
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                      {/* Followers Graph */}
+                      <div className="h-80">
+                        <h4 className="text-center text-white/80 mb-2">
+                          Followers
+                        </h4>
+                        <ResponsiveContainer width="100%" height="100%">
+                          <BarChart
+                            data={[
+                              {
+                                name: "Followers",
+                                [selectedInfluencers[0]?.channel_info ||
+                                "Influencer 1"]: selectedInfluencers[0]
+                                  ? parseFormattedNumber(
+                                      selectedInfluencers[0].followers
+                                    )
+                                  : 0,
+                                [selectedInfluencers[1]?.channel_info ||
+                                "Influencer 2"]: selectedInfluencers[1]
+                                  ? parseFormattedNumber(
+                                      selectedInfluencers[1].followers
+                                    )
+                                  : 0,
+                                actualValues: {
+                                  [selectedInfluencers[0]?.channel_info ||
+                                  "Influencer 1"]: selectedInfluencers[0]
+                                    ? parseFormattedNumber(
+                                        selectedInfluencers[0].followers
+                                      )
+                                    : 0,
+                                  [selectedInfluencers[1]?.channel_info ||
+                                  "Influencer 2"]: selectedInfluencers[1]
+                                    ? parseFormattedNumber(
+                                        selectedInfluencers[1].followers
+                                      )
+                                    : 0,
+                                },
+                              },
+                            ]}
+                            margin={{
+                              top: 10,
+                              right: 10,
+                              left: 10,
+                              bottom: 40,
+                            }}
+                          >
+                            <CartesianGrid
+                              strokeDasharray="3 3"
+                              stroke="#333"
+                            />
+                            <XAxis dataKey="name" stroke="#aaa" />
+                            <YAxis
+                              stroke="#aaa"
+                              domain={[0, "auto"]}
+                              tickFormatter={(value) =>
+                                formatLargeNumber(value)
+                              }
+                            />
+                            <Tooltip content={<CustomTooltip />} />
+                            <Legend
+                              verticalAlign="top"
+                              wrapperStyle={{ paddingBottom: "20px" }}
+                            />
+                            <Bar
+                              dataKey={
+                                selectedInfluencers[0]?.channel_info ||
+                                "Influencer 1"
+                              }
+                              fill="#8884d8"
+                              name={
+                                selectedInfluencers[0]?.channel_info ||
+                                "Not Selected"
+                              }
+                            />
+                            <Bar
+                              dataKey={
+                                selectedInfluencers[1]?.channel_info ||
+                                "Influencer 2"
+                              }
+                              fill="#82ca9d"
+                              name={
+                                selectedInfluencers[1]?.channel_info ||
+                                "Not Selected"
+                              }
+                            />
+                          </BarChart>
+                        </ResponsiveContainer>
+                      </div>
 
-{/* Followers, Likes and Posts as Separate Graphs */}
-<div className="bg-white/5 p-6 rounded-xl border border-white/10">
-  <h3 className="text-xl font-medium mb-6 text-white/90">
-    Audience & Content Metrics
-  </h3>
-  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-    {/* Followers Graph */}
-    <div className="h-80">
-      <h4 className="text-center text-white/80 mb-2">Followers</h4>
-      <ResponsiveContainer width="100%" height="100%">
-        <BarChart
-          data={[
-            {
-              name: "Followers",
-              [selectedInfluencers[0]?.channel_info || "Influencer 1"]: 
-                selectedInfluencers[0] ? parseFormattedNumber(selectedInfluencers[0].followers) : 0,
-              [selectedInfluencers[1]?.channel_info || "Influencer 2"]: 
-                selectedInfluencers[1] ? parseFormattedNumber(selectedInfluencers[1].followers) : 0,
-              actualValues: {
-                [selectedInfluencers[0]?.channel_info || "Influencer 1"]: 
-                  selectedInfluencers[0] ? parseFormattedNumber(selectedInfluencers[0].followers) : 0,
-                [selectedInfluencers[1]?.channel_info || "Influencer 2"]: 
-                  selectedInfluencers[1] ? parseFormattedNumber(selectedInfluencers[1].followers) : 0
-              }
-            }
-          ]}
-          margin={{ top: 10, right: 10, left: 10, bottom: 40 }}
-        >
-          <CartesianGrid strokeDasharray="3 3" stroke="#333" />
-          <XAxis dataKey="name" stroke="#aaa" />
-          <YAxis 
-            stroke="#aaa" 
-            domain={[0, 'auto']}
-            tickFormatter={(value) => formatLargeNumber(value)}
-          />
-          <Tooltip content={<CustomTooltip />} />
-          <Legend verticalAlign="top" wrapperStyle={{ paddingBottom: "20px" }} />
-          <Bar
-            dataKey={selectedInfluencers[0]?.channel_info || "Influencer 1"}
-            fill="#8884d8"
-            name={selectedInfluencers[0]?.channel_info || "Not Selected"}
-          />
-          <Bar
-            dataKey={selectedInfluencers[1]?.channel_info || "Influencer 2"}
-            fill="#82ca9d"
-            name={selectedInfluencers[1]?.channel_info || "Not Selected"}
-          />
-        </BarChart>
-      </ResponsiveContainer>
-    </div>
+                      {/* Average Likes Graph */}
+                      <div className="h-80">
+                        <h4 className="text-center text-white/80 mb-2">
+                          Average Likes
+                        </h4>
+                        <ResponsiveContainer width="100%" height="100%">
+                          <BarChart
+                            data={[
+                              {
+                                name: "Avg Likes",
+                                [selectedInfluencers[0]?.channel_info ||
+                                "Influencer 1"]: selectedInfluencers[0]
+                                  ? parseFormattedNumber(
+                                      selectedInfluencers[0].avg_likes
+                                    )
+                                  : 0,
+                                [selectedInfluencers[1]?.channel_info ||
+                                "Influencer 2"]: selectedInfluencers[1]
+                                  ? parseFormattedNumber(
+                                      selectedInfluencers[1].avg_likes
+                                    )
+                                  : 0,
+                                actualValues: {
+                                  [selectedInfluencers[0]?.channel_info ||
+                                  "Influencer 1"]: selectedInfluencers[0]
+                                    ? parseFormattedNumber(
+                                        selectedInfluencers[0].avg_likes
+                                      )
+                                    : 0,
+                                  [selectedInfluencers[1]?.channel_info ||
+                                  "Influencer 2"]: selectedInfluencers[1]
+                                    ? parseFormattedNumber(
+                                        selectedInfluencers[1].avg_likes
+                                      )
+                                    : 0,
+                                },
+                              },
+                            ]}
+                            margin={{
+                              top: 10,
+                              right: 10,
+                              left: 10,
+                              bottom: 40,
+                            }}
+                          >
+                            <CartesianGrid
+                              strokeDasharray="3 3"
+                              stroke="#333"
+                            />
+                            <XAxis dataKey="name" stroke="#aaa" />
+                            <YAxis
+                              stroke="#aaa"
+                              domain={[0, "auto"]}
+                              tickFormatter={(value) =>
+                                formatLargeNumber(value)
+                              }
+                            />
+                            <Tooltip content={<CustomTooltip />} />
+                            <Legend
+                              verticalAlign="top"
+                              wrapperStyle={{ paddingBottom: "20px" }}
+                            />
+                            <Bar
+                              dataKey={
+                                selectedInfluencers[0]?.channel_info ||
+                                "Influencer 1"
+                              }
+                              fill="#8884d8"
+                              name={
+                                selectedInfluencers[0]?.channel_info ||
+                                "Not Selected"
+                              }
+                            />
+                            <Bar
+                              dataKey={
+                                selectedInfluencers[1]?.channel_info ||
+                                "Influencer 2"
+                              }
+                              fill="#82ca9d"
+                              name={
+                                selectedInfluencers[1]?.channel_info ||
+                                "Not Selected"
+                              }
+                            />
+                          </BarChart>
+                        </ResponsiveContainer>
+                      </div>
 
-    {/* Average Likes Graph */}
-    <div className="h-80">
-      <h4 className="text-center text-white/80 mb-2">Average Likes</h4>
-      <ResponsiveContainer width="100%" height="100%">
-        <BarChart
-          data={[
-            {
-              name: "Avg Likes",
-              [selectedInfluencers[0]?.channel_info || "Influencer 1"]: 
-                selectedInfluencers[0] ? parseFormattedNumber(selectedInfluencers[0].avg_likes) : 0,
-              [selectedInfluencers[1]?.channel_info || "Influencer 2"]: 
-                selectedInfluencers[1] ? parseFormattedNumber(selectedInfluencers[1].avg_likes) : 0,
-              actualValues: {
-                [selectedInfluencers[0]?.channel_info || "Influencer 1"]: 
-                  selectedInfluencers[0] ? parseFormattedNumber(selectedInfluencers[0].avg_likes) : 0,
-                [selectedInfluencers[1]?.channel_info || "Influencer 2"]: 
-                  selectedInfluencers[1] ? parseFormattedNumber(selectedInfluencers[1].avg_likes) : 0
-              }
-            }
-          ]}
-          margin={{ top: 10, right: 10, left: 10, bottom: 40 }}
-        >
-          <CartesianGrid strokeDasharray="3 3" stroke="#333" />
-          <XAxis dataKey="name" stroke="#aaa" />
-          <YAxis 
-            stroke="#aaa" 
-            domain={[0, 'auto']}
-            tickFormatter={(value) => formatLargeNumber(value)}
-          />
-          <Tooltip content={<CustomTooltip />} />
-          <Legend verticalAlign="top" wrapperStyle={{ paddingBottom: "20px" }} />
-          <Bar
-            dataKey={selectedInfluencers[0]?.channel_info || "Influencer 1"}
-            fill="#8884d8"
-            name={selectedInfluencers[0]?.channel_info || "Not Selected"}
-          />
-          <Bar
-            dataKey={selectedInfluencers[1]?.channel_info || "Influencer 2"}
-            fill="#82ca9d"
-            name={selectedInfluencers[1]?.channel_info || "Not Selected"}
-          />
-        </BarChart>
-      </ResponsiveContainer>
-    </div>
-
-    {/* Total Posts Graph */}
-    <div className="h-80">
-      <h4 className="text-center text-white/80 mb-2">Total Posts</h4>
-      <ResponsiveContainer width="100%" height="100%">
-        <BarChart
-          data={[
-            {
-              name: "Posts",
-              [selectedInfluencers[0]?.channel_info || "Influencer 1"]: 
-                selectedInfluencers[0] ? parseFormattedNumber(selectedInfluencers[0].posts) : 0,
-              [selectedInfluencers[1]?.channel_info || "Influencer 2"]: 
-                selectedInfluencers[1] ? parseFormattedNumber(selectedInfluencers[1].posts) : 0,
-              actualValues: {
-                [selectedInfluencers[0]?.channel_info || "Influencer 1"]: 
-                  selectedInfluencers[0] ? parseFormattedNumber(selectedInfluencers[0].posts) : 0,
-                [selectedInfluencers[1]?.channel_info || "Influencer 2"]: 
-                  selectedInfluencers[1] ? parseFormattedNumber(selectedInfluencers[1].posts) : 0
-              }
-            }
-          ]}
-          margin={{ top: 10, right: 10, left: 10, bottom: 40 }}
-        >
-          <CartesianGrid strokeDasharray="3 3" stroke="#333" />
-          <XAxis dataKey="name" stroke="#aaa" />
-          <YAxis 
-            stroke="#aaa" 
-            domain={[0, 'auto']}
-            tickFormatter={(value) => formatLargeNumber(value)}
-          />
-          <Tooltip content={<CustomTooltip />} />
-          <Legend verticalAlign="top" wrapperStyle={{ paddingBottom: "20px" }} />
-          <Bar
-            dataKey={selectedInfluencers[0]?.channel_info || "Influencer 1"}
-            fill="#8884d8"
-            name={selectedInfluencers[0]?.channel_info || "Not Selected"}
-          />
-          <Bar
-            dataKey={selectedInfluencers[1]?.channel_info || "Influencer 2"}
-            fill="#82ca9d"
-            name={selectedInfluencers[1]?.channel_info || "Not Selected"}
-          />
-        </BarChart>
-      </ResponsiveContainer>
-    </div>
-  </div>
-</div>
-{/* Score Metrics (Radar Chart) - normalized to 0-100 scale */}
-{selectedInfluencers[0] && selectedInfluencers[1] && (
+                      {/* Total Posts Graph */}
+                      <div className="h-80">
+                        <h4 className="text-center text-white/80 mb-2">
+                          Total Posts
+                        </h4>
+                        <ResponsiveContainer width="100%" height="100%">
+                          <BarChart
+                            data={[
+                              {
+                                name: "Posts",
+                                [selectedInfluencers[0]?.channel_info ||
+                                "Influencer 1"]: selectedInfluencers[0]
+                                  ? parseFormattedNumber(
+                                      selectedInfluencers[0].posts
+                                    )
+                                  : 0,
+                                [selectedInfluencers[1]?.channel_info ||
+                                "Influencer 2"]: selectedInfluencers[1]
+                                  ? parseFormattedNumber(
+                                      selectedInfluencers[1].posts
+                                    )
+                                  : 0,
+                                actualValues: {
+                                  [selectedInfluencers[0]?.channel_info ||
+                                  "Influencer 1"]: selectedInfluencers[0]
+                                    ? parseFormattedNumber(
+                                        selectedInfluencers[0].posts
+                                      )
+                                    : 0,
+                                  [selectedInfluencers[1]?.channel_info ||
+                                  "Influencer 2"]: selectedInfluencers[1]
+                                    ? parseFormattedNumber(
+                                        selectedInfluencers[1].posts
+                                      )
+                                    : 0,
+                                },
+                              },
+                            ]}
+                            margin={{
+                              top: 10,
+                              right: 10,
+                              left: 10,
+                              bottom: 40,
+                            }}
+                          >
+                            <CartesianGrid
+                              strokeDasharray="3 3"
+                              stroke="#333"
+                            />
+                            <XAxis dataKey="name" stroke="#aaa" />
+                            <YAxis
+                              stroke="#aaa"
+                              domain={[0, "auto"]}
+                              tickFormatter={(value) =>
+                                formatLargeNumber(value)
+                              }
+                            />
+                            <Tooltip content={<CustomTooltip />} />
+                            <Legend
+                              verticalAlign="top"
+                              wrapperStyle={{ paddingBottom: "20px" }}
+                            />
+                            <Bar
+                              dataKey={
+                                selectedInfluencers[0]?.channel_info ||
+                                "Influencer 1"
+                              }
+                              fill="#8884d8"
+                              name={
+                                selectedInfluencers[0]?.channel_info ||
+                                "Not Selected"
+                              }
+                            />
+                            <Bar
+                              dataKey={
+                                selectedInfluencers[1]?.channel_info ||
+                                "Influencer 2"
+                              }
+                              fill="#82ca9d"
+                              name={
+                                selectedInfluencers[1]?.channel_info ||
+                                "Not Selected"
+                              }
+                            />
+                          </BarChart>
+                        </ResponsiveContainer>
+                      </div>
+                    </div>
+                  </div>
+                  {/* Score Metrics (Radar Chart) - normalized to 0-100 scale */}
+                  {selectedInfluencers[0] && selectedInfluencers[1] && (
                     <div className="bg-white/5 p-6 rounded-xl border border-white/10">
                       <h3 className="text-xl font-medium mb-6 text-white/90">
                         Score Comparison
                       </h3>
                       <div className="h-96">
                         <ResponsiveContainer width="100%" height="100%">
-                          <RadarChart outerRadius="70%" data={prepareScoreData()}>
+                          <RadarChart
+                            outerRadius="70%"
+                            data={prepareScoreData()}
+                          >
                             <PolarGrid stroke="#444" />
                             <PolarAngleAxis dataKey="subject" stroke="#aaa" />
-                            <PolarRadiusAxis angle={30} domain={[0, 100]} stroke="#aaa" />
+                            <PolarRadiusAxis
+                              angle={30}
+                              domain={[0, 100]}
+                              stroke="#aaa"
+                            />
                             <Radar
                               name={selectedInfluencers[0]?.channel_info}
                               dataKey="A"
@@ -615,230 +812,381 @@ const InfluencerComparison = ({ initialInfluencers = [], onGoBack }) => {
                         </ResponsiveContainer>
                       </div>
                       <div className="mt-2 text-center text-white/60 text-sm">
-                        Note: All metrics are normalized to a 0-100 scale for visualization. Hover for actual values.
+                        Note: All metrics are normalized to a 0-100 scale for
+                        visualization. Hover for actual values.
                       </div>
                     </div>
                   )}
 
+                  {/* Engagement Metrics as separate graphs */}
+                  <div className="bg-white/5 p-6 rounded-xl border border-white/10">
+                    <h3 className="text-xl font-medium mb-6 text-white/90">
+                      Engagement Metrics
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      {/* Engagement Rate Graph */}
+                      <div className="h-80">
+                        <h4 className="text-center text-white/80 mb-2">
+                          Engagement Rate (%)
+                        </h4>
+                        <ResponsiveContainer width="100%" height="100%">
+                          <BarChart
+                            data={[
+                              {
+                                name: "Engagement Rate",
+                                [selectedInfluencers[0]?.channel_info ||
+                                "Influencer 1"]: selectedInfluencers[0]
+                                  ? (parseFormattedNumber(
+                                      selectedInfluencers[0].avg_likes
+                                    ) /
+                                      parseFormattedNumber(
+                                        selectedInfluencers[0].followers
+                                      )) *
+                                    100
+                                  : 0,
+                                [selectedInfluencers[1]?.channel_info ||
+                                "Influencer 2"]: selectedInfluencers[1]
+                                  ? (parseFormattedNumber(
+                                      selectedInfluencers[1].avg_likes
+                                    ) /
+                                      parseFormattedNumber(
+                                        selectedInfluencers[1].followers
+                                      )) *
+                                    100
+                                  : 0,
+                              },
+                            ]}
+                            margin={{
+                              top: 10,
+                              right: 10,
+                              left: 10,
+                              bottom: 40,
+                            }}
+                          >
+                            <CartesianGrid
+                              strokeDasharray="3 3"
+                              stroke="#333"
+                            />
+                            <XAxis dataKey="name" stroke="#aaa" />
+                            <YAxis
+                              stroke="#aaa"
+                              domain={[0, "auto"]}
+                              tickFormatter={(value) => `${value.toFixed(2)}%`}
+                            />
+                            <Tooltip content={<CustomTooltip />} />
+                            <Legend
+                              verticalAlign="top"
+                              wrapperStyle={{ paddingBottom: "20px" }}
+                            />
+                            <Bar
+                              dataKey={
+                                selectedInfluencers[0]?.channel_info ||
+                                "Influencer 1"
+                              }
+                              fill="#ff84d8"
+                              name={
+                                selectedInfluencers[0]?.channel_info ||
+                                "Not Selected"
+                              }
+                            />
+                            <Bar
+                              dataKey={
+                                selectedInfluencers[1]?.channel_info ||
+                                "Influencer 2"
+                              }
+                              fill="#f7ca9d"
+                              name={
+                                selectedInfluencers[1]?.channel_info ||
+                                "Not Selected"
+                              }
+                            />
+                          </BarChart>
+                        </ResponsiveContainer>
+                      </div>
 
-{/* Engagement Metrics as separate graphs */}
-<div className="bg-white/5 p-6 rounded-xl border border-white/10">
-  <h3 className="text-xl font-medium mb-6 text-white/90">
-    Engagement Metrics
-  </h3>
-  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-    {/* Engagement Rate Graph */}
-    <div className="h-80">
-      <h4 className="text-center text-white/80 mb-2">Engagement Rate (%)</h4>
-      <ResponsiveContainer width="100%" height="100%">
-        <BarChart
-          data={[
-            {
-              name: "Engagement Rate",
-              [selectedInfluencers[0]?.channel_info || "Influencer 1"]: 
-              selectedInfluencers[0] ? 
-              (parseFormattedNumber(selectedInfluencers[0].avg_likes) / 
-               parseFormattedNumber(selectedInfluencers[0].followers)) * 100 : 0,
-            [selectedInfluencers[1]?.channel_info || "Influencer 2"]: 
-              selectedInfluencers[1] ? 
-                (parseFormattedNumber(selectedInfluencers[1].avg_likes) / 
-                 parseFormattedNumber(selectedInfluencers[1].followers)) * 100 : 0
-            }
-          ]}
-          margin={{ top: 10, right: 10, left: 10, bottom: 40 }}
-        >
-          <CartesianGrid strokeDasharray="3 3" stroke="#333" />
-          <XAxis dataKey="name" stroke="#aaa" />
-          <YAxis 
-            stroke="#aaa" 
-            domain={[0, 'auto']}
-            tickFormatter={(value) => `${value.toFixed(2)}%`}
-          />
-          <Tooltip content={<CustomTooltip />} />
-          <Legend verticalAlign="top" wrapperStyle={{ paddingBottom: "20px" }} />
-          <Bar
-            dataKey={selectedInfluencers[0]?.channel_info || "Influencer 1"}
-            fill="#ff84d8"
-            name={selectedInfluencers[0]?.channel_info || "Not Selected"}
-          />
-          <Bar
-            dataKey={selectedInfluencers[1]?.channel_info || "Influencer 2"}
-            fill="#f7ca9d"
-            name={selectedInfluencers[1]?.channel_info || "Not Selected"}
-          />
-        </BarChart>
-      </ResponsiveContainer>
-    </div>
+                      {/* Engagement Quality Graph */}
+                      <div className="h-80">
+                        <h4 className="text-center text-white/80 mb-2">
+                          Engagement Quality (0-10)
+                        </h4>
+                        <ResponsiveContainer width="100%" height="100%">
+                          <BarChart
+                            data={[
+                              {
+                                name: "Quality",
+                                [selectedInfluencers[0]?.channel_info ||
+                                "Influencer 1"]:
+                                  selectedInfluencers[0]
+                                    ?.engagement_quality_score || 0,
+                                [selectedInfluencers[1]?.channel_info ||
+                                "Influencer 2"]:
+                                  selectedInfluencers[1]
+                                    ?.engagement_quality_score || 0,
+                              },
+                            ]}
+                            margin={{
+                              top: 10,
+                              right: 10,
+                              left: 10,
+                              bottom: 40,
+                            }}
+                          >
+                            <CartesianGrid
+                              strokeDasharray="3 3"
+                              stroke="#333"
+                            />
+                            <XAxis dataKey="name" stroke="#aaa" />
+                            <YAxis
+                              stroke="#aaa"
+                              domain={[0, 10]}
+                              tickCount={6}
+                              tickFormatter={(value) => value.toFixed(1)}
+                            />
+                            <Tooltip content={<CustomTooltip />} />
+                            <Legend
+                              verticalAlign="top"
+                              wrapperStyle={{ paddingBottom: "20px" }}
+                            />
+                            <Bar
+                              dataKey={
+                                selectedInfluencers[0]?.channel_info ||
+                                "Influencer 1"
+                              }
+                              fill="#ff84d8"
+                              name={
+                                selectedInfluencers[0]?.channel_info ||
+                                "Not Selected"
+                              }
+                            />
+                            <Bar
+                              dataKey={
+                                selectedInfluencers[1]?.channel_info ||
+                                "Influencer 2"
+                              }
+                              fill="#f7ca9d"
+                              name={
+                                selectedInfluencers[1]?.channel_info ||
+                                "Not Selected"
+                              }
+                            />
+                          </BarChart>
+                        </ResponsiveContainer>
+                      </div>
+                    </div>
+                  </div>
 
-    {/* Engagement Quality Graph */}
-    <div className="h-80">
-      <h4 className="text-center text-white/80 mb-2">Engagement Quality (0-10)</h4>
-      <ResponsiveContainer width="100%" height="100%">
-        <BarChart
-          data={[
-            {
-              name: "Quality",
-              [selectedInfluencers[0]?.channel_info || "Influencer 1"]: 
-                selectedInfluencers[0]?.engagement_quality_score || 0,
-              [selectedInfluencers[1]?.channel_info || "Influencer 2"]: 
-                selectedInfluencers[1]?.engagement_quality_score || 0
-            }
-          ]}
-          margin={{ top: 10, right: 10, left: 10, bottom: 40 }}
-        >
-          <CartesianGrid strokeDasharray="3 3" stroke="#333" />
-          <XAxis dataKey="name" stroke="#aaa" />
-          <YAxis 
-            stroke="#aaa" 
-            domain={[0, 10]}
-            tickCount={6}
-            tickFormatter={(value) => value.toFixed(1)}
-          />
-          <Tooltip content={<CustomTooltip />} />
-          <Legend verticalAlign="top" wrapperStyle={{ paddingBottom: "20px" }} />
-          <Bar
-            dataKey={selectedInfluencers[0]?.channel_info || "Influencer 1"}
-            fill="#ff84d8"
-            name={selectedInfluencers[0]?.channel_info || "Not Selected"}
-          />
-          <Bar
-            dataKey={selectedInfluencers[1]?.channel_info || "Influencer 2"}
-            fill="#f7ca9d"
-            name={selectedInfluencers[1]?.channel_info || "Not Selected"}
-          />
-        </BarChart>
-      </ResponsiveContainer>
-    </div>
-  </div>
-</div>
+                  {/* Performance Score Breakdown - separate graphs for each score */}
+                  <div className="bg-white/5 p-6 rounded-xl border border-white/10">
+                    <h3 className="text-xl font-medium mb-6 text-white/90">
+                      Performance Score Breakdown
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                      {/* Credibility Score */}
+                      <div className="h-80">
+                        <h4 className="text-center text-white/80 mb-2">
+                          Credibility (0-100)
+                        </h4>
+                        <ResponsiveContainer width="100%" height="100%">
+                          <BarChart
+                            data={[
+                              {
+                                name: "Credibility",
+                                [selectedInfluencers[0]?.channel_info ||
+                                "Influencer 1"]:
+                                  selectedInfluencers[0]?.credibility_score ||
+                                  0,
+                                [selectedInfluencers[1]?.channel_info ||
+                                "Influencer 2"]:
+                                  selectedInfluencers[1]?.credibility_score ||
+                                  0,
+                              },
+                            ]}
+                            margin={{
+                              top: 10,
+                              right: 10,
+                              left: 10,
+                              bottom: 40,
+                            }}
+                          >
+                            <CartesianGrid
+                              strokeDasharray="3 3"
+                              stroke="#333"
+                            />
+                            <XAxis dataKey="name" stroke="#aaa" />
+                            <YAxis
+                              stroke="#aaa"
+                              domain={[0, 100]}
+                              tickCount={6}
+                              tickFormatter={(value) => value.toFixed(0)}
+                            />
+                            <Tooltip content={<CustomTooltip />} />
+                            <Legend
+                              verticalAlign="top"
+                              wrapperStyle={{ paddingBottom: "20px" }}
+                            />
+                            <Bar
+                              dataKey={
+                                selectedInfluencers[0]?.channel_info ||
+                                "Influencer 1"
+                              }
+                              fill="#fc766a"
+                              name={
+                                selectedInfluencers[0]?.channel_info ||
+                                "Not Selected"
+                              }
+                            />
+                            <Bar
+                              dataKey={
+                                selectedInfluencers[1]?.channel_info ||
+                                "Influencer 2"
+                              }
+                              fill="#5b84b1"
+                              name={
+                                selectedInfluencers[1]?.channel_info ||
+                                "Not Selected"
+                              }
+                            />
+                          </BarChart>
+                        </ResponsiveContainer>
+                      </div>
 
-{/* Performance Score Breakdown - separate graphs for each score */}
-<div className="bg-white/5 p-6 rounded-xl border border-white/10">
-  <h3 className="text-xl font-medium mb-6 text-white/90">
-    Performance Score Breakdown
-  </h3>
-  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-    {/* Credibility Score */}
-    <div className="h-80">
-      <h4 className="text-center text-white/80 mb-2">Credibility (0-100)</h4>
-      <ResponsiveContainer width="100%" height="100%">
-        <BarChart
-          data={[
-            {
-              name: "Credibility",
-              [selectedInfluencers[0]?.channel_info || "Influencer 1"]: 
-                selectedInfluencers[0]?.credibility_score || 0,
-              [selectedInfluencers[1]?.channel_info || "Influencer 2"]: 
-                selectedInfluencers[1]?.credibility_score || 0
-            }
-          ]}
-          margin={{ top: 10, right: 10, left: 10, bottom: 40 }}
-        >
-          <CartesianGrid strokeDasharray="3 3" stroke="#333" />
-          <XAxis dataKey="name" stroke="#aaa" />
-          <YAxis 
-            stroke="#aaa" 
-            domain={[0, 100]}
-            tickCount={6}
-            tickFormatter={(value) => value.toFixed(0)}
-          />
-          <Tooltip content={<CustomTooltip />} />
-          <Legend verticalAlign="top" wrapperStyle={{ paddingBottom: "20px" }} />
-          <Bar
-            dataKey={selectedInfluencers[0]?.channel_info || "Influencer 1"}
-            fill="#fc766a"
-            name={selectedInfluencers[0]?.channel_info || "Not Selected"}
-          />
-          <Bar
-            dataKey={selectedInfluencers[1]?.channel_info || "Influencer 2"}
-            fill="#5b84b1"
-            name={selectedInfluencers[1]?.channel_info || "Not Selected"}
-          />
-        </BarChart>
-      </ResponsiveContainer>
-    </div>
+                      {/* Engagement Quality Score */}
+                      <div className="h-80">
+                        <h4 className="text-center text-white/80 mb-2">
+                          Engagement Quality (0-10)
+                        </h4>
+                        <ResponsiveContainer width="100%" height="100%">
+                          <BarChart
+                            data={[
+                              {
+                                name: "Quality",
+                                [selectedInfluencers[0]?.channel_info ||
+                                "Influencer 1"]:
+                                  selectedInfluencers[0]
+                                    ?.engagement_quality_score || 0,
+                                [selectedInfluencers[1]?.channel_info ||
+                                "Influencer 2"]:
+                                  selectedInfluencers[1]
+                                    ?.engagement_quality_score || 0,
+                              },
+                            ]}
+                            margin={{
+                              top: 10,
+                              right: 10,
+                              left: 10,
+                              bottom: 40,
+                            }}
+                          >
+                            <CartesianGrid
+                              strokeDasharray="3 3"
+                              stroke="#333"
+                            />
+                            <XAxis dataKey="name" stroke="#aaa" />
+                            <YAxis
+                              stroke="#aaa"
+                              domain={[0, 10]}
+                              tickCount={6}
+                              tickFormatter={(value) => value.toFixed(1)}
+                            />
+                            <Tooltip content={<CustomTooltip />} />
+                            <Legend
+                              verticalAlign="top"
+                              wrapperStyle={{ paddingBottom: "20px" }}
+                            />
+                            <Bar
+                              dataKey={
+                                selectedInfluencers[0]?.channel_info ||
+                                "Influencer 1"
+                              }
+                              fill="#fc766a"
+                              name={
+                                selectedInfluencers[0]?.channel_info ||
+                                "Not Selected"
+                              }
+                            />
+                            <Bar
+                              dataKey={
+                                selectedInfluencers[1]?.channel_info ||
+                                "Influencer 2"
+                              }
+                              fill="#5b84b1"
+                              name={
+                                selectedInfluencers[1]?.channel_info ||
+                                "Not Selected"
+                              }
+                            />
+                          </BarChart>
+                        </ResponsiveContainer>
+                      </div>
 
-    {/* Engagement Quality Score */}
-    <div className="h-80">
-      <h4 className="text-center text-white/80 mb-2">Engagement Quality (0-10)</h4>
-      <ResponsiveContainer width="100%" height="100%">
-        <BarChart
-          data={[
-            {
-              name: "Quality",
-              [selectedInfluencers[0]?.channel_info || "Influencer 1"]: 
-                selectedInfluencers[0]?.engagement_quality_score || 0,
-              [selectedInfluencers[1]?.channel_info || "Influencer 2"]: 
-                selectedInfluencers[1]?.engagement_quality_score || 0
-            }
-          ]}
-          margin={{ top: 10, right: 10, left: 10, bottom: 40 }}
-        >
-          <CartesianGrid strokeDasharray="3 3" stroke="#333" />
-          <XAxis dataKey="name" stroke="#aaa" />
-          <YAxis 
-            stroke="#aaa" 
-            domain={[0, 10]}
-            tickCount={6}
-            tickFormatter={(value) => value.toFixed(1)}
-          />
-          <Tooltip content={<CustomTooltip />} />
-          <Legend verticalAlign="top" wrapperStyle={{ paddingBottom: "20px" }} />
-          <Bar
-            dataKey={selectedInfluencers[0]?.channel_info || "Influencer 1"}
-            fill="#fc766a"
-            name={selectedInfluencers[0]?.channel_info || "Not Selected"}
-          />
-          <Bar
-            dataKey={selectedInfluencers[1]?.channel_info || "Influencer 2"}
-            fill="#5b84b1"
-            name={selectedInfluencers[1]?.channel_info || "Not Selected"}
-          />
-        </BarChart>
-      </ResponsiveContainer>
-    </div>
-
-    {/* Longevity Score */}
-    <div className="h-80">
-      <h4 className="text-center text-white/80 mb-2">Longevity (0-10)</h4>
-      <ResponsiveContainer width="100%" height="100%">
-        <BarChart
-          data={[
-            {
-              name: "Longevity",
-              [selectedInfluencers[0]?.channel_info || "Influencer 1"]: 
-                selectedInfluencers[0]?.longevity_score || 0,
-              [selectedInfluencers[1]?.channel_info || "Influencer 2"]: 
-                selectedInfluencers[1]?.longevity_score || 0
-            }
-          ]}
-          margin={{ top: 10, right: 10, left: 10, bottom: 40 }}
-        >
-          <CartesianGrid strokeDasharray="3 3" stroke="#333" />
-          <XAxis dataKey="name" stroke="#aaa" />
-          <YAxis 
-            stroke="#aaa" 
-            domain={[0, 10]}
-            tickCount={6}
-            tickFormatter={(value) => value.toFixed(1)}
-          />
-          <Tooltip content={<CustomTooltip />} />
-          <Legend verticalAlign="top" wrapperStyle={{ paddingBottom: "20px" }} />
-          <Bar
-            dataKey={selectedInfluencers[0]?.channel_info || "Influencer 1"}
-            fill="#fc766a"
-            name={selectedInfluencers[0]?.channel_info || "Not Selected"}
-          />
-          <Bar
-            dataKey={selectedInfluencers[1]?.channel_info || "Influencer 2"}
-            fill="#5b84b1"
-            name={selectedInfluencers[1]?.channel_info || "Not Selected"}
-          />
-        </BarChart>
-      </ResponsiveContainer>
-    </div>
-  </div>
-</div>
+                      {/* Longevity Score */}
+                      <div className="h-80">
+                        <h4 className="text-center text-white/80 mb-2">
+                          Longevity (0-10)
+                        </h4>
+                        <ResponsiveContainer width="100%" height="100%">
+                          <BarChart
+                            data={[
+                              {
+                                name: "Longevity",
+                                [selectedInfluencers[0]?.channel_info ||
+                                "Influencer 1"]:
+                                  selectedInfluencers[0]?.longevity_score || 0,
+                                [selectedInfluencers[1]?.channel_info ||
+                                "Influencer 2"]:
+                                  selectedInfluencers[1]?.longevity_score || 0,
+                              },
+                            ]}
+                            margin={{
+                              top: 10,
+                              right: 10,
+                              left: 10,
+                              bottom: 40,
+                            }}
+                          >
+                            <CartesianGrid
+                              strokeDasharray="3 3"
+                              stroke="#333"
+                            />
+                            <XAxis dataKey="name" stroke="#aaa" />
+                            <YAxis
+                              stroke="#aaa"
+                              domain={[0, 10]}
+                              tickCount={6}
+                              tickFormatter={(value) => value.toFixed(1)}
+                            />
+                            <Tooltip content={<CustomTooltip />} />
+                            <Legend
+                              verticalAlign="top"
+                              wrapperStyle={{ paddingBottom: "20px" }}
+                            />
+                            <Bar
+                              dataKey={
+                                selectedInfluencers[0]?.channel_info ||
+                                "Influencer 1"
+                              }
+                              fill="#fc766a"
+                              name={
+                                selectedInfluencers[0]?.channel_info ||
+                                "Not Selected"
+                              }
+                            />
+                            <Bar
+                              dataKey={
+                                selectedInfluencers[1]?.channel_info ||
+                                "Influencer 2"
+                              }
+                              fill="#5b84b1"
+                              name={
+                                selectedInfluencers[1]?.channel_info ||
+                                "Not Selected"
+                              }
+                            />
+                          </BarChart>
+                        </ResponsiveContainer>
+                      </div>
+                    </div>
+                  </div>
 
                   {/* Download Button */}
                   <motion.div

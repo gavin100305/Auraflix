@@ -15,7 +15,7 @@ const CollabSimulator = () => {
   const [results, setResults] = useState(null);
   const [recommendations, setRecommendations] = useState([]);
   const [loadingRecommendations, setLoadingRecommendations] = useState(false);
-  
+
   // Create refs for scrolling to specific sections
   const simulateCollabSectionRef = useRef(null);
   const resultsSectionRef = useRef(null);
@@ -59,7 +59,9 @@ const CollabSimulator = () => {
   useEffect(() => {
     const fetchInfluencers = async () => {
       try {
-        const response = await axios.get("http://127.0.0.1:8000/data");
+        const response = await axios.get(
+          "https://influenceiq.onrender.com/data"
+        );
         setInfluencers(response.data);
       } catch (error) {
         console.error("Error fetching influencers:", error);
@@ -91,7 +93,7 @@ const CollabSimulator = () => {
 
     try {
       const response = await axios.post(
-        "http://127.0.0.1:8000/collab-simulation",
+        "https://influenceiq.onrender.com/collab-simulation",
         {
           business: businessDetails,
           influencer_username: selectedInfluencer,
@@ -99,17 +101,16 @@ const CollabSimulator = () => {
       );
 
       setResults(response.data);
-      
+
       // Scroll to results section after a slight delay to ensure the section is rendered
       setTimeout(() => {
         if (resultsSectionRef.current) {
           resultsSectionRef.current.scrollIntoView({
-            behavior: 'smooth',
-            block: 'start'
+            behavior: "smooth",
+            block: "start",
           });
         }
       }, 100);
-      
     } catch (error) {
       console.error("Error simulating collaboration:", error);
       alert("Failed to simulate collaboration");
@@ -128,7 +129,7 @@ const CollabSimulator = () => {
 
     try {
       const response = await axios.post(
-        "http://127.0.0.1:8000/batch-collab-recommendations",
+        "https://influenceiq.onrender.com/batch-collab-recommendations",
         {
           business: businessDetails,
           count: 10, // Get top 10 recommendations
@@ -147,15 +148,15 @@ const CollabSimulator = () => {
   // Function to handle the Details button click
   const handleDetailsClick = (username) => {
     setSelectedInfluencer(username);
-    
+
     // Scroll to the Simulate Specific Collaboration section
     if (simulateCollabSectionRef.current) {
       simulateCollabSectionRef.current.scrollIntoView({
-        behavior: 'smooth',
-        block: 'start'
+        behavior: "smooth",
+        block: "start",
       });
     }
-    
+
     // Optional: We can also simulate the collaboration automatically
     // simulateCollab();
   };
@@ -186,14 +187,15 @@ const CollabSimulator = () => {
           >
             Collaboration Simulator
           </motion.h1>
-          
+
           <motion.p
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.8, delay: 0.2 }}
             className="text-neutral-400 text-lg mb-12 max-w-3xl"
           >
-            Predict and optimize your influencer marketing campaigns with AI-powered collaboration simulations.
+            Predict and optimize your influencer marketing campaigns with
+            AI-powered collaboration simulations.
           </motion.p>
 
           {/* Business Details Form */}
@@ -326,7 +328,10 @@ const CollabSimulator = () => {
                   </thead>
                   <tbody className="divide-y divide-neutral-800">
                     {recommendations.map((rec) => (
-                      <tr key={rec.username} className="hover:bg-neutral-800/30 transition-colors">
+                      <tr
+                        key={rec.username}
+                        className="hover:bg-neutral-800/30 transition-colors"
+                      >
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="text-sm font-medium text-white">
                             {rec.channel_info}
@@ -399,12 +404,13 @@ const CollabSimulator = () => {
                   value={selectedInfluencer}
                   onChange={handleInfluencerChange}
                   className="w-full bg-neutral-800/80 text-white border border-neutral-700 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all appearance-none"
-                  style={{ 
-                    backgroundImage: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23ffffff'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E\")",
+                  style={{
+                    backgroundImage:
+                      "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23ffffff'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E\")",
                     backgroundRepeat: "no-repeat",
                     backgroundPosition: "right 1rem center",
                     backgroundSize: "1.5em 1.5em",
-                    paddingRight: "3rem"
+                    paddingRight: "3rem",
                   }}
                 >
                   <option value="">-- Select Influencer --</option>

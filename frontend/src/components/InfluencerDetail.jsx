@@ -7,8 +7,8 @@ import TrendGraph from "./TrendGraph";
 import Spotlight from "../components/Spotlight";
 import Header from "../components/Header";
 import RomFooter from "../components/RomFooter";
-import { MapContainer, TileLayer, GeoJSON } from 'react-leaflet';
-import L from 'leaflet';
+import { MapContainer, TileLayer, GeoJSON } from "react-leaflet";
+import L from "leaflet";
 import InfluencerWorldMap from "./InfluencerWorldMap";
 
 const InfluencerDetail = () => {
@@ -39,12 +39,14 @@ const InfluencerDetail = () => {
   // Function to fetch all countries data
   const fetchAllCountries = async () => {
     try {
-      const response = await fetch("https://restcountries.com/v3.1/all?fields=name,cca2,flags");
-      
+      const response = await fetch(
+        "https://restcountries.com/v3.1/all?fields=name,cca2,flags"
+      );
+
       if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
       }
-      
+
       const data = await response.json();
       setCountriesData(data);
     } catch (error) {
@@ -56,19 +58,19 @@ const InfluencerDetail = () => {
   const setFlagForCountry = (countryName) => {
     // Default to globe emoji
     let flag = "🌍";
-    
+
     // Try to find the country in our data
     const country = countriesData.find(
-      c => 
+      (c) =>
         c.name.common.toLowerCase() === countryName.toLowerCase() ||
         c.name.official.toLowerCase() === countryName.toLowerCase()
     );
-    
+
     if (country) {
       // Use emoji flag if available, otherwise use the SVG flag URL
       flag = country.flags.svg || country.flags.png || "🌍";
     }
-    
+
     setCountryFlag(flag);
   };
   // Fetch Wikipedia image when influencer changes
@@ -82,7 +84,7 @@ const InfluencerDetail = () => {
       setIsResultVisible(false);
     }
   }, [influencer]);
-  
+
   // Function to fetch Wikipedia image
   const fetchWikipediaImage = async (searchTerm) => {
     try {
@@ -114,13 +116,12 @@ const InfluencerDetail = () => {
   };
   const [geoData, setGeoData] = useState(null);
 
-
   useEffect(() => {
     const fetchInfluencerDetail = async () => {
       try {
         setLoading(true);
         // Fetch all influencers and find the matching one
-        const response = await fetch("http://127.0.0.1:8000/data");
+        const response = await fetch("https://influenceiq.onrender.com/data");
 
         if (!response.ok) {
           throw new Error(`HTTP error! Status: ${response.status}`);
@@ -154,15 +155,18 @@ const InfluencerDetail = () => {
       setSummaryLoading(true);
 
       // Backend endpoint for summary generation
-      const response = await fetch("http://127.0.0.1:8000/generate-summary", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          influencer: influencerData,
-        }),
-      });
+      const response = await fetch(
+        "https://influenceiq.onrender.com/generate-summary",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            influencer: influencerData,
+          }),
+        }
+      );
 
       if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
@@ -187,44 +191,44 @@ const InfluencerDetail = () => {
   // Animation variants
   const cardVariants = {
     hidden: { opacity: 0, y: 30 },
-    visible: { 
-      opacity: 1, 
+    visible: {
+      opacity: 1,
       y: 0,
-      transition: { duration: 0.5 }
+      transition: { duration: 0.5 },
     },
-    hover: { 
+    hover: {
       y: -5,
       boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.1)",
-      transition: { duration: 0.2 }
-    }
+      transition: { duration: 0.2 },
+    },
   };
 
   const contentVariants = {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
-      transition: { 
+      transition: {
         staggerChildren: 0.1,
-        delayChildren: 0.2
-      }
-    }
+        delayChildren: 0.2,
+      },
+    },
   };
 
   const itemVariants = {
     hidden: { opacity: 0, x: -5 },
-    visible: { 
-      opacity: 1, 
+    visible: {
+      opacity: 1,
       x: 0,
-      transition: { duration: 0.3 }
-    }
+      transition: { duration: 0.3 },
+    },
   };
 
   const progressVariants = {
     hidden: { width: "0%" },
     visible: (width) => ({
       width: `${width}%`,
-      transition: { duration: 0.8, ease: "easeOut" }
-    })
+      transition: { duration: 0.8, ease: "easeOut" },
+    }),
   };
 
   if (loading) {
@@ -281,91 +285,94 @@ const InfluencerDetail = () => {
         <div className="relative z-10 w-full mx-auto px-6 py-12 md:py-24">
           {/* Influencer header */}
           <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
-              className="mb-12"
-            >
-              <div className="flex items-center gap-6">
-                <motion.div
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  whileHover={{ scale: 1.05 }}
-                  transition={{ delay: 0.3, type: "spring" }}
-                  className="w-24 h-24 md:w-28 md:h-28 bg-white/10 backdrop-blur-md rounded-full flex items-center justify-center text-white font-bold text-3xl overflow-hidden flex-shrink-0 border border-neutral-800/50"
-                >
-                  {imageUrl ? (
-                    <img
-                      src={imageUrl}
-                      alt={influencer.channel_info}
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    influencer.channel_info.charAt(0).toUpperCase()
-                  )}
-                </motion.div>
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            className="mb-12"
+          >
+            <div className="flex items-center gap-6">
+              <motion.div
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                whileHover={{ scale: 1.05 }}
+                transition={{ delay: 0.3, type: "spring" }}
+                className="w-24 h-24 md:w-28 md:h-28 bg-white/10 backdrop-blur-md rounded-full flex items-center justify-center text-white font-bold text-3xl overflow-hidden flex-shrink-0 border border-neutral-800/50"
+              >
+                {imageUrl ? (
+                  <img
+                    src={imageUrl}
+                    alt={influencer.channel_info}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  influencer.channel_info.charAt(0).toUpperCase()
+                )}
+              </motion.div>
 
-                <div className="flex flex-col">
-                <a 
-                    href={`https://www.instagram.com/${influencer.channel_info.replace('@', '')}`} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="group inline-flex items-center gap-2 transition-all duration-300 hover:translate-y-[-2px]"
-                  >
-                    <motion.h1 
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.5, delay: 0.4 }}
-                      className="bg-gradient-to-b from-neutral-50 to-neutral-400 bg-clip-text text-3xl md:text-5xl font-bold text-transparent leading-tight transition-all duration-300 group-hover:from-blue-300 group-hover:to-purple-400"
-                    >
-                      @{influencer.channel_info}
-                    </motion.h1>
-                    <svg 
-                      xmlns="http://www.w3.org/2000/svg" 
-                      viewBox="0 0 24 24" 
-                      fill="none" 
-                      stroke="currentColor" 
-                      className="w-6 h-6 text-gray-400 group-hover:text-purple-400 transition-all duration-300 opacity-0 group-hover:opacity-100 transform group-hover:translate-x-1"
-                      strokeWidth="2" 
-                      strokeLinecap="round" 
-                      strokeLinejoin="round"
-                    >
-                      <path d="M7 17l9.2-9.2M17 17V7H7" />
-                    </svg>
-                  </a>
-                  <motion.div 
+              <div className="flex flex-col">
+                <a
+                  href={`https://www.instagram.com/${influencer.channel_info.replace(
+                    "@",
+                    ""
+                  )}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group inline-flex items-center gap-2 transition-all duration-300 hover:translate-y-[-2px]"
+                >
+                  <motion.h1
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5, delay: 0.5 }}
-                    className="flex items-center mt-3 gap-3"
+                    transition={{ duration: 0.5, delay: 0.4 }}
+                    className="bg-gradient-to-b from-neutral-50 to-neutral-400 bg-clip-text text-3xl md:text-5xl font-bold text-transparent leading-tight transition-all duration-300 group-hover:from-blue-300 group-hover:to-purple-400"
                   >
-                    <motion.span 
+                    @{influencer.channel_info}
+                  </motion.h1>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    className="w-6 h-6 text-gray-400 group-hover:text-purple-400 transition-all duration-300 opacity-0 group-hover:opacity-100 transform group-hover:translate-x-1"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M7 17l9.2-9.2M17 17V7H7" />
+                  </svg>
+                </a>
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: 0.5 }}
+                  className="flex items-center mt-3 gap-3"
+                >
+                  <motion.span
+                    whileHover={{ scale: 1.05 }}
+                    className="bg-neutral-800 text-neutral-300 px-3 py-1 rounded-full text-sm font-medium"
+                  >
+                    Rank #{influencer.rank}
+                  </motion.span>
+                  {influencer.country && (
+                    <motion.span
                       whileHover={{ scale: 1.05 }}
-                      className="bg-neutral-800 text-neutral-300 px-3 py-1 rounded-full text-sm font-medium"
+                      className="text-neutral-400 flex items-center"
                     >
-                      Rank #{influencer.rank}
+                      {countryFlag.startsWith("http") ? (
+                        <img
+                          src={countryFlag}
+                          alt={`${influencer.country} flag`}
+                          className="w-5 h-3 mr-1.5 object-cover"
+                        />
+                      ) : (
+                        <span className="mr-1.5">{countryFlag}</span>
+                      )}
+                      {influencer.country}
                     </motion.span>
-                    {influencer.country && (
-                      <motion.span 
-                        whileHover={{ scale: 1.05 }}
-                        className="text-neutral-400 flex items-center"
-                      >
-                        {countryFlag.startsWith('http') ? (
-                          <img 
-                            src={countryFlag} 
-                            alt={`${influencer.country} flag`} 
-                            className="w-5 h-3 mr-1.5 object-cover" 
-                          />
-                        ) : (
-                          <span className="mr-1.5">{countryFlag}</span>
-                        )}
-                        {influencer.country}
-                      </motion.span>
-                    )}
-                  </motion.div>
-                </div>
+                  )}
+                </motion.div>
               </div>
-            </motion.div>
+            </div>
+          </motion.div>
 
           {/* Main content */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -384,7 +391,7 @@ const InfluencerDetail = () => {
                     Influence Metrics
                   </h2>
                 </div>
-                <motion.div 
+                <motion.div
                   variants={contentVariants}
                   initial="hidden"
                   animate="visible"
@@ -403,13 +410,17 @@ const InfluencerDetail = () => {
                     </div>
                   </motion.div>
                   <motion.div variants={itemVariants}>
-                    <div className="text-neutral-400 text-sm">Average Likes</div>
+                    <div className="text-neutral-400 text-sm">
+                      Average Likes
+                    </div>
                     <div className="text-white text-xl font-bold">
                       {influencer.avg_likes}
                     </div>
                   </motion.div>
                   <motion.div variants={itemVariants}>
-                    <div className="text-neutral-400 text-sm">Engagement Rate</div>
+                    <div className="text-neutral-400 text-sm">
+                      Engagement Rate
+                    </div>
                     <div className="text-white text-xl font-bold">
                       {influencer.avg_engagement}
                     </div>
@@ -444,7 +455,7 @@ const InfluencerDetail = () => {
                     Performance Scores
                   </h2>
                 </div>
-                <motion.div 
+                <motion.div
                   variants={contentVariants}
                   initial="hidden"
                   animate="visible"
@@ -513,7 +524,9 @@ const InfluencerDetail = () => {
                         Engagement Quality Score
                       </span>
                       <span className="text-white font-bold">
-                        {(influencer.engagement_quality_score)?.toFixed(1) || "N/A"}%
+                        {influencer.engagement_quality_score?.toFixed(1) ||
+                          "N/A"}
+                        %
                       </span>
                     </div>
                     <div className="w-full bg-neutral-800 rounded-full h-2">
@@ -577,7 +590,7 @@ const InfluencerDetail = () => {
                 </div>
                 <div className="px-6 py-6">
                   {summary ? (
-                    <motion.p 
+                    <motion.p
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
                       transition={{ duration: 0.5, delay: 0.3 }}
@@ -590,7 +603,7 @@ const InfluencerDetail = () => {
                       <p className="text-neutral-400">Generating summary...</p>
                     </div>
                   ) : (
-                    <motion.p 
+                    <motion.p
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
                       transition={{ duration: 0.5, delay: 0.3 }}
@@ -619,7 +632,7 @@ const InfluencerDetail = () => {
                     Engagement Trends
                   </h2>
                 </div>
-                <motion.div 
+                <motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ duration: 0.8, delay: 0.6 }}
@@ -628,35 +641,33 @@ const InfluencerDetail = () => {
                   <TrendGraph influencer={influencer} />
                 </motion.div>
               </motion.div>
-              </div>
-
-              
+            </div>
           </div>
           {/* Heat Map Section - Full Width */}
-        <motion.div
-          variants={cardVariants}
-          initial="hidden"
-          animate="visible"
-          whileHover="hover"
-          transition={{ duration: 0.5, delay: 0.6 }}
-          className="col-span-1 lg:col-span-3 mt-8"
-        >
-          <div className="bg-neutral-900/50 rounded-xl border border-neutral-800 overflow-hidden backdrop-blur-sm">
-            <div className="px-6 py-4 border-b border-neutral-800">
-              <h2 className="text-xl font-bold text-white">
-                Worldwide Popularity and Influence Level
-              </h2>
+          <motion.div
+            variants={cardVariants}
+            initial="hidden"
+            animate="visible"
+            whileHover="hover"
+            transition={{ duration: 0.5, delay: 0.6 }}
+            className="col-span-1 lg:col-span-3 mt-8"
+          >
+            <div className="bg-neutral-900/50 rounded-xl border border-neutral-800 overflow-hidden backdrop-blur-sm">
+              <div className="px-6 py-4 border-b border-neutral-800">
+                <h2 className="text-xl font-bold text-white">
+                  Worldwide Popularity and Influence Level
+                </h2>
+              </div>
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.8, delay: 0.7 }}
+                className="w-full h-[500px]" // Fixed height for better proportions
+              >
+                <InfluencerWorldMap influencer={influencer} />
+              </motion.div>
             </div>
-            <motion.div 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.8, delay: 0.7 }}
-              className="w-full h-[500px]" // Fixed height for better proportions
-            >
-              <InfluencerWorldMap influencer={influencer} />
-            </motion.div>
-          </div>
-        </motion.div>
+          </motion.div>
         </div>
       </div>
 

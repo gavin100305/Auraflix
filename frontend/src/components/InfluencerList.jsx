@@ -73,9 +73,9 @@ const InfluencerList = () => {
   const fetchAllInfluencers = async () => {
     try {
       setLoading(true);
-      
+
       // Fetch all data without pagination parameters
-      const response = await fetch(`http://127.0.0.1:8000/data`);
+      const response = await fetch(`https://influenceiq.onrender.com/data`);
 
       if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
@@ -121,7 +121,7 @@ const InfluencerList = () => {
     indexOfFirstItem,
     indexOfLastItem
   );
-  
+
   // Calculate total pages
   const totalPages = Math.ceil(influencers.length / itemsPerPage);
   const hasNextPage = currentPage < totalPages;
