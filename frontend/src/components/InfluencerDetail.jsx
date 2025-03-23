@@ -623,7 +623,7 @@ const InfluencerDetail = () => {
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ duration: 0.8, delay: 0.6 }}
-                  className="px-6 py-6 h-96"
+                  className="px-6 py-6 h-165"
                 >
                   <TrendGraph influencer={influencer} />
                 </motion.div>

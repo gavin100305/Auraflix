@@ -12,6 +12,14 @@ from typing import Optional, Dict, Any
 from google.api_core.exceptions import GoogleAPICallError, NotFound
 from dotenv import load_dotenv
 import os
+from fastapi import FastAPI, HTTPException
+from pydantic import BaseModel
+from typing import List, Dict, Optional, Union
+import numpy as np
+from sklearn.linear_model import LinearRegression
+import pandas as pd
+from io import StringIO
+from fastapi.responses import StreamingResponse
 # Initialize the FastAPI app
 app = FastAPI()
 
@@ -367,6 +375,75 @@ async def generate_influence(request: InfluencerRequest):
             "message": str(e),
             "influence_map": {}
         }
+        
+class TrendPoint(BaseModel):
+    month: str
+    period: str
+    quality_score: float
+    engagement: float
+    followers: int
+    likes: int
+
+class RegressionResult(BaseModel):
+    slope: float
+    intercept: float
+    r_squared: float
+    predictions: List[Dict[str, Union[str, float]]]
+        
+@app.post("/analyze/regression/{metric}")
+async def calculate_regression(metric: str, data: List[TrendPoint]):
+    """Calculate linear regression for specified metric and return model details."""
+    if not data or len(data) < 2:
+        raise HTTPException(400, "Need at least 2 data points for regression")
+    
+    if metric not in ["engagement", "quality_score", "followers", "likes"]:
+        raise HTTPException(400, f"Unsupported metric: {metric}")
+    
+    # Extract data for regression
+    X = np.array(range(len(data))).reshape(-1, 1)  # X is just the indices
+    y = np.array([getattr(point, metric) for point in data])
+    
+    # Fit regression model
+    model = LinearRegression().fit(X, y)
+    
+    # Calculate predictions including 9 future months
+    future_X = np.array(range(len(data) + 9)).reshape(-1, 1)
+    predictions = model.predict(future_X)
+    
+    # Generate prediction results
+    prediction_results = []
+    for i, pred in enumerate(predictions):
+        # For actual months, use existing month names
+        if i < len(data):
+            month = data[i].month
+            period = data[i].period
+        else:
+            # For future months, generate month names
+            # This is simplified - you might want more accurate month prediction
+            last_date_parts = data[-1].period.split()
+            month_idx = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", 
+                         "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"].index(last_date_parts[0])
+            future_month_idx = (month_idx + (i - len(data) + 1)) % 12
+            month = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", 
+                    "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"][future_month_idx]
+            year = int(last_date_parts[1])
+            if future_month_idx < month_idx:
+                year += 1
+            period = f"{month} {year}"
+        
+        prediction_results.append({
+            "month": month,
+            "period": period,
+            "predicted": float(pred),
+            "is_future": i >= len(data)
+        })
+    
+    return RegressionResult(
+        slope=float(model.coef_[0]),
+        intercept=float(model.intercept_),
+        r_squared=float(model.score(X, y)),
+        predictions=prediction_results
+    )
 # Run the API using Uvicorn
 if __name__ == "__main__":
     import uvicorn

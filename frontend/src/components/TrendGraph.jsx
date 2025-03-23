@@ -1,173 +1,30 @@
-// import React, { useState, useEffect } from "react";
-// import {
-//   LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer, Legend, Label
-// } from "recharts";
-
-// const TrendGraph = ({ influencer }) => {
-//   if(!influencer) return null;
-//   const [trendData, setTrendData] = useState([]);
-
-//   useEffect(() => {
-//     const data = generateTrendData(influencer.engagement_quality_score);
-//     setTrendData(data);
-//   }, [influencer]);
-
-//   const generateTrendData = (currentScore) => {
-//     const data = [];
-//     for (let i = 6; i >= 0; i--) {
-//       const date = new Date();
-//       date.setDate(date.getDate() - i);
-//       const score = +(currentScore + (Math.random() - 0.5) * 0.1).toFixed(4);
-//       data.push({
-//         date: date.toISOString().split("T")[0],
-//         engagement_quality_score: score,
-//       });
-//     }
-//     return data;
-//   };
-
-//   // Format date to be more readable (e.g., "Mar 22" instead of "2025-03-22")
-//   const formatDate = (dateStr) => {
-//     const date = new Date(dateStr);
-//     return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-//   };
-
-//   // Custom tooltip to make data more understandable
-//   const CustomTooltip = ({ active, payload, label }) => {
-//     if (active && payload && payload.length) {
-//       const score = payload[0].value;
-//       let quality = "Average";
-//       let color = "text-yellow-500";
-
-//       if (score > 0.85) {
-//         quality = "Excellent";
-//         color = "text-green-600";
-//       } else if (score > 0.75) {
-//         quality = "Good";
-//         color = "text-green-500";
-//       } else if (score < 0.65) {
-//         quality = "Needs Improvement";
-//         color = "text-red-500";
-//       }
-
-//       return (
-//         <div className="bg-white p-4 shadow-lg rounded-lg border border-gray-200">
-//           <p className="font-semibold">{formatDate(label)}</p>
-//           <p>Quality Score: <span className="font-bold">{(score * 100).toFixed(1)}%</span></p>
-//           <p>Rating: <span className={`font-bold ${color}`}>{quality}</span></p>
-//         </div>
-//       );
-//     }
-//     return null;
-//   };
-
-//   return (
-//     <div className="bg-white p-6 rounded-2xl shadow-lg mt-6">
-//       <h2 className="text-xl font-bold mb-4 text-center">
-//         {influencer.channel_info}'s Engagement Quality
-//       </h2>
-//       <p className="text-center text-gray-500 mb-4">Last 7 days</p>
-
-//       <ResponsiveContainer width="100%" height={350}>
-//         <LineChart
-//           data={trendData}
-//           margin={{ top: 20, right: 30, left: 20, bottom: 40 }}
-//         >
-//           <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-//           <XAxis
-//             dataKey="date"
-//             tickFormatter={formatDate}
-//             axisLine={{ stroke: "#e0e0e0" }}
-//             tick={{ fill: "#666" }}
-//             height={50}
-//           >
-//             <Label
-//               value="Date"
-//               position="bottom"
-//               offset={20}
-//               style={{ textAnchor: 'middle', fill: '#666', fontWeight: 'bold' }}
-//             />
-//           </XAxis>
-//           <YAxis
-//             domain={[
-//               dataMin => Math.floor(dataMin * 10) / 10,
-//               dataMax => Math.ceil(dataMax * 10) / 10
-//             ]}
-//             tickFormatter={value => `${(value * 100).toFixed(0)}%`}
-//             axisLine={{ stroke: "#e0e0e0" }}
-//             tick={{ fill: "#666" }}
-//             width={60}
-//           >
-//             <Label
-//               value="Engagement Quality"
-//               angle={-90}
-//               position="insideLeft"
-//               offset={-5}
-//               style={{ textAnchor: 'middle', fill: '#666', fontWeight: 'bold' }}
-//             />
-//           </YAxis>
-//           <Tooltip content={<CustomTooltip />} />
-//           <Line
-//             type="monotone"
-//             dataKey="engagement_quality_score"
-//             stroke="#10b981"
-//             strokeWidth={2}
-//             dot={{ r: 4, fill: "#10b981", stroke: "#fff", strokeWidth: 2 }}
-//             activeDot={{ r: 6, fill: "#059669", stroke: "#fff", strokeWidth: 2 }}
-//             name="Engagement Quality"
-//           />
-//           <Legend verticalAlign="top" height={36} />
-//         </LineChart>
-//       </ResponsiveContainer>
-
-//       <div className="mt-4 bg-gray-50 p-4 rounded-lg">
-//         <h3 className="font-semibold mb-2">What is Engagement Quality?</h3>
-//         <p className="text-sm text-gray-600">
-//           This score measures how meaningful the interactions with your content are.
-//           Higher scores indicate more authentic engagement from real followers who care
-//           about your content.
-//         </p>
-//       </div>
-//     </div>
-//   );
-// };
-
-// export default TrendGraph;
-
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from 'react';
 import {
   LineChart,
   Line,
   XAxis,
   YAxis,
-  Tooltip,
   CartesianGrid,
-  ResponsiveContainer,
+  Tooltip,
   Legend,
-  Label,
-  ReferenceLine,
-  Area,
-  AreaChart,
-  ComposedChart,
-  Bar,
-} from "recharts";
-import { motion } from "framer-motion";
+  ResponsiveContainer
+} from 'recharts';
 
-const TrendGraph = ({ influencer }) => {
+const TrendGraph = ({influencer}) => {
+  const [influencerData, setInfluencerData] = useState(null);
   const [trendData, setTrendData] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [regressionData, setRegressionData] = useState({});
+  const [activeMetric, setActiveMetric] = useState('engagement');
+  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [selectedMetrics, setSelectedMetrics] = useState([
-    "engagement",
-    "quality_score",
-  ]);
-  const [activeTab, setActiveTab] = useState("engagement");
+  const [csvData, setCsvData] = useState(null);
+  const [showPredictions, setShowPredictions] = useState(false);
 
   useEffect(() => {
     if (!influencer) return;
 
     const fetchTrendData = async () => {
-      setLoading(true);
+      setIsLoading(true);  // Fixed: changed setLoading to setIsLoading
       try {
         // Extract username
         const username = influencer.channel_info?.startsWith("@")
@@ -201,427 +58,439 @@ const TrendGraph = ({ influencer }) => {
           setTrendData(generatedData);
         }
       } finally {
-        setLoading(false);
+        setIsLoading(false);  // Fixed: changed setLoading to setIsLoading
       }
     };
-
     fetchTrendData();
-  }, [influencer]);
+}, [influencer]);
 
-  // Fallback data generation (simplified from your original function)
-  const generateFallbackData = (qualityScore) => {
+// Generate fallback data if API fails
+const generateFallbackData = (baseEngagement) => {
+// Using the historical data generation logic for fallback
+return generateHistoricalData(influencer);
+};
+
+
+  // Generate 3 years of historical data based on current metrics
+  const generateHistoricalData = (influencer) => {
+    if (!influencer) return [];
+    
     const data = [];
     const baseDate = new Date();
-    baseDate.setMonth(baseDate.getMonth() - 11); // Start 12 months ago
-
-    for (let i = 0; i < 12; i++) {
+    baseDate.setMonth(baseDate.getMonth() - 35); // Start 36 months ago
+    
+    // Get base values for consistency in generated data
+    const baseLongevity = influencer.longevity_score;
+    const baseEngagement = influencer.engagement_quality_score;
+    const baseFollowers = parseFloat(influencer.followers.replace('m', '')) * 1000000;
+    const baseLikes = parseFloat(influencer.avg_likes.replace('m', '')) * 1000000;
+    
+    // Add seasonality and trend factors
+    const seasonalityFactors = [0.98, 0.96, 0.97, 1.02, 1.04, 1.06, 1.08, 1.09, 1.05, 1.02, 0.99, 0.95]; // Monthly factors
+    const trendFactor = 1.008; // Annual growth trend
+    
+    for (let i = 0; i < 36; i++) {
       const currentDate = new Date(baseDate);
       currentDate.setMonth(currentDate.getMonth() + i);
-
-      // Create variation based on quality score
-      const quality = +(qualityScore + (Math.random() - 0.5) * 0.1).toFixed(3);
-      const engagement = +Math.max(
-        0.5,
-        quality * 4 + (Math.random() - 0.5)
-      ).toFixed(2);
-
+      const monthIndex = currentDate.getMonth();
+      
+      // Calculate year-based and month-based factors
+      const yearFactor = Math.pow(trendFactor, i / 12);
+      const monthFactor = seasonalityFactors[monthIndex];
+      
+      // Create more realistic patterns with seasonality and trends
+      const longevity = +(baseLongevity * 0.8 * yearFactor * (1 + (Math.random() * 0.02 - 0.01)) * monthFactor).toFixed(3);
+      const engagement = +(baseEngagement * 0.75 * yearFactor * monthFactor * (1 + (Math.random() * 0.05 - 0.025))).toFixed(3);
+      
+      // Add some volatility to followers and likes
+      const followerVolatility = 1 + (Math.random() * 0.03 - 0.01);
+      const likesVolatility = 1 + (Math.random() * 0.08 - 0.03);
+      
+      // Apply both growth trend and seasonal factors
+      const followers = Math.floor(baseFollowers * 0.95 * yearFactor * monthFactor * followerVolatility);
+      const likes = Math.floor(baseLikes * 0.65 * yearFactor * monthFactor * likesVolatility);
+      
       data.push({
         month: currentDate.toLocaleString("default", { month: "short" }),
         period: `${currentDate.toLocaleString("default", {
           month: "short",
         })} ${currentDate.getFullYear()}`,
-        quality_score: quality,
+        quality_score: longevity,
         engagement: engagement,
-        followers: Math.floor(50000 + i * 5000 + Math.random() * 10000),
-        likes: Math.floor(1000 + i * 200 + Math.random() * 500),
+        followers: followers,
+        likes: likes
       });
     }
-
+    
     return data;
   };
-
-  // Format date to be more readable
-  const formatDate = (month) => {
-    return month; // Already formatted as "MMM" from API
+  
+  useEffect(() => {
+    if (trendData && trendData.length > 0 && activeMetric) {
+      fetchRegressionData(activeMetric);
+    }
+  }, [trendData, activeMetric]);
+  
+  // Fetch regression data from the backend
+  // Modify the fetchRegressionData function to ensure better predictions
+const fetchRegressionData = async (metric) => {
+  if (!trendData || trendData.length < 2) return;
+  
+  setIsLoading(true);
+  
+  try {
+    // Prepare data for API request
+    const apiData = trendData.map(item => ({
+      month: item.month,
+      period: item.period,
+      quality_score: item.quality_score || item.longevity_score,
+      engagement: item.engagement || item.engagement_quality_score,
+      followers: item.followers,
+      likes: item.likes
+    }));
+    
+    // Call the backend regression API
+    const response = await fetch(`http://127.0.0.1:8000/analyze/regression/${metric}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(apiData)
+    });
+    
+    if (!response.ok) {
+      throw new Error(`Regression API error: ${response.status}`);
+    }
+    
+    const regressionResult = await response.json();
+    
+    // Ensure continuity between actual and predicted values
+    if (regressionResult.predictions && regressionResult.predictions.length > 0) {
+      // Get the last actual data point
+      const lastActualDataPoint = trendData[trendData.length - 1];
+      const lastActualValue = lastActualDataPoint[metric];
+      
+      // Find the first future prediction
+      const firstFuturePrediction = regressionResult.predictions.find(p => p.is_future);
+      
+      if (firstFuturePrediction) {
+        const discontinuity = firstFuturePrediction.predicted - lastActualValue;
+        
+        // Adjust all future predictions to eliminate the discontinuity
+        regressionResult.predictions = regressionResult.predictions.map(prediction => {
+          if (prediction.is_future) {
+            return {
+              ...prediction,
+              predicted: prediction.predicted - discontinuity
+            };
+          }
+          return prediction;
+        });
+      }
+    }
+    
+    // Update state with the regression results
+    setRegressionData(prevData => ({
+      ...prevData,
+      [metric]: regressionResult
+    }));
+  } catch (err) {
+    console.error("Error calculating regression:", err);
+    setError(`Error calculating regression: ${err.message}`);
+  } finally {
+    setIsLoading(false);
+  }
+};
+  
+  // Format value based on metric
+  const formatValue = (value, metric) => {
+    if (!value && value !== 0) return 'N/A';
+    
+    if (metric === 'engagement' || metric === 'quality_score') {
+      return value.toFixed(2);
+    } else if (metric === 'followers') {
+      return value >= 1000000 ? `${(value / 1000000).toFixed(1)}M` : value >= 1000 ? `${(value / 1000).toFixed(1)}K` : value;
+    } else if (metric === 'likes') {
+      return value >= 1000000 ? `${(value / 1000000).toFixed(1)}M` : value >= 1000 ? `${(value / 1000).toFixed(1)}K` : value;
+    }
+    return value;
   };
-
-  // Handle tab changes
-  const handleTabChange = (tab) => {
-    setActiveTab(tab);
-
-    // Set appropriate metrics for each tab
-    switch (tab) {
-      case "engagement":
-        setSelectedMetrics(["engagement", "quality_score"]);
-        break;
-      case "followers":
-        setSelectedMetrics(["followers"]);
-        break;
-      case "likes":
-        setSelectedMetrics(["likes"]);
-        break;
-      default:
-        setSelectedMetrics(["engagement", "quality_score"]);
+  
+  // Get color based on metric
+  const getMetricColor = (metric) => {
+    switch (metric) {
+      case 'engagement': return '#3b82f6'; // blue
+      case 'quality_score': return '#10b981'; // green
+      case 'followers': return '#8b5cf6'; // purple
+      case 'likes': return '#ec4899'; // pink
+      default: return '#3b82f6';
     }
   };
-
-  // Custom tooltip
+  
+  // Custom tooltip component
   const CustomTooltip = ({ active, payload, label }) => {
     if (!active || !payload || !payload.length) return null;
-
-    // Get quality score if available
-    const qualityScore = payload.find(
-      (p) => p.dataKey === "quality_score"
-    )?.value;
-    const engagement = payload.find((p) => p.dataKey === "engagement")?.value;
-    const followers = payload.find((p) => p.dataKey === "followers")?.value;
-    const likes = payload.find((p) => p.dataKey === "likes")?.value;
-
-    // Determine quality rating
-    let quality = "Average";
-    let color = "text-yellow-400";
-
-    if (qualityScore > 0.8) {
-      quality = "Excellent";
-      color = "text-green-400";
-    } else if (qualityScore > 0.6) {
-      quality = "Good";
-      color = "text-blue-400";
-    } else if (qualityScore < 0.4) {
-      quality = "Needs Improvement";
-      color = "text-orange-400";
-    } else if (qualityScore < 0.2) {
-      quality = "Poor";
-      color = "text-red-400";
-    }
-
-    // Format numbers
-    const formatNumber = (num) => {
-      if (!num && num !== 0) return "N/A";
-
-      if (num >= 1000000) {
-        return (num / 1000000).toFixed(1) + "M";
-      } else if (num >= 1000) {
-        return (num / 1000).toFixed(1) + "K";
-      }
-      return num.toLocaleString();
-    };
-
-    // Get the period (month + year) or fallback to label
-    const period = payload[0].payload.period || label;
-
+    
+    const dataPoint = payload[0].payload;
+    const isFuture = dataPoint.is_future;
+    
     return (
-      <div className="bg-gray-800 border-gray-700 p-4 shadow-lg rounded-lg border">
-        <p className="font-semibold text-center border-b pb-2 mb-2 border-gray-700">
-          {period}
+      <div className="bg-gray-800 border border-gray-700 p-3 rounded-md shadow-lg">
+        <p className="font-medium text-white mb-1">
+          {dataPoint.period || label}
+          {isFuture && " (Forecast)"}
         </p>
-
-        <div className="space-y-1">
-          {engagement !== undefined && (
-            <p className="flex justify-between">
-              <span className="text-gray-400 mr-3">Engagement:</span>
-              <span className="font-bold text-blue-400">{engagement}%</span>
-            </p>
+        
+        {!isFuture && dataPoint[activeMetric] !== undefined && (
+          <p className="text-blue-400">
+            Actual: {formatValue(dataPoint[activeMetric], activeMetric)}
+          </p>
+        )}
+        
+        {dataPoint.predicted !== undefined && (
+          <p className={isFuture ? "text-orange-400" : "text-yellow-400"}>
+            {isFuture ? "Forecast: " : "Predicted: "}
+            {formatValue(dataPoint.predicted, activeMetric)}
+          </p>
+        )}
+      </div>
+    );
+  };
+  
+  // Get human-readable metric name
+  const getMetricName = (metric) => {
+    switch (metric) {
+      case 'engagement': return 'Engagement Quality';
+      case 'quality_score': return 'Longevity';
+      case 'followers': return 'Followers';
+      case 'likes': return 'Likes';
+      default: return metric;
+    }
+  };
+  
+  // Render chart with regression line
+  const renderChart = () => {
+    if (!trendData || trendData.length === 0) {
+      return <div className="text-gray-400 text-center py-16">No data available</div>;
+    }
+    
+    const currentRegression = regressionData[activeMetric];
+    
+    // Combine historical data with future predictions
+    let chartData = [...trendData];
+    
+    if (currentRegression && currentRegression.predictions) {
+      // Filter only future predictions
+      const futurePredictions = currentRegression.predictions.filter(p => p.is_future);
+      
+      if (showPredictions) {
+        // Add future predictions to the chart data
+        chartData = [...chartData, ...futurePredictions];
+      }
+    }
+  
+    return (
+      <ResponsiveContainer width="100%" height={350}>
+        <LineChart data={chartData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+          <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
+          <XAxis 
+            dataKey="month" 
+            stroke="#9ca3af"
+            // Modify tickFormatter to show year for January or future months
+            tickFormatter={(value, index) => {
+              const item = chartData[index];
+              if (item && (item.month === 'Jan' || item.is_future)) {
+                return `${item.month} ${item.period.split(' ')[1]}`;
+              }
+              return value;
+            }}
+          />
+          <YAxis 
+            stroke="#9ca3af"
+            tickFormatter={(value) => formatValue(value, activeMetric)}
+          />
+          <Tooltip content={<CustomTooltip />} />
+          <Legend />
+          
+          {/* Actual historical data line */}
+          <Line 
+            type="monotone" 
+            dataKey={activeMetric} 
+            name={`Actual ${getMetricName(activeMetric)}`} 
+            stroke={getMetricColor(activeMetric)} 
+            strokeWidth={2}
+            dot={{ r: 4 }}
+            activeDot={{ r: 6 }}
+            // Only show for non-future data points
+            isAnimationActive={false}
+          />
+          
+          {/* Predictions line - for both historical and future */}
+          {currentRegression && (
+            <Line 
+              type="monotone" 
+              dataKey="predicted"
+              name="Predicted trend" 
+              stroke="#ff7300" 
+              strokeWidth={2}
+              dot={(props) => {
+                // Only show dots for future predictions
+                const { payload } = props;
+                if (payload && payload.is_future) {
+                  return <circle {...props} r={4} fill="#ff7300" />;
+                }
+                return null;
+              }}
+              activeDot={(props) => {
+                const { payload } = props;
+                if (payload && payload.is_future) {
+                  return <circle {...props} r={6} fill="#ff7300" />;
+                }
+                return null;
+              }}
+              // Use dashed line for historical predictions, solid for future
+              strokeDasharray={(props) => {
+                const { payload } = props;
+                return payload && payload.is_future ? "0" : "5 5";
+              }}
+              isAnimationActive={false}
+            />
           )}
-
-          {qualityScore !== undefined && (
-            <p className="flex justify-between">
-              <span className="text-gray-400 mr-3">Quality:</span>
-              <span className={`font-bold ${color}`}>
-                {(qualityScore * 100).toFixed(1)}%
-              </span>
-            </p>
-          )}
-
-          {followers !== undefined && (
-            <p className="flex justify-between">
-              <span className="text-gray-400 mr-3">Followers:</span>
-              <span className="font-bold text-purple-400">
-                {formatNumber(followers)}
-              </span>
-            </p>
-          )}
-
-          {likes !== undefined && (
-            <p className="flex justify-between">
-              <span className="text-gray-400 mr-3">Avg. Likes:</span>
-              <span className="font-bold text-pink-400">
-                {formatNumber(likes)}
-              </span>
-            </p>
-          )}
-
-          {qualityScore !== undefined && (
-            <p className="flex justify-between mt-2 pt-1 border-t border-gray-700">
-              <span className="text-gray-400 mr-3">Rating:</span>
-              <span className={`font-bold ${color}`}>{quality}</span>
-            </p>
-          )}
+        </LineChart>
+      </ResponsiveContainer>
+    );
+  };
+  
+  // Render stats panel with regression info
+  const renderStats = () => {
+    const currentRegression = regressionData[activeMetric];
+    
+    if (!currentRegression) {
+      return (
+        <div className="text-gray-400 italic">
+          Regression data not available
+        </div>
+      );
+    }
+    
+    // Calculate growth trend and meaning
+    const slope = currentRegression.slope;
+    const trendDescription = slope > 0 
+      ? `Increasing by ${formatValue(slope, activeMetric)} per month` 
+      : `Decreasing by ${formatValue(Math.abs(slope), activeMetric)} per month`;
+    
+    const trendColor = slope > 0 ? 'text-green-500' : 'text-red-500';
+    
+    return (
+      <div className="space-y-4">
+        <div className="bg-gray-800 p-4 rounded-lg">
+          <p className="text-gray-400 text-sm">Trend</p>
+          <p className={`text-lg font-medium ${trendColor}`}>{trendDescription}</p>
+        </div>
+        
+        <div className="bg-gray-800 p-4 rounded-lg">
+          <p className="text-gray-400 text-sm mb-2">Future Predictions</p>
+          <div className="space-y-2">
+            {currentRegression.predictions
+              .filter(p => p.is_future)
+              .slice(0, 6) // Show only first 6 predictions to avoid overload
+              .map((prediction, idx) => (
+                <div key={idx} className="flex justify-between items-center border-b border-gray-700 pb-2">
+                  <span className="text-gray-300">{prediction.period}</span>
+                  <span className="font-medium text-orange-400">
+                    {formatValue(prediction.predicted, activeMetric)}
+                  </span>
+                </div>
+              ))
+            }
+          </div>
         </div>
       </div>
     );
   };
-
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center h-64 bg-gray-900 rounded-lg">
-        <motion.div
-          className="w-12 h-12 border-4 border-t-transparent rounded-full border-purple-500"
-          animate={{ rotate: 360 }}
-          transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-        />
-      </div>
-    );
-  }
-
-  if (error && trendData.length === 0) {
-    return (
-      <div className="flex flex-col justify-center items-center h-64 bg-gray-900 text-red-400 rounded-lg p-6">
-        <p className="text-center">Error loading trend data: {error}</p>
-        <button
-          className="mt-4 px-4 py-2 rounded bg-purple-700 hover:bg-purple-600 text-white"
-          onClick={() => window.location.reload()}
-        >
-          Retry
-        </button>
-      </div>
-    );
-  }
-
-  // Color mapping for different metrics
-  const colors = {
-    engagement: "#3b82f6", // blue
-    quality_score: "#10b981", // green
-    followers: "#8b5cf6", // purple
-    likes: "#ec4899", // pink
-  };
-
-  // Data visualization based on active tab
-  const renderChart = () => {
-    switch (activeTab) {
-      case "engagement":
-        return (
-          <ComposedChart
-            data={trendData}
-            margin={{ top: 20, right: 30, left: 15, bottom: 40 }}
-          >
-            <CartesianGrid strokeDasharray="3 3" stroke="#333" />
-            <XAxis
-              dataKey="month"
-              axisLine={{ stroke: "#555" }}
-              tick={{ fill: "#bbb" }}
-            />
-            <YAxis
-              yAxisId="left"
-              domain={[0, "auto"]}
-              tickFormatter={(value) => `${value}%`}
-              axisLine={{ stroke: "#555" }}
-              tick={{ fill: "#bbb" }}
-            >
-              <Label
-                angle={-90}
-                position="insideLeft"
-                style={{ textAnchor: "middle", fill: "#bbb" }}
-                value="Engagement (%)"
-              />
-            </YAxis>
-            <YAxis
-              yAxisId="right"
-              orientation="right"
-              domain={[0, 1]}
-              tickFormatter={(value) => `${(value * 100).toFixed(0)}%`}
-              axisLine={{ stroke: "#555" }}
-              tick={{ fill: "#bbb" }}
-            >
-              <Label
-                angle={90}
-                position="insideRight"
-                style={{ textAnchor: "middle", fill: "#bbb" }}
-                value="Quality Score"
-              />
-            </YAxis>
-            <Tooltip content={<CustomTooltip />} />
-            <Legend />
-            <Area
-              yAxisId="left"
-              type="monotone"
-              dataKey="engagement"
-              name="Engagement Rate"
-              fill={`${colors.engagement}20`}
-              stroke={colors.engagement}
-              activeDot={{ r: 8 }}
-            />
-            <Line
-              yAxisId="right"
-              type="monotone"
-              dataKey="quality_score"
-              name="Quality Score"
-              stroke={colors.quality_score}
-              strokeWidth={2}
-              dot={{ r: 4, strokeWidth: 2 }}
-              activeDot={{ r: 8 }}
-            />
-            <ReferenceLine
-              y={0.5}
-              yAxisId="right"
-              stroke="#f59e0b"
-              strokeDasharray="3 3"
-              label={{
-                value: "Quality Benchmark",
-                position: "insideTopRight",
-                fill: "#f59e0b",
-                fontSize: 12,
-              }}
-            />
-          </ComposedChart>
-        );
-
-      case "followers":
-        return (
-          <AreaChart
-            data={trendData}
-            margin={{ top: 20, right: 30, left: 15, bottom: 40 }}
-          >
-            <CartesianGrid strokeDasharray="3 3" stroke="#333" />
-            <XAxis
-              dataKey="month"
-              axisLine={{ stroke: "#555" }}
-              tick={{ fill: "#bbb" }}
-            />
-            <YAxis
-              tickFormatter={(value) => {
-                if (value >= 1000000) return `${(value / 1000000).toFixed(1)}M`;
-                if (value >= 1000) return `${(value / 1000).toFixed(0)}K`;
-                return value;
-              }}
-              axisLine={{ stroke: "#555" }}
-              tick={{ fill: "#bbb" }}
-            >
-              <Label
-                angle={-90}
-                position="insideLeft"
-                style={{ textAnchor: "middle", fill: "#bbb" }}
-                value="Followers"
-              />
-            </YAxis>
-            <Tooltip content={<CustomTooltip />} />
-            <Legend />
-            <Area
-              type="monotone"
-              dataKey="followers"
-              name="Followers"
-              stroke={colors.followers}
-              fill={`${colors.followers}30`}
-              strokeWidth={2}
-              activeDot={{ r: 8 }}
-            />
-          </AreaChart>
-        );
-
-      case "likes":
-        return (
-          <ComposedChart
-            data={trendData}
-            margin={{ top: 20, right: 30, left: 15, bottom: 40 }}
-          >
-            <CartesianGrid strokeDasharray="3 3" stroke="#333" />
-            <XAxis
-              dataKey="month"
-              axisLine={{ stroke: "#555" }}
-              tick={{ fill: "#bbb" }}
-            />
-            <YAxis
-              tickFormatter={(value) => {
-                if (value >= 1000000) return `${(value / 1000000).toFixed(1)}M`;
-                if (value >= 1000) return `${(value / 1000).toFixed(0)}K`;
-                return value;
-              }}
-              axisLine={{ stroke: "#555" }}
-              tick={{ fill: "#bbb" }}
-            >
-              <Label
-                angle={-90}
-                position="insideLeft"
-                style={{ textAnchor: "middle", fill: "#bbb" }}
-                value="Likes"
-              />
-            </YAxis>
-            <Tooltip content={<CustomTooltip />} />
-            <Legend />
-            <Bar
-              dataKey="likes"
-              name="Average Likes"
-              fill={colors.likes}
-              fillOpacity={0.8}
-              activeDot={{ r: 8 }}
-            />
-          </ComposedChart>
-        );
-
-      default:
-        return null;
-    }
-  };
-
+  
   return (
-    <div className="w-full text-gray-200">
-      {/* Tab navigation */}
-      <div className="flex mb-4 border-b border-gray-700">
-        <button
-          onClick={() => handleTabChange("engagement")}
-          className={`py-2 px-4 ${
-            activeTab === "engagement"
-              ? "bg-gray-800 text-blue-400 border-blue-500 border-b-2"
-              : "text-gray-400 hover:text-gray-200"
-          }`}
-        >
-          Engagement
-        </button>
-        <button
-          onClick={() => handleTabChange("followers")}
-          className={`py-2 px-4 ${
-            activeTab === "followers"
-              ? "bg-gray-800 text-purple-400 border-purple-500 border-b-2"
-              : "text-gray-400 hover:text-gray-200"
-          }`}
-        >
-          Followers
-        </button>
-        <button
-          onClick={() => handleTabChange("likes")}
-          className={`py-2 px-4 ${
-            activeTab === "likes"
-              ? "bg-gray-800 text-pink-400 border-pink-500 border-b-2"
-              : "text-gray-400 hover:text-gray-200"
-          }`}
-        >
-          Likes
-        </button>
+    <div className="bg-gray-900 text-gray-100 rounded-xl shadow-xl">
+      <div className="p-4 border-b border-gray-800 flex justify-between items-center">
+        <div>
+          <h2 className="text-xl font-medium">
+            {influencerData ? `@${influencerData.channel_info}` : 'Influencer'} Analysis
+          </h2>
+          <p className="text-gray-400 text-sm">3-year metric trends with 12-month forecast</p>
+        </div>
+        <div className="flex gap-2">
+          <button
+            onClick={() => setShowPredictions(!showPredictions)}
+            className={`px-4 py-2 ${showPredictions ? 'bg-orange-600 hover:bg-orange-700' : 'bg-blue-600 hover:bg-blue-700'} text-white rounded transition-colors`}
+          >
+            {showPredictions ? 'Show Actual Data' : 'Show Predictions'}
+          </button>
+        </div>
       </div>
-
-      {/* Chart container */}
-      <div className="h-80">
-        <ResponsiveContainer width="100%" height="100%">
-          {renderChart()}
-        </ResponsiveContainer>
+      
+      {/* Metric selector */}
+      <div className="p-4 border-b border-gray-800">
+        <div className="flex flex-wrap gap-2">
+          <button
+            onClick={() => setActiveMetric('engagement')}
+            className={`px-3 py-1 rounded ${activeMetric === 'engagement' 
+              ? 'bg-blue-600 text-white' 
+              : 'bg-gray-800 text-gray-400 hover:bg-gray-700'}`}
+          >
+            Engagement Quality
+          </button>
+          <button
+            onClick={() => setActiveMetric('quality_score')}
+            className={`px-3 py-1 rounded ${activeMetric === 'quality_score' 
+              ? 'bg-green-600 text-white' 
+              : 'bg-gray-800 text-gray-400 hover:bg-gray-700'}`}
+          >
+            Longevity Score
+          </button>
+          <button
+            onClick={() => setActiveMetric('followers')}
+            className={`px-3 py-1 rounded ${activeMetric === 'followers' 
+              ? 'bg-purple-600 text-white' 
+              : 'bg-gray-800 text-gray-400 hover:bg-gray-700'}`}
+          >
+            Followers
+          </button>
+          <button
+            onClick={() => setActiveMetric('likes')}
+            className={`px-3 py-1 rounded ${activeMetric === 'likes' 
+              ? 'bg-pink-600 text-white' 
+              : 'bg-gray-800 text-gray-400 hover:bg-gray-700'}`}
+          >
+            Likes
+          </button>
+        </div>
       </div>
-
-      {/* Legend and description */}
-      <div className="mt-6 p-4 rounded-lg bg-gray-800">
-        <h3 className="font-medium mb-2">
-          {activeTab === "engagement" && "About Engagement & Quality Metrics"}
-          {activeTab === "followers" && "Followers Growth Analysis"}
-          {activeTab === "likes" && "Engagement Performance"}
-        </h3>
-        <p className="text-sm text-gray-300">
-          {activeTab === "engagement" &&
-            "Engagement rate shows the percentage of followers who interact with the influencer's content. Quality score measures how meaningful these interactions are, with higher scores indicating more authentic engagement from real followers who care about the content."}
-          {activeTab === "followers" &&
-            "This graph shows the growth trend of the influencer's follower count over time. A consistent upward trend indicates growing popularity and reach potential for marketing campaigns."}
-          {activeTab === "likes" &&
-            "Average likes per post is a key metric for measuring content performance. This data helps predict how well sponsored content might perform with this influencer's audience."}
-        </p>
-      </div>
+      
+      {/* Loading state */}
+      {isLoading && (
+        <div className="flex justify-center items-center p-8">
+          <div className="w-8 h-8 border-4 border-t-blue-500 border-r-transparent border-b-blue-500 border-l-transparent rounded-full animate-spin"></div>
+        </div>
+      )}
+      
+      {/* Error message */}
+      {error && !isLoading && (
+        <div className="bg-red-900/20 border border-red-800 text-red-300 p-4 m-4 rounded">
+          {error}
+        </div>
+      )}
+      
+      {/* Main content */}
+      {!isLoading && (
+        <div className="p-4 grid grid-cols-1 lg:grid-cols-3 gap-4">
+          <div className="lg:col-span-2 bg-gray-800 rounded-lg p-4">
+            {renderChart()}
+          </div>
+          <div className="bg-gray-800 rounded-lg p-4">
+            {renderStats()}
+          </div>
+        </div>  
+      )}
     </div>
   );
 };
