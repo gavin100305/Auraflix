@@ -195,7 +195,7 @@ const CollabSimulator = () => {
             className="text-neutral-400 text-lg mb-12 max-w-3xl"
           >
             Predict and optimize your influencer marketing campaigns with
-            AI-powered collaboration simulations.
+            ML-powered collaboration simulations.
           </motion.p>
 
           {/* Business Details Form */}
