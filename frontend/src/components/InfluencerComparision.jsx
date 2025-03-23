@@ -6,6 +6,9 @@ import {
   PolarRadiusAxis, Radar 
 } from "recharts";
 import { ChevronLeft, RefreshCw, Download } from "lucide-react";
+import html2canvas from 'html2canvas';
+import jsPDF from 'jspdf';
+import domtoimage from 'dom-to-image';
 
 const InfluencerComparison = ({ initialInfluencers = [], onGoBack }) => {
   const [influencers, setInfluencers] = useState([]);
@@ -317,8 +320,32 @@ const InfluencerComparison = ({ initialInfluencers = [], onGoBack }) => {
     return null;
   };
 
+  // Function to handle PDF download
+  const handleDownloadPDF = () => {
+    const input = document.getElementById('influencer-comparison'); // Ensure the root div has this ID
+
+    // Capture the DOM element as a PNG image
+    domtoimage
+      .toPng(input, { quality: 1 }) // Use high quality
+      .then((dataUrl) => {
+        // Create a new PDF
+        const pdf = new jsPDF('p', 'mm', 'a4'); // A4 size page of PDF
+        const imgWidth = 210; // A4 width in mm
+        const imgHeight = (imgWidth * input.offsetHeight) / input.offsetWidth; // Maintain aspect ratio
+
+        // Add the image to the PDF
+        pdf.addImage(dataUrl, 'PNG', 0, 0, imgWidth, imgHeight);
+
+        // Download the PDF
+        pdf.save('influencer_comparison.pdf');
+      })
+      .catch((error) => {
+        console.error('Error generating image:', error);
+      });
+  };
+
   return (
-    <div className="min-h-screen flex flex-col bg-black text-white">
+    <div id="influencer-comparison" className="min-h-screen flex flex-col bg-black text-white">
       <div className="relative flex-1 flex overflow-hidden bg-black/[0.96] antialiased">
         <div
           className="pointer-events-none absolute inset-0 select-none"
@@ -609,13 +636,13 @@ const InfluencerComparison = ({ initialInfluencers = [], onGoBack }) => {
             {
               name: "Engagement Rate",
               [selectedInfluencers[0]?.channel_info || "Influencer 1"]: 
-                selectedInfluencers[0] ? 
-                  (parseFormattedNumber(selectedInfluencers[0].avg_likes) / 
-                   parseFormattedNumber(selectedInfluencers[0].followers) * 100) : 0,
-              [selectedInfluencers[1]?.channel_info || "Influencer 2"]: 
-                selectedInfluencers[1] ? 
-                  (parseFormattedNumber(selectedInfluencers[1].avg_likes) / 
-                   parseFormattedNumber(selectedInfluencers[1].followers) * 100) : 0
+              selectedInfluencers[0] ? 
+              (parseFormattedNumber(selectedInfluencers[0].avg_likes) / 
+               parseFormattedNumber(selectedInfluencers[0].followers)) * 100 : 0,
+            [selectedInfluencers[1]?.channel_info || "Influencer 2"]: 
+              selectedInfluencers[1] ? 
+                (parseFormattedNumber(selectedInfluencers[1].avg_likes) / 
+                 parseFormattedNumber(selectedInfluencers[1].followers)) * 100 : 0
             }
           ]}
           margin={{ top: 10, right: 10, left: 10, bottom: 40 }}
@@ -820,6 +847,7 @@ const InfluencerComparison = ({ initialInfluencers = [], onGoBack }) => {
                     className="flex justify-center mt-8"
                   >
                     <button
+                      onClick={handleDownloadPDF}
                       className="flex items-center gap-2 bg-gradient-to-r from-purple-600 to-blue-600 px-6 py-3 rounded-lg text-white font-medium hover:from-purple-700 hover:to-blue-700 transition-all"
                     >
                       <Download size={18} />
