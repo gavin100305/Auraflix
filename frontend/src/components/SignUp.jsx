@@ -131,7 +131,7 @@ const SignUp = () => {
       // Remove confirmPassword as it's not needed for the API
       delete apiData.confirmPassword;
 
-      const response = await fetch("http://localhost:8080/api/auth/register", {
+      const response = await fetch("https://auraflix-production.up.railway.app/api/auth/register", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
