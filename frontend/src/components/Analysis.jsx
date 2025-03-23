@@ -15,6 +15,10 @@ const InfluencerSuggestions = () => {
   const influencersPerView = 3; // Changed from 4 to 3
   const navigate = useNavigate();
   
+  // Track sidebar state for debugging
+  useEffect(() => {
+    console.log("Sidebar visibility changed:", showComparisonSidebar);
+  }, [showComparisonSidebar]);
 
   const handleNavigateToAnalysis = (influencerData) => {
     const username = influencerData.channel_info;
@@ -59,6 +63,18 @@ const InfluencerSuggestions = () => {
 
   const goToNext = () => {
     setCurrentIndex((prev) => Math.min(filteredUsers.length - influencersPerView, prev + influencersPerView));
+  };
+
+  // Clear and defined function to close sidebar
+  const closeSidebar = () => {
+    console.log("Closing sidebar");
+    setShowComparisonSidebar(false);
+  };
+
+  // Function to open sidebar
+  const openSidebar = () => {
+    console.log("Opening sidebar");
+    setShowComparisonSidebar(true);
   };
 
   useEffect(() => {
@@ -453,10 +469,10 @@ const InfluencerSuggestions = () => {
                             e.stopPropagation();
                             handleAddToComparison(user);
                           }}
-                          className={`w-full bg-gray-800 text-white px-4 py-3 rounded-md hover:bg-gray-700 transition-all font-medium flex items-center justify-center gap-2 text-xs ${
-                            selectedForComparison.some(inf => inf.channel_info === user.channel_info) 
-                              ? 'bg-purple-800 hover:bg-purple-700' 
-                              : ''
+                          className={`w-full px-4 py-3 rounded-md transition-all font-medium flex items-center justify-center gap-2 text-xs ${
+                            selectedForComparison.some(inf => inf.channel_info === user.channel_info)
+                              ? 'bg-purple-600 hover:bg-purple-500 text-white' 
+                              : 'bg-gray-800 hover:bg-gray-700 text-white'
                           }`}
                         >
                           {selectedForComparison.some(inf => inf.channel_info === user.channel_info) 
@@ -491,22 +507,23 @@ const InfluencerSuggestions = () => {
         </div>
       </div>
 
-      {/* Comparison Sidebar */}
+      {/* Comparison Sidebar - FIXED VERSION */}
+      {/* Added a separate div with full opacity for the backdrop that handles clicks */}
+      {showComparisonSidebar && (
+        <div 
+          className="fixed inset-0 bg-black/50 z-40"
+          onClick={closeSidebar}
+        />
+      )}
+      
       <motion.div 
-        className={`fixed right-0 top-0 h-full w-72 bg-black/90 border-l border-white/20 p-6 transform transition-all duration-300 z-50 ${showComparisonSidebar ? 'translate-x-0' : 'translate-x-full'}`}
+        className={`fixed right-0 top-0 h-full w-72 bg-black/90 border-l border-white/20 p-6 transform transition-all duration-300 ease-in-out z-50 ${
+          showComparisonSidebar ? 'translate-x-0' : 'translate-x-full'
+        }`}
         initial={false}
       >
-        <div className="flex justify-between items-center mb-6">
+        <div className="mb-6">
           <h3 className="text-lg font-semibold text-white">Compare Influencers</h3>
-          <button 
-            onClick={() => setShowComparisonSidebar(false)}
-            className="text-white/70 hover:text-white"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M18 6L6 18"></path>
-              <path d="M6 6l12 12"></path>
-            </svg>
-          </button>
         </div>
         
         <div className="mb-6">
@@ -517,7 +534,7 @@ const InfluencerSuggestions = () => {
                 <span>@{inf.channel_info}</span>
                 <button 
                   onClick={() => handleAddToComparison(inf)}
-                  className="text-red-400 hover:text-red-300"
+                  className="text-red-400 hover:text-red-300 p-1 rounded"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M18 6L6 18"></path>
@@ -553,7 +570,7 @@ const InfluencerSuggestions = () => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2 }}
-        onClick={() => setShowComparisonSidebar(true)}
+        onClick={openSidebar}
         className="fixed bottom-6 right-6 bg-gradient-to-r from-purple-600 to-blue-600 p-4 rounded-full shadow-lg text-white hover:from-purple-700 hover:to-blue-700 transition-all z-40"
       >
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
