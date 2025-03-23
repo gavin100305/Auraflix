@@ -4,14 +4,6 @@ import { motion } from "framer-motion";
 import Spotlight from "./Spotlight"; // Import the Spotlight component
 
 const Dashboard = () => {
-  const isLoggedIn = true; // Replace with actual authentication logic
-
-  // Button hover animation
-  const buttonHover = {
-    rest: { scale: 1 },
-    hover: { scale: 1.05 },
-  };
-
   return (
     <div className="min-h-screen flex flex-col bg-black text-white">
       {/* Spotlight */}
@@ -46,12 +38,12 @@ const Dashboard = () => {
               </motion.h1>
             </Link>
 
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-5">
               <Link
                 to="/dashboard/leaderboard"
                 className="text-white hover:text-purple-400 transition-colors text-sm font-inter"
               >
-               Top Influencers
+                Top Influencers
               </Link>
               <Link
                 to="/dashboard/suggestions"
@@ -59,20 +51,6 @@ const Dashboard = () => {
               >
                 Suggestions
               </Link>
-              <Link
-                to="/dashboard/reports"
-                className="text-white hover:text-purple-400 transition-colors text-sm font-inter"
-              >
-                Reports
-              </Link>
-              <Link
-                to="/dashboard/insights"
-                className="text-white hover:text-purple-400 transition-colors text-sm font-inter"
-              >
-                Insights
-              </Link>
-
-             
             </div>
           </div>
         </div>

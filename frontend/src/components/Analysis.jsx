@@ -14,6 +14,7 @@ const InfluencerSuggestions = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const influencersPerView = 3; // Changed from 4 to 3
   const navigate = useNavigate();
+  
 
   const handleNavigateToAnalysis = (influencerData) => {
     const username = influencerData.channel_info;
@@ -237,15 +238,15 @@ const InfluencerSuggestions = () => {
                 </motion.button>
               </div>
 
-              {/* Influencer Cards - Horizontal Layout with Center Justification */}
-              <div className="flex justify-center space-x-6 w-full py-6 px-4 overflow-visible">
+              {/* Influencer Cards - Modified to be wider with adjusted spacing */}
+              <div className="flex justify-center space-x-8 w-full py-6 px-4 overflow-visible">
                 {visibleInfluencers.map((user, index) => (
                   <motion.div
                     key={currentIndex + index}
                     initial={{ opacity: 0, x: 30 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ duration: 0.6, delay: index * 0.1 }}
-                    className="border border-white/20 rounded-2xl overflow-hidden bg-black/30 backdrop-blur-sm shadow-lg flex-shrink-0 w-full max-w-xs"
+                    className="border border-white/20 rounded-2xl overflow-hidden bg-black/30 backdrop-blur-sm shadow-lg flex-shrink-0 w-full max-w-sm"
                     whileHover={{ scale: 1.02, transition: { duration: 0.2 } }}
                   >
                     {/* Header Section */}
@@ -306,8 +307,8 @@ const InfluencerSuggestions = () => {
                       </div>
                     </div>
 
-                    {/* Stats Cards */}
-                    <div className="p-4">
+                    {/* Stats Cards - Making grid larger */}
+                    <div className="p-6">
                       <motion.h4
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
@@ -317,7 +318,7 @@ const InfluencerSuggestions = () => {
                         Performance Metrics
                       </motion.h4>
 
-                      <div className="grid grid-cols-2 gap-3 mb-4">
+                      <div className="grid grid-cols-2 gap-4 mb-5">
                         {[
                           {
                             title: "Followers",
@@ -353,7 +354,7 @@ const InfluencerSuggestions = () => {
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: 0.6 + index * 0.1 + statIndex * 0.1 }}
                             whileHover={{ scale: 1.05 }}
-                            className={`bg-gradient-to-br ${stat.gradient} p-3 rounded-xl border border-white/10 backdrop-blur-sm`}
+                            className={`bg-gradient-to-br ${stat.gradient} p-4 rounded-xl border border-white/10 backdrop-blur-sm`}
                           >
                             <div className="flex items-center justify-between mb-1">
                               <p className="text-white/70 text-xs font-medium">
@@ -373,12 +374,12 @@ const InfluencerSuggestions = () => {
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 1 + index * 0.1 }}
-                        className="bg-white/5 border border-white/10 p-3 rounded-xl mb-4"
+                        className="bg-white/5 border border-white/10 p-4 rounded-xl mb-5"
                       >
-                        <h4 className="text-sm font-semibold text-white/90 mb-2">
+                        <h4 className="text-sm font-semibold text-white/90 mb-3">
                           Score Metrics
                         </h4>
-                        <div className="grid grid-cols-2 gap-x-4 gap-y-2">
+                        <div className="grid grid-cols-2 gap-x-4 gap-y-3">
                           {[
                             {
                               label: "InfluenceIQ",
@@ -419,14 +420,14 @@ const InfluencerSuggestions = () => {
                       </motion.div>
 
                       {/* Action Buttons */}
-                      <div className="space-y-2">
+                      <div className="space-y-3">
                         <motion.button
                           initial={{ opacity: 0, y: 20 }}
                           animate={{ opacity: 1, y: 0 }}
                           transition={{ delay: 1.2 + index * 0.1 }}
                           whileHover={{ scale: 1.05 }}
                           whileTap={{ scale: 0.95 }}
-                          className="w-full bg-white text-black px-4 py-2 rounded-md hover:bg-opacity-90 transition-all font-medium flex items-center justify-center gap-2 text-sm"
+                          className="w-full bg-white text-black px-4 py-3 rounded-md hover:bg-opacity-90 transition-all font-medium flex items-center justify-center gap-2 text-sm"
                           onClick={() => handleNavigateToAnalysis(user)} 
                         >
                           View Analytics
@@ -452,7 +453,7 @@ const InfluencerSuggestions = () => {
                             e.stopPropagation();
                             handleAddToComparison(user);
                           }}
-                          className={`w-full bg-gray-800 text-white px-4 py-2 rounded-md hover:bg-gray-700 transition-all font-medium flex items-center justify-center gap-2 text-xs ${
+                          className={`w-full bg-gray-800 text-white px-4 py-3 rounded-md hover:bg-gray-700 transition-all font-medium flex items-center justify-center gap-2 text-xs ${
                             selectedForComparison.some(inf => inf.channel_info === user.channel_info) 
                               ? 'bg-purple-800 hover:bg-purple-700' 
                               : ''
