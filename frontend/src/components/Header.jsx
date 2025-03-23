@@ -7,7 +7,6 @@ const Header = () => {
 
   // Check login status - replace this with your actual auth logic
   useEffect(() => {
-    // Example: Check localStorage, context, or auth service
     const checkLoginStatus = () => {
       const userToken = localStorage.getItem("authToken");
       setIsLoggedIn(!!userToken);
