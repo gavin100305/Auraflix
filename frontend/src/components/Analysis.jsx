@@ -1,203 +1,79 @@
-import React, { useState, useEffect } from "react";
-import axios from "axios";
+import React, { useEffect, useState } from "react";
 
-const Analysis = () => {
-  const [influencers, setInfluencers] = useState([]);
+const InfluencerSuggestions = () => {
+  const [suggestions, setSuggestions] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState("");
 
   useEffect(() => {
-    const fetchSuggestedInfluencers = async () => {
-      try {
-        console.log("Starting to fetch influencers...");
-        const cachedInfluencers = localStorage.getItem("suggestedInfluencers");
-        console.log("Raw cached influencers:", cachedInfluencers);
+    try {
+      const storedSuggestions = JSON.parse(localStorage.getItem("suggestedInfluencers"));
+      const businessUser = JSON.parse(localStorage.getItem("user"));
+      console.log("Business User:", businessUser);
 
-        if (cachedInfluencers && cachedInfluencers !== "[]") {
-          // Parse the data properly
-          let parsedInfluencers = [];
+      if (storedSuggestions && storedSuggestions.length > 0) {
+        const parsedSuggestions = storedSuggestions.map((sugg) => {
+          const names = sugg.name.split("\n");
+          const usernames = sugg.username.split("\n");
+          const profileUrls = sugg.profile_url.split("\n");
 
-          try {
-            // Try parsing as JSON first
-            const parsed = JSON.parse(cachedInfluencers);
-            console.log("Parsed from localStorage:", parsed);
+          const influencerList = names.map((name, index) => ({
+            name: name.trim(),
+            username: usernames[index]?.trim() || "",
+            profileUrl: `https://www.instagram.com/${usernames[index]?.trim()}`,
+            category: sugg.category,
+          }));
 
-            // Handle different possible formats
-            if (Array.isArray(parsed)) {
-              if (parsed.length > 0) {
-                if (typeof parsed[0] === "object") {
-                  // It's already an array of objects, extract names
-                  parsedInfluencers = parsed.map(
-                    (item) => item.name || item.username || "Unknown"
-                  );
-                } else if (typeof parsed[0] === "string") {
-                  // Check if it might be a single string with all names
-                  if (parsed.length === 1 && parsed[0].includes("\\n")) {
-                    // Split by newlines
-                    parsedInfluencers = parsed[0]
-                      .split("\\n")
-                      .map((name) => name.trim())
-                      .filter((name) => name);
-                  } else {
-                    // It's already an array of strings
-                    parsedInfluencers = parsed;
-                  }
-                }
-              }
-            } else if (
-              typeof parsed === "object" &&
-              parsed.suggestedInfluencers
-            ) {
-              // Extract names from nested object
-              const nestedArray = parsed.suggestedInfluencers;
-              if (Array.isArray(nestedArray)) {
-                parsedInfluencers = nestedArray.map((item) =>
-                  typeof item === "object"
-                    ? item.name || item.username || "Unknown"
-                    : item
-                );
-              } else if (typeof nestedArray === "string") {
-                // It might be a single string with all names
-                parsedInfluencers = nestedArray
-                  .split("\\n")
-                  .map((name) => name.trim())
-                  .filter((name) => name);
-              }
-            } else if (typeof parsed === "string") {
-              // It's a direct string with newlines
-              parsedInfluencers = parsed
-                .split("\\n")
-                .map((name) => name.trim())
-                .filter((name) => name);
-            }
-          } catch (parseError) {
-            console.error("Parse error:", parseError);
-            // If JSON parsing fails, try to handle as a string with newlines
-            if (typeof cachedInfluencers === "string") {
-              // Remove JSON formatting characters and split
-              parsedInfluencers = cachedInfluencers
-                .replace(/^"/, "") // Remove starting quote
-                .replace(/"$/, "") // Remove ending quote
-                .replace(/^\[/, "") // Remove starting bracket
-                .replace(/\]$/, "") // Remove ending bracket
-                .replace(/\\"/g, "") // Remove escaped quotes
-                .replace(/"/g, "") // Remove any remaining quotes
-                .split("\\n") // Split by newlines
-                .map((name) => name.trim())
-                .filter((name) => name.length > 0); // Remove empty entries
-            }
-          }
+          return influencerList;
+        });
 
-          console.log("Final parsed influencers:", parsedInfluencers);
-
-          if (
-            Array.isArray(parsedInfluencers) &&
-            parsedInfluencers.length > 0
-          ) {
-            setInfluencers(parsedInfluencers);
-            setLoading(false);
-            return;
-          }
-        }
-
-        // If not in localStorage or parsing failed, fetch from server
-        const token = localStorage.getItem("authToken");
-        if (!token) {
-          throw new Error("Authentication token not found");
-        }
-
-        const response = await axios.get(
-          "http://localhost:8080/api/auth/suggestions",
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-
-        console.log("API response:", response.data);
-
-        // Extract just the names from the response
-        let names = [];
-        if (response.data) {
-          const suggestedData =
-            response.data.suggestedInfluencers || response.data;
-          console.log("Raw suggestedData:", suggestedData);
-
-          if (Array.isArray(suggestedData)) {
-            if (
-              suggestedData.length === 1 &&
-              typeof suggestedData[0] === "string" &&
-              suggestedData[0].includes("\\n")
-            ) {
-              // It's an array with a single string containing all names
-              names = suggestedData[0]
-                .split("\\n")
-                .map((name) => name.trim())
-                .filter((name) => name);
-            } else {
-              names = suggestedData.map((item) =>
-                typeof item === "object"
-                  ? item.name || item.username || "Unknown"
-                  : item
-              );
-            }
-          } else if (typeof suggestedData === "string") {
-            // Handle a direct string with newlines or just a single name
-            names = suggestedData.includes("\\n")
-              ? suggestedData
-                  .split("\\n")
-                  .map((name) => name.trim())
-                  .filter((name) => name)
-              : [suggestedData];
-          }
-        }
-
-        console.log("Final names array:", names);
-        setInfluencers(names);
-        localStorage.setItem("suggestedInfluencers", JSON.stringify(names));
-      } catch (err) {
-        console.error("Error fetching influencers:", err);
-        setError("Failed to load suggested influencers. " + err.message);
-      } finally {
-        setLoading(false);
+        const flatSuggestions = parsedSuggestions.flat();
+        setSuggestions(flatSuggestions);
+      } else {
+        setError("No suggestions found.");
       }
-    };
-
-    fetchSuggestedInfluencers();
+    } catch (err) {
+      console.error("Error parsing suggestions:", err);
+      setError("Failed to load suggestions.");
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
-  if (loading) {
-    return <div>Loading...</div>;
-  }
-
-  if (error) {
-    return <div>{error}</div>;
-  }
-
-  if (!influencers || influencers.length === 0) {
-    return <div>No suggested influencers available.</div>;
-  }
-
   return (
-    <div className="p-4">
-      <h2 className="text-xl font-semibold mb-4">Suggested Influencers</h2>
-      <ul className="list-disc pl-5">
-        {influencers.flatMap((name, index) => {
-          // Handle both space-separated and individual names
-          const parts = name.includes(" ")
-            ? name.split(" ").filter((part) => part.trim())
-            : [name];
+    <div className="p-6 font-sans bg-gray-100 min-h-screen">
+      <h2 className="text-3xl font-bold mb-4 text-gray-800">Suggested Influencers for Your Business</h2>
 
-          return parts.map((part, subIndex) => (
-            <li key={`${index}-${subIndex}`} className="mb-2">
-              {part}
-            </li>
-          ));
-        })}
-      </ul>
+      {loading && <p className="text-blue-600">Loading suggestions...</p>}
+      {error && <p className="text-red-600">{error}</p>}
+
+      {!loading && suggestions.length > 0 && (
+        <div className="mt-6">
+          <h3 className="text-xl font-semibold mb-2 text-gray-700">Suggestions:</h3>
+          <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {suggestions.map((inf, index) => (
+              <li
+                key={index}
+                className="bg-white shadow-md rounded-xl p-4 hover:shadow-lg transition-shadow border border-gray-200"
+              >
+                <h4 className="text-lg font-semibold text-gray-900 mb-1">{inf.name}</h4>
+                <p className="text-gray-700 mb-1">@{inf.username}</p>
+                <p className="text-sm text-gray-600 mb-2">Category: {inf.category}</p>
+                <a
+                  href={inf.profileUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-600 hover:underline"
+                >
+                  View Instagram Profile
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
     </div>
   );
 };
 
-export default Analysis;
+export default InfluencerSuggestions;

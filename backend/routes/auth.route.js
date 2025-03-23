@@ -130,6 +130,7 @@ router.post("/login", async (req, res) => {
           ...businessUser.toObject(),
           suggestedInfluencers: suggestions,
         };
+        console.log("Updated user with suggestions:", updatedUser);
         res.status(200).json({
           token,
           businessUser: updatedUser,
