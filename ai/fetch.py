@@ -14,7 +14,16 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 from google.api_core.exceptions import GoogleAPICallError, NotFound
 from dotenv import load_dotenv
+import time
 import os
+from fastapi import FastAPI, HTTPException
+from pydantic import BaseModel
+from typing import List, Dict, Optional, Union
+import numpy as np
+from sklearn.linear_model import LinearRegression
+import pandas as pd
+from io import StringIO
+from fastapi.responses import StreamingResponse
 
 app = FastAPI()
 
@@ -249,7 +258,6 @@ class BusinessDetails(BaseModel):
     businessName: str
     businessCategory: str
     description: str
-    budget: Optional[float] = None
 
 class CollabRequest(BaseModel):
     business: BusinessDetails
@@ -269,45 +277,127 @@ tfidf_vectorizer = None
 influencer_vectors = None
 influencer_map = {}
 
-class VectorizationManager:
-    """Class to handle vectorization initialization"""
+# Add this at the beginning of your file if not already present
+from typing import Dict, List
+
+# Add this cache to store Gemini-enhanced categories
+enhanced_categories_cache = {
     
+}
+
+class VectorizationManager:
+
+    @staticmethod
+    def enrich_categories():
+        """Load enhanced categories from JSON file instead of calling Gemini"""
+        global enhanced_categories_cache
+        
+        try:
+            import os
+            import json
+            
+            # Path to the enhanced categories JSON file
+            categories_file = "enhanced_categories.json"
+            
+            if not os.path.exists(categories_file):
+                logger.warning(f"Categories file '{categories_file}' not found. Using default categories.")
+                return
+                
+            logger.info(f"Loading enhanced categories from {categories_file}...")
+            
+            # Load the categories from file
+            with open(categories_file, 'r', encoding='utf-8') as f:
+                enhanced_categories = json.load(f)
+                
+            # Populate the cache with loaded categories
+            enhanced_categories_cache.update(enhanced_categories)
+            
+            logger.info(f"Loaded {len(enhanced_categories_cache)} enhanced categories")
+            
+            # Log some sample categories for verification
+            sample_size = min(5, len(enhanced_categories_cache))
+            sample_entries = list(enhanced_categories_cache.items())[:sample_size]
+            logger.info(f"Sample categories: {dict(sample_entries)}")
+            
+        except Exception as e:
+            logger.error(f"Failed to load enhanced categories: {str(e)}")
+            logger.error("Using default categories instead")
+        
     @staticmethod
     def initialize():
         global tfidf_vectorizer, influencer_vectors, influencer_map
         
-        # Initialize TF-IDF vectorizer
-        tfidf_vectorizer = TfidfVectorizer(stop_words="english", min_df=1)
+        # First enrich categories with Gemini
+        VectorizationManager.enrich_categories()
         
-        # Extract descriptions and create a corpus
+        # Initialize TF-IDF vectorizer with improved parameters
+        tfidf_vectorizer = TfidfVectorizer(
+            stop_words="english",
+            min_df=1,
+            ngram_range=(1, 2),   # Include bigrams for better context
+            max_features=5000,    # Limit features to reduce noise
+            use_idf=True,         # Use IDF for better term weighting
+            sublinear_tf=True     # Apply sublinear TF scaling for better results with varied text lengths
+        )
+        
+        # Extract descriptions and create a corpus with more comprehensive data
         descriptions = []
+        keywords_list = []
+        
         for idx, influencer in enumerate(json_data):
+            # Get all text-based data
             description = influencer.get("description", "")
             channel = influencer.get("channel_info", "")
-            category = influencer.get("category", "")
+            username = get_username(channel)
             
-            # Ensure we have at least some text (add default if empty)
-            text = f"{description} {category}".strip()
-            if not text:
-                text = "influencer content creator social media"
+            # Use enhanced category if available, otherwise fallback
+            if username in enhanced_categories_cache:
+                category = enhanced_categories_cache[username]
+                # Also update the original data
+                influencer["category"] = category
+            else:
+                category = influencer.get("category", "")
+                
+            country = influencer.get("country", "")
+            keywords = influencer.get("keywords", "")  # Assuming you might have keywords in your data
+            posts_content = str(influencer.get("content_topics", ""))  # Any content topics if available
             
-            descriptions.append(text)
-            influencer_map[get_username(channel)] = idx
+            # Store username to influencer mapping
+            influencer_map[username] = idx
+            
+            # Weight important terms by repeating them
+            # This makes category and description words more influential
+            weighted_text = (
+                f"{description} {description} "  # Repeat for emphasis
+                f"{category} {category} {category} "  # Category is very important - repeat 3x
+                f"{keywords} {keywords} "  # Keywords are important - repeat 2x
+                f"{country} {posts_content} {channel}"
+            ).strip()
+            
+            # Fallback for empty descriptions
+            if not weighted_text:
+                weighted_text = f"influencer content creator social media {category}"
+                
+            descriptions.append(weighted_text)
+            
+            # Save keywords separately for additional matching
+            keywords_list.append(f"{category} {keywords}")
         
         try:
-            # Check if we have any valid descriptions
+            # Vectorize the enriched descriptions
             if not descriptions:
                 logger.warning("No influencer descriptions found, using default vectors")
-                descriptions = ["default content"]
-            
-            # Fit and transform our corpus
+                descriptions = ["default content creator"]
+                
+            # Fit and transform our enhanced corpus
             influencer_vectors = tfidf_vectorizer.fit_transform(descriptions)
             logger.info(f"Vectorization initialized with {len(descriptions)} influencers")
+            
         except ValueError as e:
             logger.error(f"Vectorization error: {str(e)}")
-            # Create a simple fallback vectorizer and vectors
+            # Create a fallback vectorizer
             tfidf_vectorizer = TfidfVectorizer(stop_words=None)
-            dummy_texts = ["influencer" + str(i) for i in range(len(json_data))]
+            dummy_texts = [f"influencer{i} content" for i in range(len(json_data))]
             influencer_vectors = tfidf_vectorizer.fit_transform(dummy_texts)
             logger.warning("Using fallback vectorization due to empty vocabulary")
 
@@ -330,14 +420,14 @@ async def simulate_collaboration(request: CollabRequest):
     if not influencer:
         raise HTTPException(status_code=404, detail=f"Influencer '{influencer_username}' not found")
     
-    # Calculate match percentage using TF-IDF and cosine similarity
+    # Calculate match percentage using improved algorithm
     match_percentage = calculate_match_percentage(request.business, influencer)
     
     # Calculate cost estimate based on followers and engagement
     cost_estimate = calculate_cost_estimate(influencer)
     
-    # Calculate estimated ROI
-    roi_estimate = calculate_roi_estimate(match_percentage, influencer)
+    # Calculate estimated ROI with improved formula
+    roi_estimate = calculate_roi_estimate(match_percentage, influencer, request.business)
     
     # Calculate estimated reach
     estimated_reach = calculate_reach(influencer)
@@ -362,36 +452,137 @@ async def simulate_collaboration(request: CollabRequest):
     }
 
 def calculate_match_percentage(business: BusinessDetails, influencer: Dict[str, Any]) -> float:
-    """Calculate the match percentage between business and influencer using TF-IDF vectors"""
+    """
+    Calculate the match percentage between business and influencer using 
+    multiple factors including enhanced TF-IDF, accurate category match, and engagement quality
+    """
     global tfidf_vectorizer, influencer_vectors, influencer_map
     
     try:
-        # Combine business details into a text document
+        # Adjust component weights to emphasize category match
+        tfidf_weight = 0.4      # Reduced from 0.5
+        category_weight = 0.4    # Increased from 0.3
+        metrics_weight = 0.2     # Keep the same
+        
+        # Get TF-IDF similarity
+        # Create a comprehensive business description
         business_text = f"{business.businessName} {business.businessCategory} {business.description}"
         
         # Handle empty business text
         if not business_text.strip():
-            return 50.0  # Default match for empty business text
-        
-        # Transform using existing vocabulary
-        business_vector = tfidf_vectorizer.transform([business_text])
-        
-        # Get the influencer's vector
-        influencer_username = get_username(influencer.get("channel_info", ""))
-        if influencer_username in influencer_map:
-            idx = influencer_map[influencer_username]
-            influencer_vector = influencer_vectors[idx]
-            
-            # Calculate cosine similarity
-            similarity = cosine_similarity(business_vector, influencer_vector)[0][0]
-            
-            # Convert to percentage (0-100)
-            return max(0, min(100, similarity * 100))  # Ensure it's between 0 and 100
+            tfidf_similarity = 0.5  # Default for empty text
         else:
-            return 50.0  # Default match if influencer not found in vectorized data
+            # Transform using existing vocabulary
+            business_vector = tfidf_vectorizer.transform([business_text])
+            
+            # Get the influencer's vector
+            influencer_username = get_username(influencer.get("channel_info", ""))
+            if influencer_username in influencer_map:
+                idx = influencer_map[influencer_username]
+                influencer_vector = influencer_vectors[idx]
+                
+                # Calculate cosine similarity
+                tfidf_similarity = cosine_similarity(business_vector, influencer_vector)[0][0]
+            else:
+                tfidf_similarity = 0.5  # Default if not found
+        
+        # Get enhanced category match score (using Gemini-improved categories)
+        business_category = business.businessCategory.lower()
+        
+        # Use enhanced category if available
+        if influencer_username in enhanced_categories_cache:
+            influencer_category = enhanced_categories_cache[influencer_username].lower()
+        else:
+            influencer_category = influencer.get("category", "").lower()
+        
+        # More sophisticated category matching
+        # Check for exact match
+        if business_category == influencer_category:
+            category_score = 1.0
+        elif business_category in influencer_category or influencer_category in business_category:
+            category_score = 0.85  # Increased from 0.8
+        else:
+            # Enhanced semantic matching for categories
+            # Use Jaccard similarity for partial word matching
+            business_words = set(business_category.lower().split())
+            influencer_words = set(influencer_category.lower().split())
+            
+            # Add synonyms for common business categories
+            business_expanded = expand_category_with_synonyms(business_category)
+            influencer_expanded = expand_category_with_synonyms(influencer_category)
+            
+            business_words.update(business_expanded)
+            influencer_words.update(influencer_expanded)
+            
+            if not business_words or not influencer_words:
+                category_score = 0.3
+            else:
+                intersection = len(business_words.intersection(influencer_words))
+                union = len(business_words.union(influencer_words))
+                category_score = intersection / union if union > 0 else 0.3
+        
+        # Calculate metrics score based on influencer quality metrics
+        engagement_quality = float(influencer.get("engagement_quality_score", 1.0))
+        # Normalize engagement quality to 0-1 scale
+        if engagement_quality > 10:
+            engagement_quality = engagement_quality / 10
+        elif engagement_quality > 1:
+            engagement_quality = engagement_quality / 5
+        
+        credibility = float(influencer.get("credibility_score", 50)) / 100
+        influence = float(influencer.get("influence_score", 50)) / 100
+        
+        # Weighted metrics score with emphasis on engagement quality
+        metrics_score = (engagement_quality * 0.5 + credibility * 0.25 + influence * 0.25)
+        
+        # Calculate final weighted score
+        final_score = (
+            tfidf_similarity * tfidf_weight +
+            category_score * category_weight +
+            metrics_score * metrics_weight
+        )
+        
+        # Apply more aggressive power curve to better differentiate scores
+        # This ensures we get more separation between good and great matches
+        scaled_score = (final_score ** 0.65) * 100
+        
+        return max(10, min(100, scaled_score))  # Minimum 10, maximum 100
+        
     except Exception as e:
         logger.error(f"Error calculating match percentage: {str(e)}")
         return 50.0  # Default match on error
+
+def expand_category_with_synonyms(category: str) -> List[str]:
+    """Add common synonyms and related terms for better category matching"""
+    category = category.lower()
+    synonyms = []
+    
+    # Map of common category synonyms
+    synonym_map = {
+        "fashion": ["clothing", "apparel", "style", "outfits", "wear", "dress"],
+        "beauty": ["makeup", "cosmetics", "skincare", "glamour"],
+        "travel": ["tourism", "vacation", "trips", "adventure", "destination"],
+        "fitness": ["workout", "gym", "exercise", "health", "training", "sports"],
+        "food": ["cooking", "culinary", "recipe", "dining", "cuisine", "gastronomy"],
+        "tech": ["technology", "gadgets", "electronics", "digital", "computing"],
+        "gaming": ["games", "videogames", "esports", "gamer"],
+        "lifestyle": ["life", "living", "daily", "routine"],
+        "business": ["entrepreneur", "startup", "corporate", "company"],
+        "education": ["learning", "teaching", "academic", "study", "school"],
+        "music": ["songs", "artist", "audio", "musical"],
+        "pets": ["animals", "dogs", "cats", "pet care"],
+    }
+    
+    # Check each key in the synonym map
+    for key, values in synonym_map.items():
+        if key in category:
+            synonyms.extend(values)
+        # Also check if any synonyms are in the category
+        for value in values:
+            if value in category and key not in synonyms:
+                synonyms.append(key)
+    
+    return synonyms
     
 def calculate_cost_estimate(influencer: Dict[str, Any]) -> float:
     """Calculate estimated cost for a collaboration based on influencer metrics"""
@@ -405,8 +596,16 @@ def calculate_cost_estimate(influencer: Dict[str, Any]) -> float:
     else:
         engagement = float(engagement_str) * 100 if float(engagement_str) < 1 else float(engagement_str)
     
-    # Base formula: $1 per 1000 followers, adjusted for engagement
-    base_cost = (followers / 1000) * 1.0
+    # Use a more realistic cost model: 
+    # Base formula adjusted for follower count scale with diminishing returns
+    if followers < 10000:  # Micro
+        base_cost = (followers / 1000) * 0.8
+    elif followers < 100000:  # Small
+        base_cost = 8 + ((followers - 10000) / 1000) * 0.6
+    elif followers < 1000000:  # Medium
+        base_cost = 62 + ((followers - 100000) / 1000) * 0.4
+    else:  # Large/Mega
+        base_cost = 422 + ((followers - 1000000) / 1000) * 0.2
     
     # Adjust for engagement (higher engagement = higher cost)
     # Industry average is ~1-3% engagement, so we'll use that as baseline
@@ -416,11 +615,22 @@ def calculate_cost_estimate(influencer: Dict[str, Any]) -> float:
     influence_score = float(influencer.get("influence_score", 50))
     influence_multiplier = (influence_score / 50) ** 0.7  # Diminishing returns
     
+    # Account for credibility
+    credibility_score = float(influencer.get("credibility_score", 50))
+    credibility_multiplier = (credibility_score / 50) ** 0.5  # Smaller adjustment
+    
+    # Ensure minimum cost
+    min_cost = 50  # Minimum $50 per collab
+    
     # Final cost
-    return base_cost * engagement_multiplier * influence_multiplier
+    calculated_cost = base_cost * engagement_multiplier * influence_multiplier * credibility_multiplier
+    return max(min_cost, calculated_cost)
 
-def calculate_roi_estimate(match_percentage: float, influencer: Dict[str, Any]) -> float:
-    """Estimate ROI based on match percentage and influencer metrics"""
+def calculate_roi_estimate(match_percentage: float, influencer: Dict[str, Any], business: BusinessDetails) -> float:
+    """
+    Estimate ROI based on match percentage, influencer metrics, and business details.
+    Improved to provide more realistic ROI estimates.
+    """
     # Parse metrics
     followers = parse_follower_count(influencer.get("followers", "10K"))
     
@@ -431,27 +641,58 @@ def calculate_roi_estimate(match_percentage: float, influencer: Dict[str, Any]) 
     else:
         engagement = float(engagement_str) * 100 if float(engagement_str) < 1 else float(engagement_str)
     
-    # Get conversion rate based on match percentage and engagement
-    # High match + high engagement = higher conversion
-    conversion_rate = (match_percentage / 100) * (engagement / 100) * 0.1  # 0.1% base conversion
+    # Get metrics relevant to ROI calculation
+    credibility = float(influencer.get("credibility_score", 50))
+    influence = float(influencer.get("influence_score", 50))
     
-    # Average order value (assuming $50 as default)
-    avg_order_value = 50
+    # Get engagement quality score
+    engagement_quality = float(influencer.get("engagement_quality_score", 1.0))
+    # Normalize if needed
+    if engagement_quality > 5:
+        engagement_quality = engagement_quality / 5
     
-    # Estimated revenue: Followers * Engagement Rate * Conversion Rate * Avg Order Value
-    estimated_revenue = followers * (engagement / 100) * conversion_rate * avg_order_value
+    # Better conversion rate model:
+    # Base conversion affected by match %, influencer quality, and engagement
+    # Typical social media conversion rates range from 0.5% to 3%
     
-    # Estimated cost from previous function
+    # Base conversion rate varies between 0.05% and 0.5% of engaged followers
+    base_conversion = 0.0005 + (match_percentage / 100) * 0.0045
+    
+    # Quality multiplier based on credibility and engagement quality
+    quality_multiplier = 0.5 + ((credibility / 100) * 0.25 + (engagement_quality) * 0.25)
+    
+    # Final conversion rate (percentage of engaged followers who convert)
+    conversion_rate = base_conversion * quality_multiplier
+    
+    # Estimate average order value (AOV) - can be customized per industry
+    aov = 50  # Default $50
+    
+    # Engaged audience: followers * engagement rate
+    engaged_audience = followers * (engagement / 100)
+    
+    # Estimated conversions
+    conversions = engaged_audience * conversion_rate
+    
+    # Estimated revenue
+    estimated_revenue = conversions * aov
+    
+    # Estimated cost
     estimated_cost = calculate_cost_estimate(influencer)
     
     # ROI = (Revenue - Cost) / Cost * 100
     if estimated_cost > 0:
-        return ((estimated_revenue - estimated_cost) / estimated_cost) * 100
+        roi = ((estimated_revenue - estimated_cost) / estimated_cost) * 100
+        
+        # Apply match percentage as a reality check (better matches = more accurate ROI)
+        confidence_factor = 0.7 + (match_percentage / 100) * 0.3
+        adjusted_roi = roi * confidence_factor
+        
+        return max(0, adjusted_roi)  # No negative ROI predictions
     else:
         return 0
 
 def calculate_reach(influencer: Dict[str, Any]) -> int:
-    """Calculate estimated reach based on followers and engagement"""
+    """Calculate estimated reach based on followers and engagement with a more realistic model"""
     followers = parse_follower_count(influencer.get("followers", "10K"))
     
     # Get engagement rate
@@ -461,56 +702,94 @@ def calculate_reach(influencer: Dict[str, Any]) -> int:
     else:
         engagement = float(engagement_str) * 100 if float(engagement_str) < 1 else float(engagement_str)
     
-    # Organic reach is typically a percentage of followers + potential viral factor
-    reach_percentage = min(30, 10 + (engagement * 2))  # Higher engagement = higher reach
-    viral_factor = 1 + (engagement / 100)  # Viral multiplication factor
+    # Scale reach by follower count (larger accounts typically have lower organic reach %)
+    if followers < 10000:  # Micro
+        base_reach_pct = 25
+    elif followers < 100000:  # Small
+        base_reach_pct = 20
+    elif followers < 1000000:  # Medium
+        base_reach_pct = 15
+    else:  # Large/Mega
+        base_reach_pct = 10
     
-    return int(followers * (reach_percentage / 100) * viral_factor)
+    # Adjust for engagement - higher engagement typically means better algorithm performance
+    engagement_bonus = min(15, engagement * 2)
+    
+    # Calculate reach percentage with a cap
+    reach_percentage = min(50, base_reach_pct + engagement_bonus)
+    
+    # Viral factor based on engagement and credibility
+    credibility = float(influencer.get("credibility_score", 50))
+    viral_multiplier = 1 + (engagement / 100) * (credibility / 100)
+    
+    return int(followers * (reach_percentage / 100) * viral_multiplier)
 
 def calculate_relevancy(business: BusinessDetails, influencer: Dict[str, Any]) -> float:
-    """Calculate relevancy score between business category and influencer"""
-    # This is a more simplified version of match percentage focused on category
+    """Calculate relevancy score between business category and influencer with better algorithm"""
     business_category = business.businessCategory.lower()
     influencer_category = influencer.get("category", "").lower()
     
-    # Base relevancy on direct category match
-    if business_category in influencer_category or influencer_category in business_category:
-        base_relevancy = 80
+    # Calculate category match score (similar to part of match percentage calculation)
+    if business_category == influencer_category:
+        category_score = 100
+    elif business_category in influencer_category or influencer_category in business_category:
+        category_score = 80
     else:
-        # Use match percentage as a proxy for relevancy
-        base_relevancy = calculate_match_percentage(business, influencer) * 0.8
+        # Use Jaccard similarity for partial word matching
+        business_words = set(business_category.split())
+        influencer_words = set(influencer_category.split())
+        
+        if not business_words or not influencer_words:
+            category_score = 30
+        else:
+            intersection = len(business_words.intersection(influencer_words))
+            union = len(business_words.union(influencer_words))
+            category_score = (intersection / union if union > 0 else 0.3) * 100
     
     # Adjust based on engagement quality score
-    engagement_quality = float(influencer.get("engagement_quality_score", 0.5))
+    engagement_quality = float(influencer.get("engagement_quality_score", 1.0))
+    # Normalize if needed
+    if engagement_quality > 5:
+        engagement_quality = engagement_quality / 5
     
-    return base_relevancy * (0.8 + (engagement_quality * 0.4))
+    # Calculate final relevancy with greater weight on category match
+    return category_score * 0.8 + (engagement_quality * 20) * 0.2
 
 def calculate_longevity(influencer: Dict[str, Any]) -> float:
     """Calculate longevity potential of collaboration"""
     # Get longevity score if available
     longevity_score = float(influencer.get("longevity_score", 5))
     
+    # Get credibility score as it relates to longevity
+    credibility = float(influencer.get("credibility_score", 50))
+    
     # Normalize to 0-10 scale if needed
     if longevity_score > 10:
         longevity_score = longevity_score / 10
+    
+    # Weighted combination of longevity and credibility scores
+    combined_score = longevity_score * 0.7 + (credibility / 10) * 0.3
         
     # Convert to 0-100 scale
-    return longevity_score * 10
+    return combined_score * 10
 
 def generate_recommendation(match_percentage: float, roi_estimate: float, business: BusinessDetails, influencer: Dict[str, Any]) -> str:
-    """Generate a recommendation based on match and ROI estimates"""
+    """Generate a recommendation based on match and ROI estimates with more nuanced thresholds"""
     channel = influencer.get("channel_info", "this influencer")
     
-    if match_percentage >= 80 and roi_estimate >= 200:
-        return f"Highly Recommended: {channel} is an excellent match for {business.businessName} with exceptional ROI potential."
-    elif match_percentage >= 70 and roi_estimate >= 150:
-        return f"Recommended: {channel} is a strong match for your business with good ROI potential."
-    elif match_percentage >= 60 and roi_estimate >= 100:
-        return f"Worth Considering: {channel} is a decent match with acceptable ROI potential."
-    elif match_percentage >= 50 and roi_estimate >= 50:
-        return f"Possible Option: {channel} might work for your business but ROI could be limited."
+    # More nuanced recommendation thresholds
+    if match_percentage >= 80 and roi_estimate >= 300:
+        return f"Exceptional Match: {channel} is perfect for {business.businessName} with very high projected ROI of {roi_estimate:.1f}%."
+    elif match_percentage >= 70 and roi_estimate >= 200:
+        return f"Highly Recommended: {channel} is an excellent match for {business.businessName} with strong ROI potential of {roi_estimate:.1f}%."
+    elif match_percentage >= 60 and roi_estimate >= 150:
+        return f"Recommended: {channel} is a strong match with solid ROI potential of {roi_estimate:.1f}%."
+    elif match_percentage >= 50 and roi_estimate >= 100:
+        return f"Worth Considering: {channel} is a good match with acceptable ROI potential of {roi_estimate:.1f}%."
+    elif match_percentage >= 40 and roi_estimate >= 50:
+        return f"Possible Option: {channel} might work for your business with modest ROI potential of {roi_estimate:.1f}%."
     else:
-        return f"Not Recommended: {channel} is not an ideal match for {business.businessName}."
+        return f"Not Recommended: {channel} is not an ideal match for {business.businessName} with low projected ROI of {roi_estimate:.1f}%."
 
 def parse_follower_count(followers_str) -> float:
     """Parse follower counts like '1.2M' or '500K' to actual numbers"""
@@ -538,7 +817,7 @@ class BatchCollabRequest(BaseModel):
 async def batch_recommendations(request: BatchCollabRequest):
     """
     Get collaboration recommendations for multiple influencers
-    based on business details.
+    based on business details with improved ranking algorithm
     """
     logger.info(f"Generating batch recommendations for {request.business.businessName}")
     
@@ -551,7 +830,25 @@ async def batch_recommendations(request: BatchCollabRequest):
         # Calculate key metrics
         match_percentage = calculate_match_percentage(request.business, influencer)
         cost_estimate = calculate_cost_estimate(influencer)
-        roi_estimate = calculate_roi_estimate(match_percentage, influencer)
+        roi_estimate = calculate_roi_estimate(match_percentage, influencer, request.business)
+        
+        # Calculate composite score with heavy ROI emphasis
+        # ROI gets 60% weight, match gets 30%, cost efficiency gets 10%
+        follower_count = parse_follower_count(influencer.get("followers", "10K"))
+        cost_efficiency = min(100, (follower_count / cost_estimate) / 100) if cost_estimate > 0 else 0
+        
+        # Scale ROI to 0-100 range for scoring purposes (cap at 500% ROI)
+        scaled_roi = min(100, roi_estimate / 5)
+        
+        # Calculate composite score (higher is better)
+        composite_score = (
+            scaled_roi * 0.6 +
+            match_percentage * 0.3 +
+            cost_efficiency * 0.1
+        )
+        
+        # Get recommendation text
+        recommendation = generate_recommendation(match_percentage, roi_estimate, request.business, influencer)
         
         results.append({
             "username": influencer_username,
@@ -561,10 +858,12 @@ async def batch_recommendations(request: BatchCollabRequest):
             "estimated_roi": round(roi_estimate, 2),
             "followers": influencer.get("followers", "Unknown"),
             "category": influencer.get("category", "Unknown"),
+            "composite_score": round(composite_score, 1),
+            "recommendation": recommendation
         })
     
-    # Sort by match percentage (descending)
-    results.sort(key=lambda x: x["match_percentage"], reverse=True)
+    # Sort by composite score (descending)
+    results.sort(key=lambda x: x["composite_score"], reverse=True)
     
     # Return top N results
     return {"recommendations": results[:request.count]}
@@ -696,6 +995,75 @@ async def generate_influence(request: InfluencerRequest):
             "message": str(e),
             "influence_map": {}
         }
+        
+class TrendPoint(BaseModel):
+    month: str
+    period: str
+    quality_score: float
+    engagement: float
+    followers: int
+    likes: int
+
+class RegressionResult(BaseModel):
+    slope: float
+    intercept: float
+    r_squared: float
+    predictions: List[Dict[str, Union[str, float]]]
+        
+@app.post("/analyze/regression/{metric}")
+async def calculate_regression(metric: str, data: List[TrendPoint]):
+    """Calculate linear regression for specified metric and return model details."""
+    if not data or len(data) < 2:
+        raise HTTPException(400, "Need at least 2 data points for regression")
+    
+    if metric not in ["engagement", "quality_score", "followers", "likes"]:
+        raise HTTPException(400, f"Unsupported metric: {metric}")
+    
+    # Extract data for regression
+    X = np.array(range(len(data))).reshape(-1, 1)  # X is just the indices
+    y = np.array([getattr(point, metric) for point in data])
+    
+    # Fit regression model
+    model = LinearRegression().fit(X, y)
+    
+    # Calculate predictions including 9 future months
+    future_X = np.array(range(len(data) + 9)).reshape(-1, 1)
+    predictions = model.predict(future_X)
+    
+    # Generate prediction results
+    prediction_results = []
+    for i, pred in enumerate(predictions):
+        # For actual months, use existing month names
+        if i < len(data):
+            month = data[i].month
+            period = data[i].period
+        else:
+            # For future months, generate month names
+            # This is simplified - you might want more accurate month prediction
+            last_date_parts = data[-1].period.split()
+            month_idx = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", 
+                         "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"].index(last_date_parts[0])
+            future_month_idx = (month_idx + (i - len(data) + 1)) % 12
+            month = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", 
+                    "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"][future_month_idx]
+            year = int(last_date_parts[1])
+            if future_month_idx < month_idx:
+                year += 1
+            period = f"{month} {year}"
+        
+        prediction_results.append({
+            "month": month,
+            "period": period,
+            "predicted": float(pred),
+            "is_future": i >= len(data)
+        })
+    
+    return RegressionResult(
+        slope=float(model.coef_[0]),
+        intercept=float(model.intercept_),
+        r_squared=float(model.score(X, y)),
+        predictions=prediction_results
+    )
 # Run the API using Uvicorn
 if __name__ == "__main__":
     import uvicorn

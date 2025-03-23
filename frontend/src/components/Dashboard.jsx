@@ -2,17 +2,8 @@ import React from "react";
 import { Outlet, Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import Spotlight from "./Spotlight"; // Import the Spotlight component
-import CollabSimulator from "./CollabSimulator";
 
 const Dashboard = () => {
-  const isLoggedIn = true; // Replace with actual authentication logic
-
-  // Button hover animation
-  const buttonHover = {
-    rest: { scale: 1 },
-    hover: { scale: 1.05 },
-  };
-
   return (
     <div className="min-h-screen flex flex-col bg-black text-white">
       {/* Spotlight */}
@@ -60,24 +51,10 @@ const Dashboard = () => {
               >
                 Suggestions
               </Link>
-              <Link
-                to="/dashboard/reports"
-                className="text-white hover:text-purple-400 transition-colors text-sm font-inter"
-              >
-                Reports
-              </Link>
-              <Link
-                to="/dashboard/insights"
-                className="text-white hover:text-purple-400 transition-colors text-sm font-inter"
-              >
-                Insights
-              </Link>
             </div>
           </div>
         </div>
       </header>
-
-      <CollabSimulator />
 
       {/* Main Content */}
       <div className="flex-1 p-6 lg:p-8 overflow-y-auto relative z-10 mt-20">

@@ -4,11 +4,9 @@ import Influencers from "./pages/Influencers";
 import ProtectedRoute from "./components/ProtectedRoute";
 import InfluencerList from "./components/InfluencerList";
 import InfluencerDetail from "./components/InfluencerDetail";
-import Suggestions from "./components/Analysis";
 import Dashboard from "./components/Dashboard";
-
-import { BrowserRouter, Routes, Route } from "react-router-dom";
 import InfluencerSuggestions from "./components/Analysis";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 function App() {
   return (
@@ -57,9 +55,14 @@ function App() {
                 </ProtectedRoute>
               }
             />
-            <Route path="suggestions" element={<InfluencerSuggestions />} />
-            <Route path="reports" element={<h1>reports</h1>} />
-            <Route path="insights" element={<h1>insights</h1>} />
+            <Route
+              path="suggestions"
+              element={
+                <ProtectedRoute>
+                  <InfluencerSuggestions />
+                </ProtectedRoute>
+              }
+            />
           </Route>
         </Routes>
       </BrowserRouter>
