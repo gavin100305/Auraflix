@@ -616,7 +616,8 @@ const InfluencerDetail = () => {
                   <TrendGraph influencer={influencer} />
                 </motion.div>
               </motion.div>
-  
+              </div>
+
               
           </div>
           {/* Heat Map Section - Full Width */}
@@ -641,7 +642,7 @@ const InfluencerDetail = () => {
               className="w-full h-[500px]" // Fixed height for better proportions
             >
               <InfluencerWorldMap influencer={influencer} />
-              </div>
+            </motion.div>
           </div>
         </motion.div>
         </div>
