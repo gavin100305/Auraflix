@@ -24,9 +24,8 @@ const TrendGraph = ({influencer}) => {
     if (!influencer) return;
 
     const fetchTrendData = async () => {
-      setIsLoading(true);  // Fixed: changed setLoading to setIsLoading
+      setIsLoading(true);  
       try {
-        // Extract username
         const username = influencer.channel_info?.startsWith("@")
           ? influencer.channel_info.substring(1)
           : influencer.channel_info;

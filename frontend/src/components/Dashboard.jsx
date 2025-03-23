@@ -1,12 +1,11 @@
 import React from "react";
 import { Outlet, Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import Spotlight from "./Spotlight"; // Import the Spotlight component
+import Spotlight from "./Spotlight"; 
 
 const Dashboard = () => {
   return (
     <div className="min-h-screen flex flex-col bg-black text-white">
-      {/* Spotlight */}
       <Spotlight
         className="-top-40 left-0 md:-top-20 md:left-60"
         fill="white"
