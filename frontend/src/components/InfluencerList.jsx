@@ -10,7 +10,6 @@ const InfluencerList = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(10);
   const [error, setError] = useState(null);
-  const [hasMore, setHasMore] = useState(true);
   const [countryFlags, setCountryFlags] = useState({});
   const [flagsLoading, setFlagsLoading] = useState(true);
 
@@ -70,14 +69,13 @@ const InfluencerList = () => {
     fetchCountryData();
   }, []);
 
-  const fetchInfluencers = async (page = 1) => {
+  // Fetch all influencers at once
+  const fetchAllInfluencers = async () => {
     try {
       setLoading(true);
-
-      // Try to use pagination parameters - many APIs support this format
-      const response = await fetch(
-        `http://127.0.0.1:8000/data?page=${page}&limit=${itemsPerPage}`
-      );
+      
+      // Fetch all data without pagination parameters
+      const response = await fetch(`http://127.0.0.1:8000/data`);
 
       if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
@@ -85,26 +83,14 @@ const InfluencerList = () => {
 
       const data = await response.json();
 
-      // Check if we got an array or a paginated response object
-      let newInfluencers = [];
+      // Check if we got an array or a different response format
       if (Array.isArray(data)) {
-        newInfluencers = data;
-        // If we received fewer items than requested, we might be at the end
-        setHasMore(data.length >= itemsPerPage);
+        setInfluencers(data);
       } else if (data.items && Array.isArray(data.items)) {
-        // Handle paginated response format
-        newInfluencers = data.items;
-        setHasMore(data.hasMore || data.has_more || page < data.total_pages);
+        // Handle response format with items property
+        setInfluencers(data.items);
       } else {
         throw new Error("Unexpected data format received from API");
-      }
-
-      if (page === 1) {
-        // First page: replace existing data
-        setInfluencers(newInfluencers);
-      } else {
-        // Subsequent pages: append to existing data
-        setInfluencers((prev) => [...prev, ...newInfluencers]);
       }
 
       setLoading(false);
@@ -112,28 +98,20 @@ const InfluencerList = () => {
       setError(`Failed to fetch influencers: ${err.message}`);
       console.error("Error fetching data:", err);
       setLoading(false);
-      setHasMore(false);
     }
   };
 
   // Initial data fetch
   useEffect(() => {
-    fetchInfluencers(1);
+    fetchAllInfluencers();
   }, []);
 
   const handleNextPage = () => {
-    if (hasMore) {
-      const nextPage = currentPage + 1;
-      setCurrentPage(nextPage);
-      fetchInfluencers(nextPage);
-    }
+    setCurrentPage((prevPage) => prevPage + 1);
   };
 
   const handlePrevPage = () => {
-    if (currentPage > 1) {
-      setCurrentPage((prev) => prev - 1);
-      // Note: We don't refetch for previous pages as we already have that data
-    }
+    setCurrentPage((prevPage) => Math.max(1, prevPage - 1));
   };
 
   // Calculate current page's data slice for display
@@ -143,6 +121,11 @@ const InfluencerList = () => {
     indexOfFirstItem,
     indexOfLastItem
   );
+  
+  // Calculate total pages
+  const totalPages = Math.ceil(influencers.length / itemsPerPage);
+  const hasNextPage = currentPage < totalPages;
+  const hasPrevPage = currentPage > 1;
 
   // Parse metric values like "1.2K", "3.5M"
   const parseMetric = (value) => {
@@ -180,7 +163,7 @@ const InfluencerList = () => {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6 }}
     >
-      <div className="px-6 py-5 border-b border-gray-800 bg-black flex justify-center     items-center">
+      <div className="px-6 py-5 border-b border-gray-800 bg-black flex justify-center items-center">
         <h2 className="text-2xl font-bold text-white">Top Influencers</h2>
       </div>
       {error && (
@@ -219,7 +202,7 @@ const InfluencerList = () => {
           <tbody className="divide-y divide-gray-900 bg-gray-950">
             {currentInfluencers.map((influencer, index) => (
               <motion.tr
-                key={influencer.rank || index}
+                key={influencer.rank || `${currentPage}-${index}`}
                 className="group transition-colors relative z-10"
                 initial={{ opacity: 0, y: 15, scale: 0.97 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -343,17 +326,16 @@ const InfluencerList = () => {
 
       <div className="px-6 py-4 border-t border-gray-900 bg-black flex justify-between">
         <span className="text-gray-400">
-          Page {currentPage} of{" "}
-          {Math.max(1, Math.ceil(influencers.length / itemsPerPage))}
+          Page {currentPage} of {totalPages || 1}
         </span>
         <div className="flex space-x-3">
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={handlePrevPage}
-            disabled={currentPage === 1}
+            disabled={!hasPrevPage}
             className={`px-5 py-2 rounded-lg transition ${
-              currentPage === 1
+              !hasPrevPage
                 ? "bg-gray-900 text-gray-600 cursor-not-allowed"
                 : "bg-purple-800 text-white hover:bg-purple-700"
             }`}
@@ -364,9 +346,9 @@ const InfluencerList = () => {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={handleNextPage}
-            disabled={!hasMore || loading}
+            disabled={!hasNextPage || loading}
             className={`px-5 py-2 rounded-lg transition ${
-              !hasMore || loading
+              !hasNextPage || loading
                 ? "bg-gray-900 text-gray-600 cursor-not-allowed"
                 : "bg-purple-800 text-white hover:bg-purple-700"
             }`}
