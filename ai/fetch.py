@@ -239,6 +239,12 @@ def generate_generic_trend_data():
     
     return data
 
+
+
+# Collab Simulator part
+
+
+
 class BusinessDetails(BaseModel):
     businessName: str
     businessCategory: str

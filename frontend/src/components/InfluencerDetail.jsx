@@ -306,11 +306,11 @@ const InfluencerDetail = () => {
                 </motion.div>
 
                 <div className="flex flex-col">
-                  <a 
+                <a 
                     href={`https://www.instagram.com/${influencer.channel_info.replace('@', '')}`} 
                     target="_blank" 
                     rel="noopener noreferrer"
-                    className="group"
+                    className="group inline-flex items-center gap-2 transition-all duration-300 hover:translate-y-[-2px]"
                   >
                     <motion.h1 
                       initial={{ opacity: 0, y: 10 }}
@@ -320,6 +320,18 @@ const InfluencerDetail = () => {
                     >
                       @{influencer.channel_info}
                     </motion.h1>
+                    <svg 
+                      xmlns="http://www.w3.org/2000/svg" 
+                      viewBox="0 0 24 24" 
+                      fill="none" 
+                      stroke="currentColor" 
+                      className="w-6 h-6 text-gray-400 group-hover:text-purple-400 transition-all duration-300 opacity-0 group-hover:opacity-100 transform group-hover:translate-x-1"
+                      strokeWidth="2" 
+                      strokeLinecap="round" 
+                      strokeLinejoin="round"
+                    >
+                      <path d="M7 17l9.2-9.2M17 17V7H7" />
+                    </svg>
                   </a>
                   <motion.div 
                     initial={{ opacity: 0, y: 10 }}
