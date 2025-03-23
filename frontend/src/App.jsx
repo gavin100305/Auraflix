@@ -1,4 +1,3 @@
-import Analysis from "./pages/Analysis";
 import Landing from "./pages/Landing";
 import Auth from "./pages/Auth";
 import Influencers from "./pages/Influencers";
@@ -11,7 +10,6 @@ import Dashboard from "./components/Dashboard";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import InfluencerSuggestions from "./components/Analysis";
 
-
 function App() {
   return (
     <>
@@ -19,14 +17,6 @@ function App() {
         <Routes>
           <Route path="/" element={<Landing />} />
           <Route path="/auth" element={<Auth />} />
-          <Route
-            path="/analysis"
-            element={
-              <ProtectedRoute>
-                <Analysis />
-              </ProtectedRoute>
-            }
-          />
           <Route
             path="/leaderboard"
             element={
@@ -51,19 +41,26 @@ function App() {
               </ProtectedRoute>
             }
           />
-          <Route path="/dashboard" element={ <ProtectedRoute><Dashboard /></ProtectedRoute>}>
           <Route
-            path="leaderboard"
+            path="/dashboard"
             element={
               <ProtectedRoute>
-                <InfluencerList />
+                <Dashboard />
               </ProtectedRoute>
             }
-          />
-          <Route path="test" element={<InfluencerSuggestions/>} />
-          <Route path="reports" element={<h1>reports</h1>} />
-          <Route path="insights" element={<h1>insights</h1>} />
-        </Route>
+          >
+            <Route
+              path="leaderboard"
+              element={
+                <ProtectedRoute>
+                  <InfluencerList />
+                </ProtectedRoute>
+              }
+            />
+            <Route path="suggestions" element={<InfluencerSuggestions />} />
+            <Route path="reports" element={<h1>reports</h1>} />
+            <Route path="insights" element={<h1>insights</h1>} />
+          </Route>
         </Routes>
       </BrowserRouter>
     </>
