@@ -616,17 +616,35 @@ const InfluencerDetail = () => {
                   <TrendGraph influencer={influencer} />
                 </motion.div>
               </motion.div>
-{/* --------------------------------HEAT MAP------------------------------------------------------------- */}
-              <div className="h-screen">
-              <div className="px-6 py-4 border-b border-gray-800 bg-black">
-                <h2 className="text-xl font-bold text-white">
-                  WordlWide Popularity And Influence Level
-                </h2>
               </div>
-              <InfluencerWorldMap influencer={influencer} />
-              </div>
-            </div>
+
+              
           </div>
+          {/* Heat Map Section - Full Width */}
+        <motion.div
+          variants={cardVariants}
+          initial="hidden"
+          animate="visible"
+          whileHover="hover"
+          transition={{ duration: 0.5, delay: 0.6 }}
+          className="col-span-1 lg:col-span-3 mt-8"
+        >
+          <div className="bg-neutral-900/50 rounded-xl border border-neutral-800 overflow-hidden backdrop-blur-sm">
+            <div className="px-6 py-4 border-b border-neutral-800">
+              <h2 className="text-xl font-bold text-white">
+                Worldwide Popularity and Influence Level
+              </h2>
+            </div>
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.8, delay: 0.7 }}
+              className="w-full h-[500px]" // Fixed height for better proportions
+            >
+              <InfluencerWorldMap influencer={influencer} />
+            </motion.div>
+          </div>
+        </motion.div>
         </div>
       </div>
 
