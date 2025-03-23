@@ -4,9 +4,9 @@ import { Link } from "react-router-dom";
 import { Navigate } from "react-router-dom";
 
 const Header = () => {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const navigate = Navigate();
-  
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
   useEffect(() => {
     const checkLoginStatus = () => {
       const userToken = localStorage.getItem("authToken");
