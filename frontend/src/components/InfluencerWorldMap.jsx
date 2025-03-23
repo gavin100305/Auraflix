@@ -156,10 +156,16 @@ const InfluencerWorldMap = ({ influencer }) => {
                 return response.json();
               })
               .then(data => {
-                console.log("Alternate GeoJSON loaded successfully!");
-                setGeoData(data);
+                const filteredData = {
+                  ...data,
+                  features: data.features.filter(feature => {
+                    const name = feature.properties.name || feature.properties.ADMIN;
+                    return name !== "Antarctica";
+                  })
+                };
+                setGeoData(filteredData);
                 setIsLoading(false);
-              })
+              })    
               .catch(alternateErr => {
                 console.error("Failed to load alternate GeoJSON:", alternateErr);
                 setError("Failed to load map data from both sources");
