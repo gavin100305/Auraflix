@@ -18,17 +18,14 @@ const Search = ({ isEmbedded = false }) => {
 
   // Fetch users on component mount
   useEffect(() => {
-    console.log("Fetching users...");
     const fetchUsers = async () => {
       try {
         const response = await fetch("https://influenceiq.onrender.com/users");
         const data = await response.json();
-        console.log("User data is", data);
         if (data.users && Array.isArray(data.users)) {
           setUsers(data.users);
         }
       } catch (err) {
-        console.error("Failed to fetch users:", err);
       }
     };
 
@@ -73,7 +70,6 @@ const Search = ({ isEmbedded = false }) => {
         }
       }
     } catch (error) {
-      console.error("Error fetching Wikipedia image:", error);
     }
   };
 
@@ -92,7 +88,6 @@ const Search = ({ isEmbedded = false }) => {
     try {
       const response = await fetch("https://influenceiq.onrender.com/data");
       const data = await response.json();
-      console.log(data);
       const matchedInfluencer = data.find(
         (item) =>
           item.channel_info &&
@@ -110,7 +105,6 @@ const Search = ({ isEmbedded = false }) => {
       }
     } catch (err) {
       setError("Failed to fetch data. Try again later.");
-      console.error(err);
     } finally {
       setIsLoading(false);
     }

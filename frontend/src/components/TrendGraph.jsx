@@ -46,7 +46,6 @@ const TrendGraph = ({ influencer }) => {
         const data = await response.json();
         setTrendData(data);
       } catch (err) {
-        console.error("Error fetching trend data:", err);
         setError(err.message);
 
         if (influencer.engagement_quality_score) {
@@ -205,7 +204,6 @@ const TrendGraph = ({ influencer }) => {
         [metric]: regressionResult,
       }));
     } catch (err) {
-      console.error("Error calculating regression:", err);
       setError(`Error calculating regression: ${err.message}`);
     } finally {
       setIsLoading(false);
@@ -445,7 +443,7 @@ const TrendGraph = ({ influencer }) => {
             Analysis
           </h2>
           <p className="text-gray-400 text-sm">
-            3-year metric trends with 12-month forecast
+            3-year metric trends with 9-month forecast
           </p>
         </div>
         <div className="flex gap-2">

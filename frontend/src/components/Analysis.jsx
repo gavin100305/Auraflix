@@ -78,12 +78,10 @@ const InfluencerSuggestions = () => {
   };
 
   const closeSidebar = () => {
-    console.log("Closing sidebar");
     setShowComparisonSidebar(false);
   };
 
   const openSidebar = () => {
-    console.log("Opening sidebar");
     setShowComparisonSidebar(true);
   };
 
@@ -116,7 +114,6 @@ const InfluencerSuggestions = () => {
 
         setFilteredUsers(filtered);
       } catch (err) {
-        console.error(err);
         setError(err.message || "Something went wrong.");
       } finally {
         setLoading(false);

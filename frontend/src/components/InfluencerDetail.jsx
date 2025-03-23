@@ -45,7 +45,6 @@ const InfluencerDetail = () => {
       const data = await response.json();
       setCountriesData(data);
     } catch (error) {
-      console.error("Error fetching countries data:", error);
     }
   };
 
@@ -98,7 +97,6 @@ const InfluencerDetail = () => {
         }
       }
     } catch (error) {
-      console.error("Error fetching Wikipedia image:", error);
     }
   };
   const [geoData, setGeoData] = useState(null);
@@ -159,7 +157,6 @@ const InfluencerDetail = () => {
       const data = await response.json();
       setSummary(data.summary);
     } catch (err) {
-      console.error("Error generating summary:", err);
       setSummary("Unable to generate influencer summary at this time.");
     } finally {
       setSummaryLoading(false);

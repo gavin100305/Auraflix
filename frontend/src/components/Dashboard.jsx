@@ -3,10 +3,10 @@ import { Outlet, Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import Spotlight from "./Spotlight"; 
 import RomFooter from "./RomFooter";
-import { Navigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 const Dashboard = () => {
-  const navigate = Navigate();
+  const navigate = useNavigate();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => {
@@ -18,6 +18,11 @@ const Dashboard = () => {
     checkLoginStatus();
   }, []);
 
+  const buttonHover = {
+    rest: { scale: 1 },
+    hover: { scale: 1.05, transition: { duration: 0.2 } },
+  };
+  
   const handleLogout = () => {
     localStorage.removeItem("authToken");
     setIsLoggedIn(false);
