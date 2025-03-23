@@ -23,11 +23,11 @@ const Features = () => {
   const cardHover = {
     rest: { y: 0 },
     hover: {
-      y: -8, // Slightly less movement for subtlety
+      y: -8, 
       transition: {
         type: "spring",
-        stiffness: 200, // Higher stiffness for snappier animation
-        damping: 30, // Balanced damping for smooth finish
+        stiffness: 200, 
+        damping: 30, 
         duration: 0.2,
       },
     },
@@ -54,7 +54,6 @@ const Features = () => {
             viewport={{ once: true }}
             className="grid grid-cols-1 md:grid-cols-3 gap-10"
           >
-            {/* Feature 1 */}
             <motion.div
               variants={fadeIn}
               whileHover={cardHover.hover}
@@ -90,7 +89,6 @@ const Features = () => {
               </p>
             </motion.div>
 
-            {/* Feature 2 */}
             <motion.div
               variants={fadeIn}
               whileHover={cardHover.hover}
@@ -128,7 +126,6 @@ const Features = () => {
               </p>
             </motion.div>
 
-            {/* Feature 3 */}
             <motion.div
               variants={fadeIn}
               whileHover={cardHover.hover}

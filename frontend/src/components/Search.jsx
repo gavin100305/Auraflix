@@ -116,19 +116,17 @@ const Search = ({ isEmbedded = false }) => {
     }
   };
 
-  // Handle input change
   const handleInputChange = (value) => {
     setSearchQuery(value);
   };
 
   const handleNavigateToAnalysis = () => {
-    const username = influencerData.channel_info; // Get the username from influencerData
+    const username = influencerData.channel_info; 
     navigate(`/influencers/${username}`, {
       state: { influencer: influencerData },
     });
   };
 
-  // Format numbers for display
   const formatNumber = (value) => {
     if (!value) return "N/A";
     if (value.includes("k")) return `${parseFloat(value) * 1_000}`;
@@ -136,7 +134,6 @@ const Search = ({ isEmbedded = false }) => {
     return value;
   };
 
-  // Calculate engagement rate
   const calculateEngagementRate = (avgLikes, followers) => {
     const likes = formatNumber(avgLikes);
     const totalFollowers = formatNumber(followers);
@@ -145,7 +142,6 @@ const Search = ({ isEmbedded = false }) => {
       : "0";
   };
 
-  // Format display numbers
   const formatDisplayNumber = (num) => {
     if (typeof num === "string") {
       if (num.includes("k") || num.includes("m")) return num;
@@ -162,14 +158,12 @@ const Search = ({ isEmbedded = false }) => {
     return num.toString();
   };
 
-  // Update graph influencer
   useEffect(() => {
     setGraphInfluencer(
       users.filter((user) => user.channel_info === searchQuery)[0]
     );
   }, [searchQuery, users]);
 
-  // If component is embedded on the landing page, only render the search form
   if (isEmbedded) {
     return (
       <>
@@ -202,7 +196,6 @@ const Search = ({ isEmbedded = false }) => {
             transition={{ duration: 0.6 }}
             className="max-w-4xl mx-auto border border-white/20 rounded-2xl overflow-hidden bg-black/30 backdrop-blur-sm"
           >
-            {/* Header Section */}
             <div className="bg-gradient-to-r from-purple-900/70 to-indigo-900/70 p-6 border-b border-white/10">
               <div className="flex items-center gap-6">
                 <motion.div
@@ -244,7 +237,6 @@ const Search = ({ isEmbedded = false }) => {
               </div>
             </div>
 
-            {/* Stats Cards */}
             <div className="p-6">
               <motion.h4
                 initial={{ opacity: 0 }}
@@ -312,7 +304,6 @@ const Search = ({ isEmbedded = false }) => {
                 ))}
               </div>
 
-              {/* Additional Stats */}
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -343,7 +334,6 @@ const Search = ({ isEmbedded = false }) => {
                 </div>
               </motion.div>
 
-              {/* Call to action with navigation */}
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -373,14 +363,12 @@ const Search = ({ isEmbedded = false }) => {
                 </motion.button>
               </motion.div>
             </div>
-            {/* <TrendGraph influencer={graphInfluencer} /> */}
           </motion.div>
         )}
       </>
     );
   }
 
-  // Original full page component if not embedded
   return (
     <div className="min-h-screen flex flex-col bg-black text-white">
       <div className="relative flex-1 flex overflow-hidden bg-black/[0.96] antialiased">
@@ -432,7 +420,6 @@ const Search = ({ isEmbedded = false }) => {
               transition={{ duration: 0.6 }}
               className="max-w-4xl mx-auto border border-white/20 rounded-2xl overflow-hidden bg-black/30 backdrop-blur-sm"
             >
-              {/* Header Section */}
               <div className="bg-gradient-to-r from-purple-900/70 to-indigo-900/70 p-6 border-b border-white/10">
                 <div className="flex items-center gap-6">
                   <motion.div
@@ -474,7 +461,6 @@ const Search = ({ isEmbedded = false }) => {
                 </div>
               </div>
 
-              {/* Stats Cards */}
               <div className="p-6">
                 <motion.h4
                   initial={{ opacity: 0 }}
@@ -536,7 +522,6 @@ const Search = ({ isEmbedded = false }) => {
                   ))}
                 </div>
 
-                {/* Additional Stats */}
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -567,7 +552,6 @@ const Search = ({ isEmbedded = false }) => {
                   </div>
                 </motion.div>
 
-                {/* Call to action with navigation */}
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -597,7 +581,6 @@ const Search = ({ isEmbedded = false }) => {
                   </motion.button>
                 </motion.div>
               </div>
-              {/* <TrendGraph influencer={graphInfluencer} /> */}
             </motion.div>
           )}
         </div>

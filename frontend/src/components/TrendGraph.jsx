@@ -25,7 +25,7 @@ const TrendGraph = ({ influencer }) => {
 
     const fetchTrendData = async () => {
       setIsLoading(true);  
-      setIsLoading(true); // Fixed: changed setLoading to setIsLoading
+      setIsLoading(true); 
       try {
         const username = influencer.channel_info?.startsWith("@")
           ? influencer.channel_info.substring(1)
@@ -35,7 +35,6 @@ const TrendGraph = ({ influencer }) => {
           throw new Error("Invalid username");
         }
 
-        // Fetch trend data from backend
         const response = await fetch(
           `https://influenceiq.onrender.com/trends/${username}`
         );
@@ -50,7 +49,6 @@ const TrendGraph = ({ influencer }) => {
         console.error("Error fetching trend data:", err);
         setError(err.message);
 
-        // Fall back to generated data if API fails
         if (influencer.engagement_quality_score) {
           const generatedData = generateFallbackData(
             influencer.engagement_quality_score
@@ -58,27 +56,23 @@ const TrendGraph = ({ influencer }) => {
           setTrendData(generatedData);
         }
       } finally {
-        setIsLoading(false); // Fixed: changed setLoading to setIsLoading
+        setIsLoading(false); 
       }
     };
     fetchTrendData();
   }, [influencer]);
 
-  // Generate fallback data if API fails
   const generateFallbackData = (baseEngagement) => {
-    // Using the historical data generation logic for fallback
     return generateHistoricalData(influencer);
   };
 
-  // Generate 3 years of historical data based on current metrics
   const generateHistoricalData = (influencer) => {
     if (!influencer) return [];
 
     const data = [];
     const baseDate = new Date();
-    baseDate.setMonth(baseDate.getMonth() - 35); // Start 36 months ago
+    baseDate.setMonth(baseDate.getMonth() - 35); 
 
-    // Get base values for consistency in generated data
     const baseLongevity = influencer.longevity_score;
     const baseEngagement = influencer.engagement_quality_score;
     const baseFollowers =
@@ -86,7 +80,6 @@ const TrendGraph = ({ influencer }) => {
     const baseLikes =
       parseFloat(influencer.avg_likes.replace("m", "")) * 1000000;
 
-    // Add seasonality and trend factors
     const seasonalityFactors = [
       0.98, 0.96, 0.97, 1.02, 1.04, 1.06, 1.08, 1.09, 1.05, 1.02, 0.99, 0.95,
     ]; // Monthly factors
@@ -97,11 +90,9 @@ const TrendGraph = ({ influencer }) => {
       currentDate.setMonth(currentDate.getMonth() + i);
       const monthIndex = currentDate.getMonth();
 
-      // Calculate year-based and month-based factors
       const yearFactor = Math.pow(trendFactor, i / 12);
       const monthFactor = seasonalityFactors[monthIndex];
 
-      // Create more realistic patterns with seasonality and trends
       const longevity = +(
         baseLongevity *
         0.8 *
@@ -117,11 +108,9 @@ const TrendGraph = ({ influencer }) => {
         (1 + (Math.random() * 0.05 - 0.025))
       ).toFixed(3);
 
-      // Add some volatility to followers and likes
       const followerVolatility = 1 + (Math.random() * 0.03 - 0.01);
       const likesVolatility = 1 + (Math.random() * 0.08 - 0.03);
 
-      // Apply both growth trend and seasonal factors
       const followers = Math.floor(
         baseFollowers * 0.95 * yearFactor * monthFactor * followerVolatility
       );
@@ -150,15 +139,12 @@ const TrendGraph = ({ influencer }) => {
     }
   }, [trendData, activeMetric]);
 
-  // Fetch regression data from the backend
-  // Modify the fetchRegressionData function to ensure better predictions
   const fetchRegressionData = async (metric) => {
     if (!trendData || trendData.length < 2) return;
 
     setIsLoading(true);
 
     try {
-      // Prepare data for API request
       const apiData = trendData.map((item) => ({
         month: item.month,
         period: item.period,
@@ -168,7 +154,6 @@ const TrendGraph = ({ influencer }) => {
         likes: item.likes,
       }));
 
-      // Call the backend regression API
       const response = await fetch(
         `https://influenceiq.onrender.com/analyze/regression/${metric}`,
         {
@@ -186,16 +171,13 @@ const TrendGraph = ({ influencer }) => {
 
       const regressionResult = await response.json();
 
-      // Ensure continuity between actual and predicted values
       if (
         regressionResult.predictions &&
         regressionResult.predictions.length > 0
       ) {
-        // Get the last actual data point
         const lastActualDataPoint = trendData[trendData.length - 1];
         const lastActualValue = lastActualDataPoint[metric];
 
-        // Find the first future prediction
         const firstFuturePrediction = regressionResult.predictions.find(
           (p) => p.is_future
         );
@@ -204,7 +186,6 @@ const TrendGraph = ({ influencer }) => {
           const discontinuity =
             firstFuturePrediction.predicted - lastActualValue;
 
-          // Adjust all future predictions to eliminate the discontinuity
           regressionResult.predictions = regressionResult.predictions.map(
             (prediction) => {
               if (prediction.is_future) {
@@ -219,7 +200,6 @@ const TrendGraph = ({ influencer }) => {
         }
       }
 
-      // Update state with the regression results
       setRegressionData((prevData) => ({
         ...prevData,
         [metric]: regressionResult,
@@ -232,7 +212,6 @@ const TrendGraph = ({ influencer }) => {
     }
   };
 
-  // Format value based on metric
   const formatValue = (value, metric) => {
     if (!value && value !== 0) return "N/A";
 
@@ -254,7 +233,6 @@ const TrendGraph = ({ influencer }) => {
     return value;
   };
 
-  // Get color based on metric
   const getMetricColor = (metric) => {
     switch (metric) {
       case "engagement":
@@ -270,7 +248,6 @@ const TrendGraph = ({ influencer }) => {
     }
   };
 
-  // Custom tooltip component
   const CustomTooltip = ({ active, payload, label }) => {
     if (!active || !payload || !payload.length) return null;
 
@@ -300,7 +277,6 @@ const TrendGraph = ({ influencer }) => {
     );
   };
 
-  // Get human-readable metric name
   const getMetricName = (metric) => {
     switch (metric) {
       case "engagement":
@@ -316,7 +292,6 @@ const TrendGraph = ({ influencer }) => {
     }
   };
 
-  // Render chart with regression line
   const renderChart = () => {
     if (!trendData || trendData.length === 0) {
       return (
@@ -326,17 +301,14 @@ const TrendGraph = ({ influencer }) => {
 
     const currentRegression = regressionData[activeMetric];
 
-    // Combine historical data with future predictions
     let chartData = [...trendData];
 
     if (currentRegression && currentRegression.predictions) {
-      // Filter only future predictions
       const futurePredictions = currentRegression.predictions.filter(
         (p) => p.is_future
       );
 
       if (showPredictions) {
-        // Add future predictions to the chart data
         chartData = [...chartData, ...futurePredictions];
       }
     }
@@ -351,7 +323,6 @@ const TrendGraph = ({ influencer }) => {
           <XAxis
             dataKey="month"
             stroke="#9ca3af"
-            // Modify tickFormatter to show year for January or future months
             tickFormatter={(value, index) => {
               const item = chartData[index];
               if (item && (item.month === "Jan" || item.is_future)) {
@@ -367,7 +338,6 @@ const TrendGraph = ({ influencer }) => {
           <Tooltip content={<CustomTooltip />} />
           <Legend />
 
-          {/* Actual historical data line */}
           <Line
             type="monotone"
             dataKey={activeMetric}
@@ -376,11 +346,9 @@ const TrendGraph = ({ influencer }) => {
             strokeWidth={2}
             dot={{ r: 4 }}
             activeDot={{ r: 6 }}
-            // Only show for non-future data points
             isAnimationActive={false}
           />
 
-          {/* Predictions line - for both historical and future */}
           {currentRegression && (
             <Line
               type="monotone"
@@ -389,7 +357,6 @@ const TrendGraph = ({ influencer }) => {
               stroke="#ff7300"
               strokeWidth={2}
               dot={(props) => {
-                // Only show dots for future predictions
                 const { payload } = props;
                 if (payload && payload.is_future) {
                   return <circle {...props} r={4} fill="#ff7300" />;
@@ -403,7 +370,6 @@ const TrendGraph = ({ influencer }) => {
                 }
                 return null;
               }}
-              // Use dashed line for historical predictions, solid for future
               strokeDasharray={(props) => {
                 const { payload } = props;
                 return payload && payload.is_future ? "0" : "5 5";
@@ -416,7 +382,6 @@ const TrendGraph = ({ influencer }) => {
     );
   };
 
-  // Render stats panel with regression info
   const renderStats = () => {
     const currentRegression = regressionData[activeMetric];
 
@@ -428,7 +393,6 @@ const TrendGraph = ({ influencer }) => {
       );
     }
 
-    // Calculate growth trend and meaning
     const slope = currentRegression.slope;
     const trendDescription =
       slope > 0
@@ -454,7 +418,7 @@ const TrendGraph = ({ influencer }) => {
           <div className="space-y-2">
             {currentRegression.predictions
               .filter((p) => p.is_future)
-              .slice(0, 6) // Show only first 6 predictions to avoid overload
+              .slice(0, 6) 
               .map((prediction, idx) => (
                 <div
                   key={idx}
@@ -498,7 +462,6 @@ const TrendGraph = ({ influencer }) => {
         </div>
       </div>
 
-      {/* Metric selector */}
       <div className="p-4 border-b border-gray-800">
         <div className="flex flex-wrap gap-2">
           <button
@@ -544,21 +507,18 @@ const TrendGraph = ({ influencer }) => {
         </div>
       </div>
 
-      {/* Loading state */}
       {isLoading && (
         <div className="flex justify-center items-center p-8">
           <div className="w-8 h-8 border-4 border-t-blue-500 border-r-transparent border-b-blue-500 border-l-transparent rounded-full animate-spin"></div>
         </div>
       )}
 
-      {/* Error message */}
       {error && !isLoading && (
         <div className="bg-red-900/20 border border-red-800 text-red-300 p-4 m-4 rounded">
           {error}
         </div>
       )}
 
-      {/* Main content */}
       {!isLoading && (
         <div className="p-4 grid grid-cols-1 lg:grid-cols-3 gap-4">
           <div className="lg:col-span-2 bg-gray-800 rounded-lg p-4">

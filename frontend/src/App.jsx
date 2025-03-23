@@ -6,7 +6,7 @@ import InfluencerList from "./components/InfluencerList";
 import InfluencerDetail from "./components/InfluencerDetail";
 import Dashboard from "./components/Dashboard";
 import InfluencerSuggestions from "./components/Analysis";
-import CollabSimulator from "./components/CollabSimulator"; // Import CollabSimulator
+import CollabSimulator from "./components/CollabSimulator"; 
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 function App() {

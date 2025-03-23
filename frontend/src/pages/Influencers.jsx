@@ -19,11 +19,6 @@ const Influencers = () => {
           }}
         />
 
-        {/* <Spotlight
-          className="-top-40 left-0 md:-top-20 md:left-60"
-          fill="white"
-        /> */}
-
         <div className="relative z-10 max-w-5xl mx-auto px-6 py-20 md:py-24 w-full">
           <motion.h1
             initial={{ opacity: 0 }}

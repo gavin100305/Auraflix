@@ -69,12 +69,10 @@ const InfluencerList = () => {
     fetchCountryData();
   }, []);
 
-  // Fetch all influencers at once
   const fetchAllInfluencers = async () => {
     try {
       setLoading(true);
 
-      // Fetch all data without pagination parameters
       const response = await fetch(`https://influenceiq.onrender.com/data`);
 
       if (!response.ok) {
@@ -83,11 +81,9 @@ const InfluencerList = () => {
 
       const data = await response.json();
 
-      // Check if we got an array or a different response format
       if (Array.isArray(data)) {
         setInfluencers(data);
       } else if (data.items && Array.isArray(data.items)) {
-        // Handle response format with items property
         setInfluencers(data.items);
       } else {
         throw new Error("Unexpected data format received from API");
@@ -101,7 +97,6 @@ const InfluencerList = () => {
     }
   };
 
-  // Initial data fetch
   useEffect(() => {
     fetchAllInfluencers();
   }, []);
@@ -114,7 +109,6 @@ const InfluencerList = () => {
     setCurrentPage((prevPage) => Math.max(1, prevPage - 1));
   };
 
-  // Calculate current page's data slice for display
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentInfluencers = influencers.slice(
@@ -122,18 +116,15 @@ const InfluencerList = () => {
     indexOfLastItem
   );
 
-  // Calculate total pages
   const totalPages = Math.ceil(influencers.length / itemsPerPage);
   const hasNextPage = currentPage < totalPages;
   const hasPrevPage = currentPage > 1;
 
-  // Parse metric values like "1.2K", "3.5M"
   const parseMetric = (value) => {
     if (!value || typeof value !== "string") return "N/A";
     return value;
   };
 
-  // Get the first letter for the avatar
   const getInitial = (channelInfo) => {
     if (!channelInfo) return "I";
     const name = channelInfo.startsWith("@")
@@ -142,13 +133,11 @@ const InfluencerList = () => {
     return name.charAt(0).toUpperCase();
   };
 
-  // Get username from channel info for URL
   const getUsername = (channelInfo) => {
     if (!channelInfo) return "unknown";
     return channelInfo.startsWith("@") ? channelInfo.substring(1) : channelInfo;
   };
 
-  // Get flag URL for a country name, with fallback
   const getCountryFlag = (countryName) => {
     if (!countryName || !countryFlags) return null;
 

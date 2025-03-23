@@ -13,7 +13,7 @@ import {
   ChevronRight,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import InfluencerComparison from "./InfluencerComparision"; // Make sure path is correct
+import InfluencerComparison from "./InfluencerComparision"; 
 
 const InfluencerSuggestions = () => {
   const [filteredUsers, setFilteredUsers] = useState([]);
@@ -23,10 +23,9 @@ const InfluencerSuggestions = () => {
   const [selectedForComparison, setSelectedForComparison] = useState([]);
   const [showComparisonView, setShowComparisonView] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const influencersPerView = 3; // Changed from 4 to 3
+  const influencersPerView = 3; 
   const navigate = useNavigate();
 
-  // Track sidebar state for debugging
   useEffect(() => {
     console.log("Sidebar visibility changed:", showComparisonSidebar);
   }, [showComparisonSidebar]);
@@ -40,32 +39,27 @@ const InfluencerSuggestions = () => {
 
   const handleAddToComparison = (influencer) => {
     setSelectedForComparison((prevSelected) => {
-      // Check if the influencer is already selected
       const isAlreadySelected = prevSelected.some(
         (item) => item.channel_info === influencer.channel_info
       );
 
       if (isAlreadySelected) {
-        // If already selected, remove them from the comparison list
         return prevSelected.filter(
           (item) => item.channel_info !== influencer.channel_info
         );
       } else if (prevSelected.length < 2) {
-        // If not selected and there's space, add them to the comparison list
         return [...prevSelected, influencer];
       } else {
-        // If the list is full, replace the second influencer
         return [prevSelected[0], influencer];
       }
     });
   };
 
   const handleComparisonClick = () => {
-    setShowComparisonView(true); // Show comparison component
-    setShowComparisonSidebar(false); // Hide sidebar when showing comparison
+    setShowComparisonView(true); 
+    setShowComparisonSidebar(false); 
   };
 
-  // Function to go back to suggestions view
   const handleBackToSuggestions = () => {
     setShowComparisonView(false);
   };
@@ -83,13 +77,11 @@ const InfluencerSuggestions = () => {
     );
   };
 
-  // Clear and defined function to close sidebar
   const closeSidebar = () => {
     console.log("Closing sidebar");
     setShowComparisonSidebar(false);
   };
 
-  // Function to open sidebar
   const openSidebar = () => {
     console.log("Opening sidebar");
     setShowComparisonSidebar(true);
@@ -172,23 +164,19 @@ const InfluencerSuggestions = () => {
     return ((likesNum / followersNum) * 100).toFixed(2);
   };
 
-  // Format score to show only two decimal places
   const formatScore = (score) => {
     if (score === undefined || score === null) return "N/A";
     return typeof score === "number" ? score.toFixed(2) : score;
   };
 
-  // Calculate if next/prev buttons should be disabled
   const canGoBack = currentIndex > 0;
   const canGoForward = currentIndex + influencersPerView < filteredUsers.length;
 
-  // Current visible influencers
   const visibleInfluencers = filteredUsers.slice(
     currentIndex,
     currentIndex + influencersPerView
   );
 
-  // Render influencer comparison if showComparisonView is true
   if (showComparisonView && selectedForComparison.length === 2) {
     return (
       <InfluencerComparison
@@ -198,7 +186,6 @@ const InfluencerSuggestions = () => {
     );
   }
 
-  // Otherwise render the suggestions view
   return (
     <div className="min-h-screen flex flex-col bg-black text-white">
       <div className="relative flex-1 flex overflow-hidden bg-black/[0.96] antialiased">
@@ -253,7 +240,6 @@ const InfluencerSuggestions = () => {
 
           {!loading && filteredUsers.length > 0 && (
             <div className="relative w-full">
-              {/* Carousel Navigation Buttons */}
               <div className="flex justify-between absolute top-1/2 -translate-y-1/2 w-full px-4 z-20 pointer-events-none">
                 <motion.button
                   whileHover={{ scale: 1.1 }}
@@ -279,7 +265,6 @@ const InfluencerSuggestions = () => {
                 </motion.button>
               </div>
 
-              {/* Influencer Cards - Modified to be wider with adjusted spacing */}
               <div className="flex justify-center space-x-8 w-full py-6 px-4 overflow-visible">
                 {visibleInfluencers.map((user, index) => (
                   <motion.div
@@ -290,7 +275,6 @@ const InfluencerSuggestions = () => {
                     className="border border-white/20 rounded-2xl overflow-hidden bg-black/30 backdrop-blur-sm shadow-lg flex-shrink-0 w-full max-w-sm"
                     whileHover={{ scale: 1.02, transition: { duration: 0.2 } }}
                   >
-                    {/* Header Section */}
                     <div className="bg-gradient-to-r from-purple-900/70 to-indigo-900/70 p-4 border-b border-white/10">
                       <div className="flex items-center gap-3">
                         <motion.div
@@ -354,7 +338,6 @@ const InfluencerSuggestions = () => {
                       </div>
                     </div>
 
-                    {/* Stats Cards - Making grid larger */}
                     <div className="p-6">
                       <motion.h4
                         initial={{ opacity: 0 }}
@@ -425,7 +408,6 @@ const InfluencerSuggestions = () => {
                         ))}
                       </div>
 
-                      {/* Additional Stats - Compacted for horizontal layout */}
                       <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
@@ -498,7 +480,6 @@ const InfluencerSuggestions = () => {
                         </div>
                       </motion.div>
 
-                      {/* Action Buttons */}
                       <div className="space-y-3">
                         <motion.button
                           initial={{ opacity: 0, y: 20 }}
@@ -552,7 +533,6 @@ const InfluencerSuggestions = () => {
                 ))}
               </div>
 
-              {/* Pagination Indicators */}
               {filteredUsers.length > influencersPerView && (
                 <div className="flex justify-center space-x-2 mt-6">
                   {Array.from({
@@ -578,8 +558,6 @@ const InfluencerSuggestions = () => {
         </div>
       </div>
 
-      {/* Comparison Sidebar - FIXED VERSION */}
-      {/* Added a separate div with full opacity for the backdrop that handles clicks */}
       {showComparisonSidebar && (
         <div
           className="fixed inset-0 bg-black/50 z-40"
@@ -654,7 +632,6 @@ const InfluencerSuggestions = () => {
         </button>
       </motion.div>
 
-      {/* Comparison Toggle Button */}
       <motion.button
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}

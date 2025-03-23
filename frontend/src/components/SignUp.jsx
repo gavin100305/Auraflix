@@ -123,12 +123,10 @@ const SignUp = () => {
     setLoading(true);
 
     try {
-      // Prepare data for API
       const apiData = {
         ...formData,
       };
 
-      // Remove confirmPassword as it's not needed for the API
       delete apiData.confirmPassword;
 
       const response = await fetch("https://auraflix-production.up.railway.app/api/auth/register", {
@@ -139,14 +137,12 @@ const SignUp = () => {
         body: JSON.stringify(apiData),
       });
 
-      // Check if the response has content before trying to parse it
       const contentType = response.headers.get("content-type");
       let data;
 
       if (contentType && contentType.includes("application/json")) {
         data = await response.json();
       } else {
-        // Handle non-JSON response
         const text = await response.text();
         throw new Error(`Server returned non-JSON response: ${text}`);
       }
@@ -155,10 +151,8 @@ const SignUp = () => {
         throw new Error(data.message || "Registration failed");
       }
 
-      // Store auth data
       localStorage.setItem("authToken", data.token);
 
-      // Only store user data if it exists
       if (data.businessUser) {
         localStorage.setItem("user", JSON.stringify(data.businessUser));
       }
@@ -166,10 +160,8 @@ const SignUp = () => {
       if (data.suggestions) {
         let processedSuggestions = data.suggestions;
 
-        // Process suggestions if they're in string format
         if (typeof data.suggestions === "string") {
           try {
-            // Try parsing as JSON first in case it's a stringified array
             const parsed = JSON.parse(data.suggestions);
 
             if (Array.isArray(parsed)) {
@@ -178,7 +170,6 @@ const SignUp = () => {
                 typeof parsed[0] === "string" &&
                 parsed[0].includes("\\n")
               ) {
-                // Handle the case of an array with a single string containing newlines
                 processedSuggestions = parsed[0]
                   .replace(/"/g, "")
                   .split("\\n")
@@ -190,12 +181,10 @@ const SignUp = () => {
                     profile_url: `https://www.instagram.com/${username}/`,
                   }));
               } else {
-                // It's already a proper array
                 processedSuggestions = parsed;
               }
             }
           } catch (parseError) {
-            // If JSON parsing fails, handle as a direct string with newlines
             processedSuggestions = data.suggestions
               .replace(/"/g, "")
               .split("\\n")
@@ -209,14 +198,12 @@ const SignUp = () => {
           }
         }
 
-        // Store the processed suggestions
         localStorage.setItem(
           "suggestedInfluencers",
           JSON.stringify(processedSuggestions)
         );
         console.log("Stored suggested influencers:", processedSuggestions);
       } else if (data.businessUser && data.businessUser.suggestedInfluencers) {
-        // If suggestions are in the user object instead
         localStorage.setItem(
           "suggestedInfluencers",
           JSON.stringify(data.businessUser.suggestedInfluencers)

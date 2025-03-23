@@ -16,11 +16,9 @@ const CollabSimulator = () => {
   const [recommendations, setRecommendations] = useState([]);
   const [loadingRecommendations, setLoadingRecommendations] = useState(false);
 
-  // Create refs for scrolling to specific sections
   const simulateCollabSectionRef = useRef(null);
   const resultsSectionRef = useRef(null);
 
-  // Enhanced animation variants
   const cardVariants = {
     hidden: { opacity: 0, y: 30 },
     visible: {
@@ -55,7 +53,6 @@ const CollabSimulator = () => {
     },
   };
 
-  // Fetch influencers on component mount
   useEffect(() => {
     const fetchInfluencers = async () => {
       try {
@@ -102,7 +99,6 @@ const CollabSimulator = () => {
 
       setResults(response.data);
 
-      // Scroll to results section after a slight delay to ensure the section is rendered
       setTimeout(() => {
         if (resultsSectionRef.current) {
           resultsSectionRef.current.scrollIntoView({
@@ -132,7 +128,7 @@ const CollabSimulator = () => {
         "https://influenceiq.onrender.com/batch-collab-recommendations",
         {
           business: businessDetails,
-          count: 10, // Get top 10 recommendations
+          count: 10, 
         }
       );
 
@@ -145,11 +141,9 @@ const CollabSimulator = () => {
     }
   };
 
-  // Function to handle the Details button click
   const handleDetailsClick = (username) => {
     setSelectedInfluencer(username);
 
-    // Scroll to the Simulate Specific Collaboration section
     if (simulateCollabSectionRef.current) {
       simulateCollabSectionRef.current.scrollIntoView({
         behavior: "smooth",
@@ -157,11 +151,8 @@ const CollabSimulator = () => {
       });
     }
 
-    // Optional: We can also simulate the collaboration automatically
-    // simulateCollab();
   };
 
-  // Enhanced color mapping for match percentage with more vibrant colors
   const getMatchColor = (percentage) => {
     if (percentage >= 80) return "bg-green-500/50 text-green-100";
     if (percentage >= 60) return "bg-blue-500/50 text-blue-100";
@@ -169,7 +160,6 @@ const CollabSimulator = () => {
     return "bg-red-500/50 text-red-100";
   };
 
-  // Helper function to extract username from channel info
   const getUsername = (channelInfo) => {
     if (!channelInfo) return "unknown";
     return channelInfo.startsWith("@") ? channelInfo.substring(1) : channelInfo;
@@ -198,7 +188,6 @@ const CollabSimulator = () => {
             ML-powered collaboration simulations.
           </motion.p>
 
-          {/* Business Details Form */}
           <motion.div
             variants={cardVariants}
             initial="hidden"
@@ -283,7 +272,6 @@ const CollabSimulator = () => {
             </div>
           </motion.div>
 
-          {/* Recommendations Section */}
           {recommendations.length > 0 && (
             <motion.div
               variants={cardVariants}
@@ -379,7 +367,6 @@ const CollabSimulator = () => {
             </motion.div>
           )}
 
-          {/* Individual Collab Simulator */}
           <motion.div
             ref={simulateCollabSectionRef}
             variants={cardVariants}
@@ -453,7 +440,6 @@ const CollabSimulator = () => {
             </div>
           </motion.div>
 
-          {/* Results Section */}
           {results && (
             <motion.div
               ref={resultsSectionRef}

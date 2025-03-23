@@ -3,7 +3,6 @@ import { useParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import TrendGraph from "./TrendGraph";
 
-// Assuming these components are available or will be created
 import Spotlight from "../components/Spotlight";
 import Header from "../components/Header";
 import RomFooter from "../components/RomFooter";
@@ -18,25 +17,21 @@ const InfluencerDetail = () => {
   const [error, setError] = useState(null);
   const [summary, setSummary] = useState("");
   const [summaryLoading, setSummaryLoading] = useState(false);
-  const [imageUrl, setImageUrl] = useState(null); // State for Wikipedia image URL
-  const [isResultVisible, setIsResultVisible] = useState(false); // Added missing state
-  // Add these new state variables at the beginning of your component
-  const [countryFlag, setCountryFlag] = useState("🌍"); // Default globe as fallback
+  const [imageUrl, setImageUrl] = useState(null); 
+  const [isResultVisible, setIsResultVisible] = useState(false);
+  const [countryFlag, setCountryFlag] = useState("🌍"); 
   const [countriesData, setCountriesData] = useState(null);
 
-  // Add this useEffect to fetch all countries data when component mounts
   useEffect(() => {
     fetchAllCountries();
   }, []);
 
-  // Add this useEffect to set the flag when influencer or countries data changes
   useEffect(() => {
     if (influencer?.country && countriesData) {
       setFlagForCountry(influencer.country);
     }
   }, [influencer, countriesData]);
 
-  // Function to fetch all countries data
   const fetchAllCountries = async () => {
     try {
       const response = await fetch(
@@ -54,12 +49,9 @@ const InfluencerDetail = () => {
     }
   };
 
-  // Function to find and set the flag for a given country name
   const setFlagForCountry = (countryName) => {
-    // Default to globe emoji
     let flag = "🌍";
 
-    // Try to find the country in our data
     const country = countriesData.find(
       (c) =>
         c.name.common.toLowerCase() === countryName.toLowerCase() ||
@@ -67,13 +59,11 @@ const InfluencerDetail = () => {
     );
 
     if (country) {
-      // Use emoji flag if available, otherwise use the SVG flag URL
       flag = country.flags.svg || country.flags.png || "🌍";
     }
 
     setCountryFlag(flag);
   };
-  // Fetch Wikipedia image when influencer changes
   useEffect(() => {
     if (influencer) {
       fetchWikipediaImage(influencer.channel_info);
@@ -85,10 +75,8 @@ const InfluencerDetail = () => {
     }
   }, [influencer]);
 
-  // Function to fetch Wikipedia image
   const fetchWikipediaImage = async (searchTerm) => {
     try {
-      // Step 1: Fetch the Wikipedia page ID for the search term
       const searchResponse = await fetch(
         `https://en.wikipedia.org/w/api.php?action=query&format=json&list=search&srsearch=${searchTerm}&origin=*`
       );
@@ -97,7 +85,6 @@ const InfluencerDetail = () => {
       if (searchData.query.search.length > 0) {
         const pageId = searchData.query.search[0].pageid;
 
-        // Step 2: Fetch the image URL for the page
         const imageResponse = await fetch(
           `https://en.wikipedia.org/w/api.php?action=query&format=json&prop=pageimages&pageids=${pageId}&pithumbsize=200&origin=*`
         );
@@ -105,9 +92,9 @@ const InfluencerDetail = () => {
 
         const thumbnail = imageData.query.pages[pageId].thumbnail;
         if (thumbnail) {
-          setImageUrl(thumbnail.source); // Set the image URL
+          setImageUrl(thumbnail.source); 
         } else {
-          setImageUrl(null); // Reset if no image is found
+          setImageUrl(null); 
         }
       }
     } catch (error) {
@@ -120,7 +107,6 @@ const InfluencerDetail = () => {
     const fetchInfluencerDetail = async () => {
       try {
         setLoading(true);
-        // Fetch all influencers and find the matching one
         const response = await fetch("https://influenceiq.onrender.com/data");
 
         if (!response.ok) {
@@ -139,7 +125,6 @@ const InfluencerDetail = () => {
         setInfluencer(foundInfluencer);
         setLoading(false);
 
-        // After loading influencer data, get AI summary
         generateSummary(foundInfluencer);
       } catch (err) {
         setError(`Failed to fetch influencer data: ${err.message}`);
@@ -154,7 +139,6 @@ const InfluencerDetail = () => {
     try {
       setSummaryLoading(true);
 
-      // Backend endpoint for summary generation
       const response = await fetch(
         "https://influenceiq.onrender.com/generate-summary",
         {
@@ -182,13 +166,11 @@ const InfluencerDetail = () => {
     }
   };
 
-  // Helper function to extract username from channel info
   const getUsername = (channelInfo) => {
     if (!channelInfo) return "unknown";
     return channelInfo.startsWith("@") ? channelInfo.substring(1) : channelInfo;
   };
 
-  // Animation variants
   const cardVariants = {
     hidden: { opacity: 0, y: 30 },
     visible: {
@@ -267,7 +249,6 @@ const InfluencerDetail = () => {
       <Header />
 
       <div className="relative flex-1 flex overflow-hidden bg-black/[0.96] antialiased">
-        {/* Grid background */}
         <div
           className="pointer-events-none absolute inset-0 select-none opacity-80"
           style={{
@@ -283,7 +264,6 @@ const InfluencerDetail = () => {
         />
 
         <div className="relative z-10 w-full mx-auto px-6 py-12 md:py-24">
-          {/* Influencer header */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -374,9 +354,7 @@ const InfluencerDetail = () => {
             </div>
           </motion.div>
 
-          {/* Main content */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Left Column - Stats */}
             <div className="lg:col-span-1">
               <motion.div
                 variants={cardVariants}
@@ -562,7 +540,6 @@ const InfluencerDetail = () => {
               </motion.div>
             </div>
 
-            {/* Right Column - Summary and Graph */}
             <div className="lg:col-span-2">
               <motion.div
                 variants={cardVariants}
@@ -643,7 +620,6 @@ const InfluencerDetail = () => {
               </motion.div>
             </div>
           </div>
-          {/* Heat Map Section - Full Width */}
           <motion.div
             variants={cardVariants}
             initial="hidden"

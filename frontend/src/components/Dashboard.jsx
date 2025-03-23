@@ -1,7 +1,7 @@
 import React, {useState, useEffect} from "react";
 import { Outlet, Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import Spotlight from "./Spotlight"; // Import the Spotlight component
+import Spotlight from "./Spotlight"; 
 import RomFooter from "./RomFooter";
 import { Navigate } from "react-router-dom";
 
@@ -26,13 +26,11 @@ const Dashboard = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-black text-white relative">
-      {/* Spotlight */}
       <Spotlight
         className="-top-40 left-0 md:-top-20 md:left-60"
         fill="white"
       />
 
-      {/* Grid Background */}
       <div
         className="absolute inset-0 w-full h-full pointer-events-none select-none opacity-80 z-0"
         style={{
@@ -42,7 +40,6 @@ const Dashboard = () => {
         }}
       />
 
-      {/* Header */}
       <header className="fixed top-0 w-full z-50 py-4">
         <div className="max-w-4xl mx-auto px-4">
           <div className="backdrop-blur-md bg-black/30 border border-white/10 rounded-full py-3 px-6 flex justify-between items-center shadow-lg">
@@ -94,12 +91,10 @@ const Dashboard = () => {
         </div>
       </header>
 
-      {/* Main Content */}
       <div className="flex-1 p-6 lg:p-8 overflow-y-auto relative z-10 mt-20">
-        <Outlet /> {/* This is where nested routes will be rendered */}
+        <Outlet /> 
       </div>
 
-      {/* Footer */}
       <RomFooter />
     </div>
   );

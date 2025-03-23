@@ -26,7 +26,6 @@ const InfluencerComparison = ({ initialInfluencers = [], onGoBack }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  // Parse formatted numbers (e.g. "34.7m", "367.8k") to actual numbers
   const parseFormattedNumber = (formatted) => {
     if (!formatted || typeof formatted !== "string") return 0;
 
@@ -46,7 +45,6 @@ const InfluencerComparison = ({ initialInfluencers = [], onGoBack }) => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Set initial influencers if provided
         if (initialInfluencers && initialInfluencers.length > 0) {
           setSelectedInfluencers([
             initialInfluencers[0] || null,
@@ -79,12 +77,11 @@ const InfluencerComparison = ({ initialInfluencers = [], onGoBack }) => {
   };
 
   const formatLargeNumber = (num) => {
-    // Safety check - if num is not a valid number, return "0"
     if (num === null || num === undefined || isNaN(num) || !isFinite(num)) {
       return "0";
     }
 
-    num = Math.abs(num); // Handle negative numbers by taking absolute value
+    num = Math.abs(num); 
 
     if (num >= 1000000000) {
       return (num / 1000000000).toFixed(1) + "B";
@@ -93,21 +90,17 @@ const InfluencerComparison = ({ initialInfluencers = [], onGoBack }) => {
     } else if (num >= 1000) {
       return (num / 1000).toFixed(1) + "K";
     }
-    return Math.round(num).toString(); // Ensure whole numbers
+    return Math.round(num).toString(); 
   };
 
-  // Custom formatter for percentages
   const formatPercentage = (value) => `${value.toFixed(2)}%`;
 
-  // Custom formatter for scores
   const formatScore = (value) => value.toFixed(1);
 
-  // Prepare data for followers and likes comparison with normalized values for visualization
   const prepareAudienceData = () => {
     const data = [];
 
     if (selectedInfluencers[0] || selectedInfluencers[1]) {
-      // For normalized chart, we create both actual values and normalized values
       const follower1 = selectedInfluencers[0]
         ? parseFormattedNumber(selectedInfluencers[0].followers)
         : 0;
@@ -127,7 +120,6 @@ const InfluencerComparison = ({ initialInfluencers = [], onGoBack }) => {
         ? parseFormattedNumber(selectedInfluencers[1].posts)
         : 0;
 
-      // Store actual values for tooltip display
       data.push({
         name: "Followers",
         [selectedInfluencers[0]?.channel_info || "Influencer 1"]: follower1,
@@ -162,23 +154,19 @@ const InfluencerComparison = ({ initialInfluencers = [], onGoBack }) => {
     return data;
   };
 
-  // Prepare data for scores comparison - normalize radar chart values to 0-100 scale
   const prepareScoreData = () => {
     const scoreData = [];
 
     if (selectedInfluencers[0] && selectedInfluencers[1]) {
-      // Influence score (already 0-100)
       scoreData.push({
         subject: "Influence Score",
         A: selectedInfluencers[0].influence_score || 0,
         B: selectedInfluencers[1].influence_score || 0,
         fullMark: 100,
-        // Store original values for tooltip display
         originalA: selectedInfluencers[0].influence_score || 0,
         originalB: selectedInfluencers[1].influence_score || 0,
       });
 
-      // Credibility score (already 0-100)
       scoreData.push({
         subject: "Credibility",
         A: selectedInfluencers[0].credibility_score || 0,
@@ -188,27 +176,24 @@ const InfluencerComparison = ({ initialInfluencers = [], onGoBack }) => {
         originalB: selectedInfluencers[1].credibility_score || 0,
       });
 
-      // Engagement Quality (0-10 scale, normalize to 0-100)
       scoreData.push({
         subject: "Engagement Quality",
-        A: (selectedInfluencers[0].engagement_quality_score || 0) * 10, // Scale to 0-100
-        B: (selectedInfluencers[1].engagement_quality_score || 0) * 10, // Scale to 0-100
+        A: (selectedInfluencers[0].engagement_quality_score || 0) * 10, 
+        B: (selectedInfluencers[1].engagement_quality_score || 0) * 10, 
         fullMark: 100,
         originalA: selectedInfluencers[0].engagement_quality_score || 0,
         originalB: selectedInfluencers[1].engagement_quality_score || 0,
       });
 
-      // Longevity (0-10 scale, normalize to 0-100)
       scoreData.push({
         subject: "Longevity",
-        A: (selectedInfluencers[0].longevity_score || 0) * 10, // Scale to 0-100
-        B: (selectedInfluencers[1].longevity_score || 0) * 10, // Scale to 0-100
+        A: (selectedInfluencers[0].longevity_score || 0) * 10, 
+        B: (selectedInfluencers[1].longevity_score || 0) * 10, 
         fullMark: 100,
         originalA: selectedInfluencers[0].longevity_score || 0,
         originalB: selectedInfluencers[1].longevity_score || 0,
       });
 
-      // InfluenceIQ (already 0-100)
       scoreData.push({
         subject: "InfluenceIQ",
         A: selectedInfluencers[0].influenceiq_score || 0,
@@ -222,12 +207,10 @@ const InfluencerComparison = ({ initialInfluencers = [], onGoBack }) => {
     return scoreData;
   };
 
-  // Prepare data for engagement metrics
   const prepareEngagementData = () => {
     const data = [];
 
     if (selectedInfluencers[0] || selectedInfluencers[1]) {
-      // Calculate engagement rate
       const getEngagementRate = (influencer) => {
         if (!influencer) return 0;
         const likes = parseFormattedNumber(influencer.avg_likes);
@@ -255,7 +238,6 @@ const InfluencerComparison = ({ initialInfluencers = [], onGoBack }) => {
     return data;
   };
 
-  // Prepare normalized data for score breakdown
   const prepareScoreBreakdownData = () => {
     if (!selectedInfluencers[0] && !selectedInfluencers[1]) return [];
 
@@ -302,21 +284,18 @@ const InfluencerComparison = ({ initialInfluencers = [], onGoBack }) => {
     ];
   };
 
-  // Custom tooltip for the bar charts that shows the actual values
   const CustomTooltip = ({ active, payload, label }) => {
     if (active && payload && payload.length) {
       return (
         <div className="bg-black/90 p-3 border border-white/20 rounded-md backdrop-blur-md">
           <p className="font-medium text-white">{`${label}`}</p>
           {payload.map((entry, index) => {
-            // Check if we have actual values stored
             const actualValue =
               entry.payload.actualValues?.[entry.name] ||
               entry.payload.originalValues?.[entry.name] ||
               entry.value;
             let displayValue = actualValue;
 
-            // Format according to the metric type
             if (
               label === "Followers" ||
               label === "Average Likes" ||
@@ -346,14 +325,12 @@ const InfluencerComparison = ({ initialInfluencers = [], onGoBack }) => {
     return null;
   };
 
-  // Custom tooltip for radar chart
   const RadarTooltip = ({ active, payload }) => {
     if (active && payload && payload.length) {
       return (
         <div className="bg-black/90 p-3 border border-white/20 rounded-md backdrop-blur-md">
           <p className="font-medium text-white">{payload[0].payload.subject}</p>
           {payload.map((entry, index) => {
-            // Get the original value (not normalized)
             const originalKey =
               entry.dataKey === "A" ? "originalA" : "originalB";
             const originalValue = entry.payload[originalKey];
@@ -370,23 +347,18 @@ const InfluencerComparison = ({ initialInfluencers = [], onGoBack }) => {
     return null;
   };
 
-  // Function to handle PDF download
   const handleDownloadPDF = () => {
-    const input = document.getElementById("influencer-comparison"); // Ensure the root div has this ID
+    const input = document.getElementById("influencer-comparison"); 
 
-    // Capture the DOM element as a PNG image
     domtoimage
-      .toPng(input, { quality: 1 }) // Use high quality
+      .toPng(input, { quality: 1 }) 
       .then((dataUrl) => {
-        // Create a new PDF
-        const pdf = new jsPDF("p", "mm", "a4"); // A4 size page of PDF
-        const imgWidth = 210; // A4 width in mm
-        const imgHeight = (imgWidth * input.offsetHeight) / input.offsetWidth; // Maintain aspect ratio
+        const pdf = new jsPDF("p", "mm", "a4"); 
+        const imgWidth = 210; 
+        const imgHeight = (imgWidth * input.offsetHeight) / input.offsetWidth; 
 
-        // Add the image to the PDF
         pdf.addImage(dataUrl, "PNG", 0, 0, imgWidth, imgHeight);
 
-        // Download the PDF
         pdf.save("influencer_comparison.pdf");
       })
       .catch((error) => {
@@ -437,7 +409,6 @@ const InfluencerComparison = ({ initialInfluencers = [], onGoBack }) => {
             </div>
           ) : (
             <>
-              {/* Influencer Selection */}
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -495,20 +466,17 @@ const InfluencerComparison = ({ initialInfluencers = [], onGoBack }) => {
                 ))}
               </motion.div>
 
-              {/* Comparison Graphs */}
               {(selectedInfluencers[0] || selectedInfluencers[1]) && (
                 <motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   className="space-y-8"
                 >
-                  {/* Followers, Likes and Posts as Separate Graphs */}
                   <div className="bg-white/5 p-6 rounded-xl border border-white/10">
                     <h3 className="text-xl font-medium mb-6 text-white/90">
                       Audience & Content Metrics
                     </h3>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                      {/* Followers Graph */}
                       <div className="h-80">
                         <h4 className="text-center text-white/80 mb-2">
                           Followers
@@ -596,7 +564,6 @@ const InfluencerComparison = ({ initialInfluencers = [], onGoBack }) => {
                         </ResponsiveContainer>
                       </div>
 
-                      {/* Average Likes Graph */}
                       <div className="h-80">
                         <h4 className="text-center text-white/80 mb-2">
                           Average Likes
@@ -684,7 +651,6 @@ const InfluencerComparison = ({ initialInfluencers = [], onGoBack }) => {
                         </ResponsiveContainer>
                       </div>
 
-                      {/* Total Posts Graph */}
                       <div className="h-80">
                         <h4 className="text-center text-white/80 mb-2">
                           Total Posts
@@ -773,7 +739,6 @@ const InfluencerComparison = ({ initialInfluencers = [], onGoBack }) => {
                       </div>
                     </div>
                   </div>
-                  {/* Score Metrics (Radar Chart) - normalized to 0-100 scale */}
                   {selectedInfluencers[0] && selectedInfluencers[1] && (
                     <div className="bg-white/5 p-6 rounded-xl border border-white/10">
                       <h3 className="text-xl font-medium mb-6 text-white/90">
@@ -818,13 +783,11 @@ const InfluencerComparison = ({ initialInfluencers = [], onGoBack }) => {
                     </div>
                   )}
 
-                  {/* Engagement Metrics as separate graphs */}
                   <div className="bg-white/5 p-6 rounded-xl border border-white/10">
                     <h3 className="text-xl font-medium mb-6 text-white/90">
                       Engagement Metrics
                     </h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      {/* Engagement Rate Graph */}
                       <div className="h-80">
                         <h4 className="text-center text-white/80 mb-2">
                           Engagement Rate (%)
@@ -904,7 +867,6 @@ const InfluencerComparison = ({ initialInfluencers = [], onGoBack }) => {
                         </ResponsiveContainer>
                       </div>
 
-                      {/* Engagement Quality Graph */}
                       <div className="h-80">
                         <h4 className="text-center text-white/80 mb-2">
                           Engagement Quality (0-10)
@@ -975,13 +937,11 @@ const InfluencerComparison = ({ initialInfluencers = [], onGoBack }) => {
                     </div>
                   </div>
 
-                  {/* Performance Score Breakdown - separate graphs for each score */}
                   <div className="bg-white/5 p-6 rounded-xl border border-white/10">
                     <h3 className="text-xl font-medium mb-6 text-white/90">
                       Performance Score Breakdown
                     </h3>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                      {/* Credibility Score */}
                       <div className="h-80">
                         <h4 className="text-center text-white/80 mb-2">
                           Credibility (0-100)
@@ -1050,7 +1010,6 @@ const InfluencerComparison = ({ initialInfluencers = [], onGoBack }) => {
                         </ResponsiveContainer>
                       </div>
 
-                      {/* Engagement Quality Score */}
                       <div className="h-80">
                         <h4 className="text-center text-white/80 mb-2">
                           Engagement Quality (0-10)
@@ -1119,7 +1078,6 @@ const InfluencerComparison = ({ initialInfluencers = [], onGoBack }) => {
                         </ResponsiveContainer>
                       </div>
 
-                      {/* Longevity Score */}
                       <div className="h-80">
                         <h4 className="text-center text-white/80 mb-2">
                           Longevity (0-10)
@@ -1188,7 +1146,6 @@ const InfluencerComparison = ({ initialInfluencers = [], onGoBack }) => {
                     </div>
                   </div>
 
-                  {/* Download Button */}
                   <motion.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}

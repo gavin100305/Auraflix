@@ -15,12 +15,10 @@ const SearchForm = ({
   const dropdownRef = useRef(null);
   const justSelectedRef = useRef(false);
 
-  // Filter users based on input
-  // Filter users based on input
 useEffect(() => {
   if (justSelectedRef.current) {
-    justSelectedRef.current = false; // reset flag
-    return; // skip dropdown logic
+    justSelectedRef.current = false; 
+    return; 
   }
   if (searchQuery && users?.length > 0) {
     const filtered = users
@@ -32,20 +30,17 @@ useEffect(() => {
 
 
     
-    // This is the key change - only update state if there's an actual change
     if (JSON.stringify(filtered) !== JSON.stringify(filteredUsers)) {
       setFilteredUsers(filtered);
       setIsDropdownOpen(filtered.length > 0);
     }
   } else if (filteredUsers.length > 0) {
-    // Only update if necessary
     setFilteredUsers([]);
     setIsDropdownOpen(false);
   }
 }, [searchQuery, users]);
 
 
-  // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {

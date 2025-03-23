@@ -37,14 +37,12 @@ const SignIn = () => {
         }
       );
 
-      // Check if the response has content before trying to parse it
       const contentType = response.headers.get("content-type");
       let data;
 
       if (contentType && contentType.includes("application/json")) {
         data = await response.json();
       } else {
-        // Handle non-JSON response
         const text = await response.text();
         throw new Error(`Server returned non-JSON response: ${text}`);
       }
@@ -55,10 +53,8 @@ const SignIn = () => {
 
       console.log(data);
 
-      // Store auth data
       localStorage.setItem("authToken", data.token);
 
-      // Only store user data if it exists
       if (data.businessUser) {
         localStorage.setItem("user", JSON.stringify(data.businessUser));
       }
@@ -66,7 +62,6 @@ const SignIn = () => {
       if (data.suggestions) {
         let processedSuggestions = data.suggestions;
 
-        // Check if it's a string with newlines instead of an array
         if (typeof data.suggestions === "string") {
           processedSuggestions = data.suggestions
             .replace(/"/g, "")
@@ -86,7 +81,6 @@ const SignIn = () => {
         );
       }
 
-      // Log what's been stored for debugging
       console.log("Stored auth token and user data");
       console.log(
         "Suggested influencers:",
