@@ -64,7 +64,6 @@ const CollabSimulator = () => {
         );
         setInfluencers(response.data);
       } catch (error) {
-        console.error("Error fetching influencers:", error);
       }
     };
 
@@ -112,7 +111,6 @@ const CollabSimulator = () => {
         }
       }, 100);
     } catch (error) {
-      console.error("Error simulating collaboration:", error);
       alert("Failed to simulate collaboration");
     } finally {
       setLoading(false);
@@ -138,7 +136,6 @@ const CollabSimulator = () => {
 
       setRecommendations(response.data.recommendations);
     } catch (error) {
-      console.error("Error getting recommendations:", error);
       alert("Failed to get recommendations");
     } finally {
       setLoadingRecommendations(false);

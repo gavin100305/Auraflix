@@ -62,7 +62,6 @@ const InfluencerComparison = ({ initialInfluencers = [], onGoBack }) => {
         const data = await response.json();
         setInfluencers(data.users);
       } catch (err) {
-        console.error(err);
         setError(err.message || "Something went wrong.");
       } finally {
         setLoading(false);
@@ -390,7 +389,6 @@ const InfluencerComparison = ({ initialInfluencers = [], onGoBack }) => {
         pdf.save("influencer_comparison.pdf");
       })
       .catch((error) => {
-        console.error("Error generating image:", error);
       });
   };
 

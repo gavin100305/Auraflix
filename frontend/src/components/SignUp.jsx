@@ -214,22 +214,16 @@ const SignUp = () => {
           "suggestedInfluencers",
           JSON.stringify(processedSuggestions)
         );
-        console.log("Stored suggested influencers:", processedSuggestions);
       } else if (data.businessUser && data.businessUser.suggestedInfluencers) {
         // If suggestions are in the user object instead
         localStorage.setItem(
           "suggestedInfluencers",
           JSON.stringify(data.businessUser.suggestedInfluencers)
         );
-        console.log(
-          "Stored suggested influencers from user data:",
-          data.businessUser.suggestedInfluencers
-        );
       }
 
       navigate("/dashboard");
     } catch (error) {
-      console.error("Registration error:", error);
       setError(error.message || "Registration failed");
     } finally {
       setLoading(false);

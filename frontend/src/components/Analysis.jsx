@@ -26,11 +26,6 @@ const InfluencerSuggestions = () => {
   const influencersPerView = 3; // Changed from 4 to 3
   const navigate = useNavigate();
 
-  // Track sidebar state for debugging
-  useEffect(() => {
-    console.log("Sidebar visibility changed:", showComparisonSidebar);
-  }, [showComparisonSidebar]);
-
   const handleNavigateToAnalysis = (influencerData) => {
     const username = influencerData.channel_info;
     navigate(`/influencers/${username}`, {
@@ -85,13 +80,11 @@ const InfluencerSuggestions = () => {
 
   // Clear and defined function to close sidebar
   const closeSidebar = () => {
-    console.log("Closing sidebar");
     setShowComparisonSidebar(false);
   };
 
   // Function to open sidebar
   const openSidebar = () => {
-    console.log("Opening sidebar");
     setShowComparisonSidebar(true);
   };
 
@@ -124,7 +117,6 @@ const InfluencerSuggestions = () => {
 
         setFilteredUsers(filtered);
       } catch (err) {
-        console.error(err);
         setError(err.message || "Something went wrong.");
       } finally {
         setLoading(false);

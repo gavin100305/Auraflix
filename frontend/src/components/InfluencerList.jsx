@@ -61,7 +61,6 @@ const InfluencerList = () => {
         setCountryFlags(flagMap);
         setFlagsLoading(false);
       } catch (err) {
-        console.error("Error fetching country flags:", err);
         setFlagsLoading(false);
       }
     };
@@ -96,7 +95,6 @@ const InfluencerList = () => {
       setLoading(false);
     } catch (err) {
       setError(`Failed to fetch influencers: ${err.message}`);
-      console.error("Error fetching data:", err);
       setLoading(false);
     }
   };

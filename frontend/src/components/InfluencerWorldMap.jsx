@@ -14,7 +14,6 @@ const InfluencerWorldMap = ({ influencer }) => {
     
     const fetchGeminiInfluenceData = async (influencer) => {
         try {
-          console.log("Fetching Gemini-generated influence data for:", influencer.name || influencer.country);
       
           // Prepare the request payload
           const payload = {
@@ -40,11 +39,9 @@ const InfluencerWorldMap = ({ influencer }) => {
       
           // Parse the response
           const data = await response.json();
-          console.log("Received Gemini influence data:", data);
           
           return data.influence_map;
         } catch (error) {
-          console.error("Error fetching Gemini influence data:", error);
           // Return fallback data in case of error
           return generateFallbackInfluenceData(influencer);
         }
@@ -52,7 +49,6 @@ const InfluencerWorldMap = ({ influencer }) => {
       
     // Fallback function to generate influence data locally if API fails
     const generateFallbackInfluenceData = (influencer) => {
-        console.log("Generating fallback influence data");
         
         // Expanded list of countries for fallback data
         const countries = [
@@ -131,7 +127,6 @@ const InfluencerWorldMap = ({ influencer }) => {
   
     // Step 1: Load GeoJSON data
     useEffect(() => {
-        console.log("Attempting to load GeoJSON data...");
         setIsLoading(true);
         
         fetch('/world_countries.geojson')
@@ -142,12 +137,10 @@ const InfluencerWorldMap = ({ influencer }) => {
             return response.json();
           })
           .then(data => {
-            console.log("GeoJSON loaded successfully!");
             setGeoData(data);
             setIsLoading(false);
           })
           .catch(err => {
-            console.error("Failed to load primary GeoJSON source:", err);
             
             // Fallback to alternate source
             fetch('https://raw.githubusercontent.com/datasets/geo-countries/master/data/countries.geojson')
@@ -167,7 +160,6 @@ const InfluencerWorldMap = ({ influencer }) => {
                 setIsLoading(false);
               })    
               .catch(alternateErr => {
-                console.error("Failed to load alternate GeoJSON:", alternateErr);
                 setError("Failed to load map data from both sources");
                 setIsLoading(false);
               });
@@ -181,12 +173,10 @@ const InfluencerWorldMap = ({ influencer }) => {
         setIsLoading(true);
         fetchGeminiInfluenceData(influencer)
           .then(influenceMap => {
-            console.log("Setting influence data:", influenceMap);
             setInfluenceData(influenceMap);
             setIsLoading(false);
           })
           .catch(err => {
-            console.error("Error in influence data workflow:", err);
             setError("Failed to generate influence data");
             setIsLoading(false);
           });

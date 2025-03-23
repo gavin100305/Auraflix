@@ -47,7 +47,6 @@ const TrendGraph = ({ influencer }) => {
         const data = await response.json();
         setTrendData(data);
       } catch (err) {
-        console.error("Error fetching trend data:", err);
         setError(err.message);
 
         // Fall back to generated data if API fails
@@ -225,7 +224,6 @@ const TrendGraph = ({ influencer }) => {
         [metric]: regressionResult,
       }));
     } catch (err) {
-      console.error("Error calculating regression:", err);
       setError(`Error calculating regression: ${err.message}`);
     } finally {
       setIsLoading(false);
