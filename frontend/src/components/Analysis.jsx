@@ -18,17 +18,40 @@ const InfluencerSuggestions = () => {
     navigate(`/influencers/${username}`, { state: { influencer: influencerData } });
   };
 
+  // const handleAddToComparison = (influencer) => {
+  //   if (selectedForComparison.length >= 2) {
+  //     // Replace the second one
+  //     setSelectedForComparison([selectedForComparison[0], influencer]);
+  //   } else if (selectedForComparison.find(item => item.channel_info === influencer.channel_info)) {
+  //     // Already selected, remove it
+  //     setSelectedForComparison(selectedForComparison.filter(item => item.channel_info !== influencer.channel_info));
+  //   } else {
+  //     // Add to selection
+  //     setSelectedForComparison([...selectedForComparison, influencer]);
+  //   }
+  // };
+
+
   const handleAddToComparison = (influencer) => {
-    if (selectedForComparison.length >= 2) {
-      // Replace the second one
-      setSelectedForComparison([selectedForComparison[0], influencer]);
-    } else if (selectedForComparison.find(item => item.channel_info === influencer.channel_info)) {
-      // Already selected, remove it
-      setSelectedForComparison(selectedForComparison.filter(item => item.channel_info !== influencer.channel_info));
-    } else {
-      // Add to selection
-      setSelectedForComparison([...selectedForComparison, influencer]);
-    }
+    setSelectedForComparison((prevSelected) => {
+      // Check if the influencer is already selected
+      const isAlreadySelected = prevSelected.some(
+        (item) => item.channel_info === influencer.channel_info
+      );
+  
+      if (isAlreadySelected) {
+        // If already selected, remove them from the comparison list
+        return prevSelected.filter(
+          (item) => item.channel_info !== influencer.channel_info
+        );
+      } else if (prevSelected.length < 2) {
+        // If not selected and there's space, add them to the comparison list
+        return [...prevSelected, influencer];
+      } else {
+        // If the list is full, replace the second influencer
+        return [prevSelected[0], influencer];
+      }
+    });
   };
 
   const handleComparisonClick = () => {
