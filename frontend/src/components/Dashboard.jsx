@@ -1,10 +1,12 @@
-import React from "react";
+import React, {useState, useEffect} from "react";
 import { Outlet, Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import Spotlight from "./Spotlight"; // Import the Spotlight component
 import RomFooter from "./RomFooter";
+import { Navigate } from "react-router-dom";
 
 const Dashboard = () => {
+  const navigate = Navigate();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => {

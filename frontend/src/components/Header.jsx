@@ -8,7 +8,7 @@ const Header = () => {
   useEffect(() => {
     const checkLoginStatus = () => {
       const userToken = localStorage.getItem("authToken");
-      setIsLoggedIn(!!userToken);
+      setIsLoggedIn(userToken);
     };
 
     checkLoginStatus();
