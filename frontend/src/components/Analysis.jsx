@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { User, Image, Heart, TrendingUp, Award, Calendar, MessageCircle, BarChart2 } from "lucide-react";
+import { User, Image, Heart, TrendingUp, Award, Calendar, MessageCircle, BarChart2, ChevronLeft, ChevronRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import InfluencerComparison from "./InfluencerComparision"; // Make sure path is correct
 
@@ -10,27 +10,15 @@ const InfluencerSuggestions = () => {
   const [error, setError] = useState("");
   const [showComparisonSidebar, setShowComparisonSidebar] = useState(false);
   const [selectedForComparison, setSelectedForComparison] = useState([]);
-  const [showComparisonView, setShowComparisonView] = useState(false); // New state to control comparison view
+  const [showComparisonView, setShowComparisonView] = useState(false);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const influencersPerView = 3; // Changed from 4 to 3
   const navigate = useNavigate();
 
   const handleNavigateToAnalysis = (influencerData) => {
     const username = influencerData.channel_info;
     navigate(`/influencers/${username}`, { state: { influencer: influencerData } });
   };
-
-  // const handleAddToComparison = (influencer) => {
-  //   if (selectedForComparison.length >= 2) {
-  //     // Replace the second one
-  //     setSelectedForComparison([selectedForComparison[0], influencer]);
-  //   } else if (selectedForComparison.find(item => item.channel_info === influencer.channel_info)) {
-  //     // Already selected, remove it
-  //     setSelectedForComparison(selectedForComparison.filter(item => item.channel_info !== influencer.channel_info));
-  //   } else {
-  //     // Add to selection
-  //     setSelectedForComparison([...selectedForComparison, influencer]);
-  //   }
-  // };
-
 
   const handleAddToComparison = (influencer) => {
     setSelectedForComparison((prevSelected) => {
@@ -62,6 +50,14 @@ const InfluencerSuggestions = () => {
   // Function to go back to suggestions view
   const handleBackToSuggestions = () => {
     setShowComparisonView(false);
+  };
+
+  const goToPrevious = () => {
+    setCurrentIndex((prev) => Math.max(0, prev - influencersPerView));
+  };
+
+  const goToNext = () => {
+    setCurrentIndex((prev) => Math.min(filteredUsers.length - influencersPerView, prev + influencersPerView));
   };
 
   useEffect(() => {
@@ -137,6 +133,19 @@ const InfluencerSuggestions = () => {
     return ((likesNum / followersNum) * 100).toFixed(2);
   };
 
+  // Format score to show only two decimal places
+  const formatScore = (score) => {
+    if (score === undefined || score === null) return "N/A";
+    return typeof score === 'number' ? score.toFixed(2) : score;
+  };
+
+  // Calculate if next/prev buttons should be disabled
+  const canGoBack = currentIndex > 0;
+  const canGoForward = currentIndex + influencersPerView < filteredUsers.length;
+  
+  // Current visible influencers
+  const visibleInfluencers = filteredUsers.slice(currentIndex, currentIndex + influencersPerView);
+
   // Render influencer comparison if showComparisonView is true
   if (showComparisonView && selectedForComparison.length === 2) {
     return (
@@ -160,7 +169,7 @@ const InfluencerSuggestions = () => {
           }}
         />
 
-        <div className="relative z-10 w-full max-w-5xl mx-auto px-6 py-20">
+        <div className="relative z-10 w-full mx-auto px-6 py-20">
           <motion.h1
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -201,241 +210,292 @@ const InfluencerSuggestions = () => {
           )}
 
           {!loading && filteredUsers.length > 0 && (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {filteredUsers.map((user, index) => (
-                <motion.div
-                  key={index}
-                  initial={{ opacity: 0, y: 30 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.6, delay: index * 0.1 }}
-                  className="border border-white/20 rounded-2xl overflow-hidden bg-black/30 backdrop-blur-sm"
-                  whileHover={{ scale: 1.02, transition: { duration: 0.2 } }}
+            <div className="relative w-full">
+              {/* Carousel Navigation Buttons */}
+              <div className="flex justify-between absolute top-1/2 -translate-y-1/2 w-full px-4 z-20 pointer-events-none">
+                <motion.button
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
+                  onClick={goToPrevious}
+                  disabled={!canGoBack}
+                  className={`p-3 rounded-full bg-white/10 backdrop-blur-md text-white hover:bg-white/20 transition-all transform pointer-events-auto ${
+                    !canGoBack ? "opacity-30 cursor-not-allowed" : ""
+                  }`}
                 >
-                  {/* Header Section */}
-                  <div className="bg-gradient-to-r from-purple-900/70 to-indigo-900/70 p-4 border-b border-white/10">
-                    <div className="flex items-center gap-4">
-                      <motion.div
-                        initial={{ scale: 0 }}
-                        animate={{ scale: 1 }}
-                        transition={{ delay: 0.3 + index * 0.1, type: "spring" }}
-                        className="w-16 h-16 bg-white/10 backdrop-blur-md rounded-full flex items-center justify-center text-white font-bold text-2xl"
-                      >
-                        {user.channel_info.charAt(0).toUpperCase()}
-                      </motion.div>
-                      <motion.div
-                        initial={{ x: -20, opacity: 0 }}
-                        animate={{ x: 0, opacity: 1 }}
-                        transition={{ delay: 0.4 + index * 0.1 }}
-                      >
-                        <h3 className="text-xl font-bold">@{user.channel_info}</h3>
-                        <div className="flex items-center mt-1 text-white/70">
-                          <div className="flex items-center gap-1">
-                            <span className="text-sm">📍</span>
-                            <span>{user.country || "N/A"}</span>
-                          </div>
-                          <span className="mx-2">•</span>
-                          <div className="flex items-center gap-1">
-                            <span className="text-sm">✨</span>
-                            <span>Rank #{user.rank}</span>
-                          </div>
-                        </div>
-                      </motion.div>
-                    </div>
-                  </div>
+                  <ChevronLeft size={24} />
+                </motion.button>
+                <motion.button
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
+                  onClick={goToNext}
+                  disabled={!canGoForward}
+                  className={`p-3 rounded-full bg-white/10 backdrop-blur-md text-white hover:bg-white/20 transition-all transform pointer-events-auto ${
+                    !canGoForward ? "opacity-30 cursor-not-allowed" : ""
+                  }`}
+                >
+                  <ChevronRight size={24} />
+                </motion.button>
+              </div>
 
-                  {/* Stats Cards */}
-                  <div className="p-4">
-                    <motion.h4
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      transition={{ delay: 0.5 + index * 0.1 }}
-                      className="text-lg font-semibold text-white/90 mb-3"
-                    >
-                      Performance Metrics
-                    </motion.h4>
-
-                    <div className="grid grid-cols-2 gap-3 mb-4">
-                      {[
-                        {
-                          title: "Followers",
-                          value: formatDisplayNumber(user.followers),
-                          icon: <User size={16} className="text-blue-400" />,
-                          gradient: "from-blue-900/30 to-blue-800/30",
-                        },
-                        {
-                          title: "Posts",
-                          value: formatDisplayNumber(user.posts),
-                          icon: <Image size={16} className="text-green-400" />,
-                          gradient: "from-green-900/30 to-green-800/30",
-                        },
-                        {
-                          title: "Avg. Likes",
-                          value: formatDisplayNumber(user.avg_likes),
-                          icon: <Heart size={16} className="text-pink-400" />,
-                          gradient: "from-pink-900/30 to-pink-800/30",
-                        },
-                        {
-                          title: "Engagement",
-                          value: `${calculateEngagementRate(
-                            user.avg_likes,
-                            user.followers
-                          )}%`,
-                          icon: <TrendingUp size={16} className="text-amber-400" />,
-                          gradient: "from-amber-900/30 to-amber-800/30",
-                        },
-                      ].map((stat, statIndex) => (
+              {/* Influencer Cards - Horizontal Layout with Center Justification */}
+              <div className="flex justify-center space-x-6 w-full py-6 px-4 overflow-visible">
+                {visibleInfluencers.map((user, index) => (
+                  <motion.div
+                    key={currentIndex + index}
+                    initial={{ opacity: 0, x: 30 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.6, delay: index * 0.1 }}
+                    className="border border-white/20 rounded-2xl overflow-hidden bg-black/30 backdrop-blur-sm shadow-lg flex-shrink-0 w-full max-w-xs"
+                    whileHover={{ scale: 1.02, transition: { duration: 0.2 } }}
+                  >
+                    {/* Header Section */}
+                    <div className="bg-gradient-to-r from-purple-900/70 to-indigo-900/70 p-4 border-b border-white/10">
+                      <div className="flex items-center gap-3">
                         <motion.div
-                          key={statIndex}
-                          initial={{ opacity: 0, y: 20 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ delay: 0.6 + index * 0.1 + statIndex * 0.1 }}
-                          whileHover={{ scale: 1.05 }}
-                          className={`bg-gradient-to-br ${stat.gradient} p-3 rounded-xl border border-white/10 backdrop-blur-sm`}
+                          initial={{ scale: 0 }}
+                          animate={{ scale: 1 }}
+                          transition={{ delay: 0.3 + index * 0.1, type: "spring" }}
+                          className="w-12 h-12 bg-white/10 backdrop-blur-md rounded-full flex items-center justify-center text-white font-bold text-xl"
                         >
-                          <div className="flex items-center justify-between mb-1">
-                            <p className="text-white/70 text-sm font-medium">
-                              {stat.title}
-                            </p>
-                            {stat.icon}
-                          </div>
-                          <p className="text-lg font-bold text-white">
-                            {stat.value}
-                          </p>
+                          {user.channel_info.charAt(0).toUpperCase()}
                         </motion.div>
-                      ))}
+                        <motion.div
+                          initial={{ x: -20, opacity: 0 }}
+                          animate={{ x: 0, opacity: 1 }}
+                          transition={{ delay: 0.4 + index * 0.1 }}
+                        >
+                        <a 
+                          href={`https://www.instagram.com/${user.channel_info.replace('@', '')}`} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="group inline-flex items-center gap-1 transition-all duration-300 hover:translate-y-[-2px]"
+                        >
+                          <motion.h1 
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.5, delay: 0.4 }}
+                            className="text-lg font-bold bg-gradient-to-r from-white to-gray-200 bg-clip-text text-transparent group-hover:from-blue-300 group-hover:to-purple-400"
+                          >
+                            @{user.channel_info}
+                          </motion.h1>
+                          <svg 
+                            xmlns="http://www.w3.org/2000/svg" 
+                            viewBox="0 0 24 24" 
+                            fill="none" 
+                            stroke="currentColor" 
+                            className="w-4 h-4 text-gray-400 group-hover:text-purple-400 transition-all duration-300 opacity-0 group-hover:opacity-100 transform group-hover:translate-x-1"
+                            strokeWidth="2" 
+                            strokeLinecap="round" 
+                            strokeLinejoin="round"
+                          >
+                            <path d="M7 17l9.2-9.2M17 17V7H7" />
+                          </svg>
+                        </a>
+                          <div className="flex items-center mt-1 text-white/70 text-xs">
+                            <div className="flex items-center gap-1">
+                              <span>📍</span>
+                              <span>{user.country || "N/A"}</span>
+                            </div>
+                            <span className="mx-1">•</span>
+                            <div className="flex items-center gap-1">
+                              <span>✨</span>
+                              <span>Rank #{user.rank}</span>
+                            </div>
+                          </div>
+                        </motion.div>
+                      </div>
                     </div>
 
-                    {/* Additional Stats */}
-                    <motion.div
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 1 + index * 0.1 }}
-                      className="bg-white/5 border border-white/10 p-4 rounded-xl mb-4"
-                    >
-                      <h4 className="text-md font-semibold text-white/90 mb-3">
-                        Score Metrics
-                      </h4>
-                      <div className="grid grid-cols-2 gap-x-4 gap-y-2">
+                    {/* Stats Cards */}
+                    <div className="p-4">
+                      <motion.h4
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ delay: 0.5 + index * 0.1 }}
+                        className="text-md font-semibold text-white/90 mb-3"
+                      >
+                        Performance Metrics
+                      </motion.h4>
+
+                      <div className="grid grid-cols-2 gap-3 mb-4">
                         {[
                           {
-                            label: "InfluenceIQ",
-                            value: user.influenceiq_score,
-                            icon: <Award size={14} className="text-purple-400" />
+                            title: "Followers",
+                            value: formatDisplayNumber(user.followers),
+                            icon: <User size={14} className="text-blue-400" />,
+                            gradient: "from-blue-900/30 to-blue-800/30",
                           },
                           {
-                            label: "Influence Score",
-                            value: user.influence_score,
-                            icon: <TrendingUp size={14} className="text-blue-400" />
+                            title: "Posts",
+                            value: formatDisplayNumber(user.posts),
+                            icon: <Image size={14} className="text-green-400" />,
+                            gradient: "from-green-900/30 to-green-800/30",
                           },
                           {
-                            label: "Credibility",
-                            value: user.credibility_score,
-                            icon: <BarChart2 size={14} className="text-green-400" />
+                            title: "Avg. Likes",
+                            value: formatDisplayNumber(user.avg_likes),
+                            icon: <Heart size={14} className="text-pink-400" />,
+                            gradient: "from-pink-900/30 to-pink-800/30",
                           },
                           {
-                            label: "Engagement Quality",
-                            value: user.engagement_quality_score,
-                            icon: <MessageCircle size={14} className="text-pink-400" />
+                            title: "Engagement",
+                            value: `${calculateEngagementRate(
+                              user.avg_likes,
+                              user.followers
+                            )}%`,
+                            icon: <TrendingUp size={14} className="text-amber-400" />,
+                            gradient: "from-amber-900/30 to-amber-800/30",
                           },
-                          {
-                            label: "Longevity",
-                            value: user.longevity_score,
-                            icon: <Calendar size={14} className="text-amber-400" />
-                          },
-                          {
-                            label: "Total Likes",
-                            value: formatDisplayNumber(user.total_likes),
-                            icon: <Heart size={14} className="text-red-400" />
-                          }
-                        ].map((item, itemIndex) => (
-                          <motion.div 
-                            key={itemIndex}
-                            className="transform transition-all duration-500 hover:translate-x-1 flex items-center gap-2"
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            transition={{ delay: 1.1 + index * 0.1 + itemIndex * 0.05 }}
+                        ].map((stat, statIndex) => (
+                          <motion.div
+                            key={statIndex}
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.6 + index * 0.1 + statIndex * 0.1 }}
+                            whileHover={{ scale: 1.05 }}
+                            className={`bg-gradient-to-br ${stat.gradient} p-3 rounded-xl border border-white/10 backdrop-blur-sm`}
                           >
-                            {item.icon}
-                            <div>
-                              <p className="text-xs text-white/50">{item.label}</p>
-                              <p className="text-sm font-bold text-white">{item.value}</p>
+                            <div className="flex items-center justify-between mb-1">
+                              <p className="text-white/70 text-xs font-medium">
+                                {stat.title}
+                              </p>
+                              {stat.icon}
                             </div>
+                            <p className="text-sm font-bold text-white">
+                              {stat.value}
+                            </p>
                           </motion.div>
                         ))}
                       </div>
-                    </motion.div>
 
-                    <motion.a
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      transition={{ delay: 1.2 + index * 0.1 }}
-                      href={`https://www.instagram.com/${user.channel_info}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="block w-full text-center bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 py-2 rounded-lg text-white font-medium transition-all"
-                      whileHover={{ scale: 1.03 }}
-                      whileTap={{ scale: 0.98 }}
-                    >
-                      View Profile
-                    </motion.a>
-                    <motion.div
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 1.2 + index * 0.1 }}
-                      className="flex justify-center mt-3"
-                    >
-                      <motion.button
-                        whileHover={{ scale: 1.1 }}
-                        whileTap={{ scale: 0.95 }}
-                        className="bg-white text-black px-4 py-2 rounded-md hover:bg-opacity-90 transition-all font-medium flex items-center gap-2 text-sm"
-                        onClick={() => handleNavigateToAnalysis(user)} 
+                      {/* Additional Stats - Compacted for horizontal layout */}
+                      <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 1 + index * 0.1 }}
+                        className="bg-white/5 border border-white/10 p-3 rounded-xl mb-4"
                       >
-                        View Detailed Analytics
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          width="16"
-                          height="16"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        >
-                          <path d="m9 18 6-6-6-6" />
-                        </svg>
-                      </motion.button>
-                    </motion.div>
+                        <h4 className="text-sm font-semibold text-white/90 mb-2">
+                          Score Metrics
+                        </h4>
+                        <div className="grid grid-cols-2 gap-x-4 gap-y-2">
+                          {[
+                            {
+                              label: "InfluenceIQ",
+                              value: formatScore(user.influenceiq_score),
+                              icon: <Award size={12} className="text-purple-400" />
+                            },
+                            {
+                              label: "Influence",
+                              value: formatScore(user.influence_score),
+                              icon: <TrendingUp size={12} className="text-blue-400" />
+                            },
+                            {
+                              label: "Credibility",
+                              value: formatScore(user.credibility_score),
+                              icon: <BarChart2 size={12} className="text-green-400" />
+                            },
+                            {
+                              label: "Engagement",
+                              value: formatScore(user.engagement_quality_score),
+                              icon: <MessageCircle size={12} className="text-pink-400" />
+                            }
+                          ].map((item, itemIndex) => (
+                            <motion.div 
+                              key={itemIndex}
+                              className="transform transition-all duration-500 hover:translate-x-1 flex items-center gap-2"
+                              initial={{ opacity: 0 }}
+                              animate={{ opacity: 1 }}
+                              transition={{ delay: 1.1 + index * 0.1 + itemIndex * 0.05 }}
+                            >
+                              {item.icon}
+                              <div>
+                                <p className="text-xs text-white/50">{item.label}</p>
+                                <p className="text-xs font-bold text-white">{item.value}</p>
+                              </div>
+                            </motion.div>
+                          ))}
+                        </div>
+                      </motion.div>
 
-                    <motion.button
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleAddToComparison(user);
-                      }}
-                      className={`mt-2 w-full bg-gray-800 text-white px-4 py-2 rounded-md hover:bg-gray-700 transition-all font-medium flex items-center justify-center gap-2 text-sm ${
-                        selectedForComparison.some(inf => inf.channel_info === user.channel_info) 
-                          ? 'bg-purple-800 hover:bg-purple-700' 
-                          : ''
+                      {/* Action Buttons */}
+                      <div className="space-y-2">
+                        <motion.button
+                          initial={{ opacity: 0, y: 20 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: 1.2 + index * 0.1 }}
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                          className="w-full bg-white text-black px-4 py-2 rounded-md hover:bg-opacity-90 transition-all font-medium flex items-center justify-center gap-2 text-sm"
+                          onClick={() => handleNavigateToAnalysis(user)} 
+                        >
+                          View Analytics
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="14"
+                            height="14"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          >
+                            <path d="m9 18 6-6-6-6" />
+                          </svg>
+                        </motion.button>
+
+                        <motion.button
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleAddToComparison(user);
+                          }}
+                          className={`w-full bg-gray-800 text-white px-4 py-2 rounded-md hover:bg-gray-700 transition-all font-medium flex items-center justify-center gap-2 text-xs ${
+                            selectedForComparison.some(inf => inf.channel_info === user.channel_info) 
+                              ? 'bg-purple-800 hover:bg-purple-700' 
+                              : ''
+                          }`}
+                        >
+                          {selectedForComparison.some(inf => inf.channel_info === user.channel_info) 
+                            ? 'Remove from Comparison' 
+                            : 'Add to Comparison'}
+                        </motion.button>
+                      </div>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+
+              {/* Pagination Indicators */}
+              {filteredUsers.length > influencersPerView && (
+                <div className="flex justify-center space-x-2 mt-6">
+                  {Array.from({ length: Math.ceil(filteredUsers.length / influencersPerView) }).map((_, i) => (
+                    <button
+                      key={i}
+                      onClick={() => setCurrentIndex(i * influencersPerView)}
+                      className={`h-2 w-2 rounded-full transition-all ${
+                        i === Math.floor(currentIndex / influencersPerView)
+                          ? "bg-white w-4"
+                          : "bg-white/30"
                       }`}
-                    >
-                      {selectedForComparison.some(inf => inf.channel_info === user.channel_info) 
-                        ? 'Remove from Comparison' 
-                        : 'Add to Comparison'}
-                    </motion.button>
-                  </div>
-                </motion.div>
-              ))}
+                      aria-label={`Go to page ${i + 1}`}
+                    />
+                  ))}
+                </div>
+              )}
             </div>
           )}
         </div>
       </div>
+
+      {/* Comparison Sidebar */}
       <motion.div 
-        className={`fixed right-0 top-0 h-full w-72 bg-black/90 border-l border-white/20 p-4 transform transition-all duration-300 z-50 ${showComparisonSidebar ? 'translate-x-0' : 'translate-x-full'}`}
+        className={`fixed right-0 top-0 h-full w-72 bg-black/90 border-l border-white/20 p-6 transform transition-all duration-300 z-50 ${showComparisonSidebar ? 'translate-x-0' : 'translate-x-full'}`}
         initial={false}
       >
-        <div className="flex justify-between items-center mb-4">
+        <div className="flex justify-between items-center mb-6">
           <h3 className="text-lg font-semibold text-white">Compare Influencers</h3>
           <button 
             onClick={() => setShowComparisonSidebar(false)}
@@ -448,11 +508,11 @@ const InfluencerSuggestions = () => {
           </button>
         </div>
         
-        <div className="mb-4">
-          <p className="text-white/70 text-sm mb-2">Selected for comparison ({selectedForComparison.length}/2):</p>
-          <div className="space-y-2">
+        <div className="mb-6">
+          <p className="text-white/70 text-sm mb-3">Selected for comparison ({selectedForComparison.length}/2):</p>
+          <div className="space-y-3">
             {selectedForComparison.map((inf, idx) => (
-              <div key={idx} className="bg-white/10 p-2 rounded flex justify-between items-center">
+              <div key={idx} className="bg-white/10 p-3 rounded flex justify-between items-center">
                 <span>@{inf.channel_info}</span>
                 <button 
                   onClick={() => handleAddToComparison(inf)}
@@ -467,7 +527,7 @@ const InfluencerSuggestions = () => {
             ))}
             
             {selectedForComparison.length < 2 && (
-              <div className="bg-white/5 p-2 rounded border border-dashed border-white/20 text-center text-white/50 text-sm">
+              <div className="bg-white/5 p-3 rounded border border-dashed border-white/20 text-center text-white/50 text-sm">
                 Select {2 - selectedForComparison.length} more influencer{selectedForComparison.length === 0 ? 's' : ''}
               </div>
             )}
@@ -477,7 +537,7 @@ const InfluencerSuggestions = () => {
         <button
           onClick={handleComparisonClick}
           disabled={selectedForComparison.length < 2}
-          className={`w-full py-2 rounded-md text-white font-medium transition-all ${
+          className={`w-full py-3 rounded-md text-white font-medium transition-all ${
             selectedForComparison.length === 2 
               ? 'bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700' 
               : 'bg-gray-700 cursor-not-allowed opacity-50'
@@ -493,7 +553,7 @@ const InfluencerSuggestions = () => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2 }}
         onClick={() => setShowComparisonSidebar(true)}
-        className="fixed bottom-6 right-6 bg-gradient-to-r from-purple-600 to-blue-600 p-3 rounded-full shadow-lg text-white hover:from-purple-700 hover:to-blue-700 transition-all z-40"
+        className="fixed bottom-6 right-6 bg-gradient-to-r from-purple-600 to-blue-600 p-4 rounded-full shadow-lg text-white hover:from-purple-700 hover:to-blue-700 transition-all z-40"
       >
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <polyline points="21 8 21 21 3 21 3 8"></polyline>

@@ -54,7 +54,7 @@ const Dashboard = () => {
                Top Influencers
               </Link>
               <Link
-                to="/dashboard/test"
+                to="/dashboard/suggestions"
                 className="text-white hover:text-purple-400 transition-colors text-sm font-inter"
               >
                 Suggestions
