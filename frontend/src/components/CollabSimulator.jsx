@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import { motion } from "framer-motion";
 
@@ -7,7 +7,6 @@ const CollabSimulator = () => {
     businessName: "",
     businessCategory: "",
     description: "",
-    budget: 0,
   });
 
   const [influencers, setInfluencers] = useState([]);
@@ -16,8 +15,12 @@ const CollabSimulator = () => {
   const [results, setResults] = useState(null);
   const [recommendations, setRecommendations] = useState([]);
   const [loadingRecommendations, setLoadingRecommendations] = useState(false);
+  
+  // Create refs for scrolling to specific sections
+  const simulateCollabSectionRef = useRef(null);
+  const resultsSectionRef = useRef(null);
 
-  // Animation variants
+  // Enhanced animation variants
   const cardVariants = {
     hidden: { opacity: 0, y: 30 },
     visible: {
@@ -27,8 +30,8 @@ const CollabSimulator = () => {
     },
     hover: {
       y: -5,
-      boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.1)",
-      transition: { duration: 0.2 },
+      boxShadow: "0 15px 30px -5px rgba(0, 0, 0, 0.2)",
+      transition: { duration: 0.3 },
     },
   };
 
@@ -37,7 +40,7 @@ const CollabSimulator = () => {
     visible: {
       opacity: 1,
       transition: {
-        staggerChildren: 0.1,
+        staggerChildren: 0.15,
         delayChildren: 0.2,
       },
     },
@@ -48,7 +51,7 @@ const CollabSimulator = () => {
     visible: {
       opacity: 1,
       x: 0,
-      transition: { duration: 0.3 },
+      transition: { duration: 0.4 },
     },
   };
 
@@ -96,6 +99,17 @@ const CollabSimulator = () => {
       );
 
       setResults(response.data);
+      
+      // Scroll to results section after a slight delay to ensure the section is rendered
+      setTimeout(() => {
+        if (resultsSectionRef.current) {
+          resultsSectionRef.current.scrollIntoView({
+            behavior: 'smooth',
+            block: 'start'
+          });
+        }
+      }, 100);
+      
     } catch (error) {
       console.error("Error simulating collaboration:", error);
       alert("Failed to simulate collaboration");
@@ -130,36 +144,57 @@ const CollabSimulator = () => {
     }
   };
 
-  // Color mapping for match percentage
+  // Function to handle the Details button click
+  const handleDetailsClick = (username) => {
+    setSelectedInfluencer(username);
+    
+    // Scroll to the Simulate Specific Collaboration section
+    if (simulateCollabSectionRef.current) {
+      simulateCollabSectionRef.current.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start'
+      });
+    }
+    
+    // Optional: We can also simulate the collaboration automatically
+    // simulateCollab();
+  };
+
+  // Enhanced color mapping for match percentage with more vibrant colors
   const getMatchColor = (percentage) => {
-    if (percentage >= 80) return "bg-green-500/40 text-green-200";
-    if (percentage >= 60) return "bg-blue-500/40 text-blue-200";
-    if (percentage >= 40) return "bg-yellow-500/40 text-yellow-200";
-    return "bg-red-500/40 text-red-200";
+    if (percentage >= 80) return "bg-green-500/50 text-green-100";
+    if (percentage >= 60) return "bg-blue-500/50 text-blue-100";
+    if (percentage >= 40) return "bg-yellow-500/50 text-yellow-100";
+    return "bg-red-500/50 text-red-100";
+  };
+
+  // Helper function to extract username from channel info
+  const getUsername = (channelInfo) => {
+    if (!channelInfo) return "unknown";
+    return channelInfo.startsWith("@") ? channelInfo.substring(1) : channelInfo;
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-black text-white">
-      <div className="relative flex-1 flex overflow-hidden bg-black/[0.96] antialiased">
-        {/* Grid background */}
-        <div
-          className="pointer-events-none absolute inset-0 select-none opacity-80"
-          style={{
-            backgroundImage:
-              "linear-gradient(to right, #171717 1px, transparent 1px), linear-gradient(to bottom, #171717 1px, transparent 1px)",
-            backgroundSize: "35px 35px",
-          }}
-        />
-
-        <div className="relative z-10 w-full mx-auto px-6 py-12 md:py-24">
+    <div className="min-h-screen flex flex-col text-white">
+      <div className="relative flex-1 flex overflow-hidden antialiased">
+        <div className="relative z-10 w-full max-w-7xl mx-auto px-6 py-12 md:py-24">
           <motion.h1
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="bg-gradient-to-b from-neutral-50 to-neutral-400 bg-clip-text text-3xl md:text-5xl font-bold text-transparent leading-tight mb-12"
+            transition={{ duration: 0.8 }}
+            className="bg-gradient-to-r from-white to-blue-200 bg-clip-text text-4xl md:text-6xl font-bold text-transparent leading-tight mb-6"
           >
             Collaboration Simulator
           </motion.h1>
+          
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.8, delay: 0.2 }}
+            className="text-neutral-400 text-lg mb-12 max-w-3xl"
+          >
+            Predict and optimize your influencer marketing campaigns with AI-powered collaboration simulations.
+          </motion.p>
 
           {/* Business Details Form */}
           <motion.div
@@ -168,15 +203,16 @@ const CollabSimulator = () => {
             animate="visible"
             whileHover="hover"
             transition={{ duration: 0.5, delay: 0.2 }}
-            className="bg-neutral-900/50 rounded-xl border border-neutral-800 overflow-hidden backdrop-blur-sm mb-8"
+            className="bg-neutral-900/60 rounded-xl border border-neutral-800 overflow-hidden backdrop-blur-sm mb-8 shadow-xl"
           >
-            <div className="px-6 py-4 border-b border-neutral-800">
+            <div className="px-6 py-4 border-b border-neutral-800 flex items-center">
               <h2 className="text-xl font-bold text-white">Business Details</h2>
+              <div className="ml-2 h-1 w-1 rounded-full bg-blue-400"></div>
             </div>
             <div className="px-6 py-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-sm font-medium text-neutral-400 mb-1">
+                  <label className="block text-sm font-medium text-neutral-300 mb-2">
                     Business Name
                   </label>
                   <input
@@ -184,11 +220,12 @@ const CollabSimulator = () => {
                     name="businessName"
                     value={businessDetails.businessName}
                     onChange={handleInputChange}
-                    className="w-full bg-neutral-800 text-white border border-neutral-700 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full bg-neutral-800/80 text-white border border-neutral-700 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                    placeholder="Enter your business name"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-neutral-400 mb-1">
+                  <label className="block text-sm font-medium text-neutral-300 mb-2">
                     Business Category
                   </label>
                   <input
@@ -196,11 +233,12 @@ const CollabSimulator = () => {
                     name="businessCategory"
                     value={businessDetails.businessCategory}
                     onChange={handleInputChange}
-                    className="w-full bg-neutral-800 text-white border border-neutral-700 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full bg-neutral-800/80 text-white border border-neutral-700 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                    placeholder="e.g., Fashion, Technology, Food"
                   />
                 </div>
                 <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-neutral-400 mb-1">
+                  <label className="block text-sm font-medium text-neutral-300 mb-2">
                     Business Description
                   </label>
                   <textarea
@@ -208,35 +246,24 @@ const CollabSimulator = () => {
                     value={businessDetails.description}
                     onChange={handleInputChange}
                     rows="3"
-                    className="w-full bg-neutral-800 text-white border border-neutral-700 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full bg-neutral-800/80 text-white border border-neutral-700 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                    placeholder="Describe your products, services, and target audience"
                   ></textarea>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-neutral-400 mb-1">
-                    Budget (Optional)
-                  </label>
-                  <input
-                    type="number"
-                    name="budget"
-                    value={businessDetails.budget}
-                    onChange={handleInputChange}
-                    className="w-full bg-neutral-800 text-white border border-neutral-700 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  />
                 </div>
               </div>
 
-              <div className="mt-6 flex flex-col sm:flex-row gap-4">
+              <div className="mt-8 flex flex-col sm:flex-row gap-4">
                 <motion.button
                   onClick={getRecommendations}
                   disabled={loadingRecommendations}
                   whileHover={{ scale: 1.03 }}
                   whileTap={{ scale: 0.97 }}
-                  className="px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-500 text-white font-medium rounded-md flex items-center justify-center transition-all"
+                  className="px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-medium rounded-lg flex items-center justify-center transition-all shadow-lg shadow-blue-600/20 hover:shadow-blue-600/30"
                 >
                   {loadingRecommendations ? (
                     <>
                       <motion.div
-                        className="mr-2 h-4 w-4 rounded-full border-2 border-t-transparent border-white"
+                        className="mr-2 h-5 w-5 rounded-full border-2 border-t-transparent border-white"
                         animate={{ rotate: 360 }}
                         transition={{
                           duration: 1,
@@ -262,81 +289,79 @@ const CollabSimulator = () => {
               animate="visible"
               whileHover="hover"
               transition={{ duration: 0.5, delay: 0.3 }}
-              className="bg-neutral-900/50 rounded-xl border border-neutral-800 overflow-hidden backdrop-blur-sm mb-8"
+              className="bg-neutral-900/60 rounded-xl border border-neutral-800 overflow-hidden backdrop-blur-sm mb-8 shadow-xl"
             >
-              <div className="px-6 py-4 border-b border-neutral-800">
+              <div className="px-6 py-4 border-b border-neutral-800 flex items-center">
                 <h2 className="text-xl font-bold text-white">
                   Top Recommended Influencers
                 </h2>
+                <div className="ml-2 h-1 w-1 rounded-full bg-green-400"></div>
               </div>
               <div className="px-6 py-6 overflow-x-auto">
                 <table className="min-w-full divide-y divide-neutral-800">
                   <thead>
                     <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-neutral-400 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-medium text-neutral-300 uppercase tracking-wider">
                         Influencer
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-neutral-400 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-medium text-neutral-300 uppercase tracking-wider">
                         Category
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-neutral-400 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-medium text-neutral-300 uppercase tracking-wider">
                         Followers
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-neutral-400 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-medium text-neutral-300 uppercase tracking-wider">
                         Match %
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-neutral-400 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-medium text-neutral-300 uppercase tracking-wider">
                         Est. Cost
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-neutral-400 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-medium text-neutral-300 uppercase tracking-wider">
                         Est. ROI
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-neutral-400 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-medium text-neutral-300 uppercase tracking-wider">
                         Action
                       </th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-neutral-800">
                     {recommendations.map((rec) => (
-                      <tr key={rec.username}>
+                      <tr key={rec.username} className="hover:bg-neutral-800/30 transition-colors">
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="text-sm font-medium text-white">
                             {rec.channel_info}
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm text-neutral-400">
+                          <div className="text-sm text-neutral-300">
                             {rec.category}
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm text-neutral-400">
+                          <div className="text-sm text-neutral-300">
                             {rec.followers}
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <span
-                            className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${getMatchColor(
+                            className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${getMatchColor(
                               rec.match_percentage
                             )}`}
                           >
                             {rec.match_percentage}%
                           </span>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-400">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-300">
                           ${rec.estimated_cost.toLocaleString()}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-400">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-300">
                           {rec.estimated_roi}%
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                           <motion.button
-                            onClick={() => {
-                              setSelectedInfluencer(rec.username);
-                              simulateCollab();
-                            }}
+                            onClick={() => handleDetailsClick(rec.username)}
                             whileHover={{ scale: 1.05 }}
-                            className="text-blue-400 hover:text-blue-300"
+                            className="text-blue-400 hover:text-blue-300 bg-blue-900/30 px-3 py-1 rounded-lg transition-all"
                           >
                             Details
                           </motion.button>
@@ -351,27 +376,36 @@ const CollabSimulator = () => {
 
           {/* Individual Collab Simulator */}
           <motion.div
+            ref={simulateCollabSectionRef}
             variants={cardVariants}
             initial="hidden"
             animate="visible"
             whileHover="hover"
             transition={{ duration: 0.5, delay: 0.4 }}
-            className="bg-neutral-900/50 rounded-xl border border-neutral-800 overflow-hidden backdrop-blur-sm mb-8"
+            className="bg-neutral-900/60 rounded-xl border border-neutral-800 overflow-hidden backdrop-blur-sm mb-8 shadow-xl"
           >
-            <div className="px-6 py-4 border-b border-neutral-800">
+            <div className="px-6 py-4 border-b border-neutral-800 flex items-center">
               <h2 className="text-xl font-bold text-white">
                 Simulate Specific Collaboration
               </h2>
+              <div className="ml-2 h-1 w-1 rounded-full bg-purple-400"></div>
             </div>
             <div className="px-6 py-6">
-              <div className="mb-4">
-                <label className="block text-sm font-medium text-neutral-400 mb-1">
+              <div className="mb-6">
+                <label className="block text-sm font-medium text-neutral-300 mb-2">
                   Select Influencer
                 </label>
                 <select
                   value={selectedInfluencer}
                   onChange={handleInfluencerChange}
-                  className="w-full bg-neutral-800 text-white border border-neutral-700 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full bg-neutral-800/80 text-white border border-neutral-700 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all appearance-none"
+                  style={{ 
+                    backgroundImage: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23ffffff'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E\")",
+                    backgroundRepeat: "no-repeat",
+                    backgroundPosition: "right 1rem center",
+                    backgroundSize: "1.5em 1.5em",
+                    paddingRight: "3rem"
+                  }}
                 >
                   <option value="">-- Select Influencer --</option>
                   {influencers.map((influencer) => (
@@ -391,12 +425,12 @@ const CollabSimulator = () => {
                 disabled={loading}
                 whileHover={{ scale: 1.03 }}
                 whileTap={{ scale: 0.97 }}
-                className="px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white font-medium rounded-md flex items-center justify-center transition-all"
+                className="px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white font-medium rounded-lg flex items-center justify-center transition-all shadow-lg shadow-green-600/20 hover:shadow-green-600/30"
               >
                 {loading ? (
                   <>
                     <motion.div
-                      className="mr-2 h-4 w-4 rounded-full border-2 border-t-transparent border-white"
+                      className="mr-2 h-5 w-5 rounded-full border-2 border-t-transparent border-white"
                       animate={{ rotate: 360 }}
                       transition={{
                         duration: 1,
@@ -416,17 +450,19 @@ const CollabSimulator = () => {
           {/* Results Section */}
           {results && (
             <motion.div
+              ref={resultsSectionRef}
               variants={cardVariants}
               initial="hidden"
               animate="visible"
               whileHover="hover"
               transition={{ duration: 0.5, delay: 0.5 }}
-              className="bg-neutral-900/50 rounded-xl border border-neutral-800 overflow-hidden backdrop-blur-sm"
+              className="bg-neutral-900/60 rounded-xl border border-neutral-800 overflow-hidden backdrop-blur-sm shadow-xl"
             >
-              <div className="px-6 py-4 border-b border-neutral-800">
+              <div className="px-6 py-4 border-b border-neutral-800 flex items-center">
                 <h2 className="text-xl font-bold text-white">
                   Collaboration Simulation Results
                 </h2>
+                <div className="ml-2 h-1 w-1 rounded-full bg-blue-400"></div>
               </div>
               <div className="px-6 py-6">
                 <motion.div
@@ -434,16 +470,16 @@ const CollabSimulator = () => {
                   initial="hidden"
                   animate="visible"
                 >
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                     <motion.div
                       variants={itemVariants}
-                      className="bg-neutral-800/50 rounded-lg p-4 border border-neutral-700/50"
+                      className="bg-neutral-800/70 rounded-lg p-5 border border-neutral-700/70 shadow-lg transform transition-all hover:translate-y-1"
                     >
-                      <div className="text-sm font-medium text-neutral-400">
+                      <div className="text-sm font-medium text-neutral-300 mb-1">
                         Match Percentage
                       </div>
                       <div
-                        className={`mt-1 text-3xl font-semibold ${
+                        className={`mt-1 text-4xl font-semibold ${
                           results.match_percentage >= 70
                             ? "text-green-400"
                             : "text-yellow-400"
@@ -455,25 +491,25 @@ const CollabSimulator = () => {
 
                     <motion.div
                       variants={itemVariants}
-                      className="bg-neutral-800/50 rounded-lg p-4 border border-neutral-700/50"
+                      className="bg-neutral-800/70 rounded-lg p-5 border border-neutral-700/70 shadow-lg transform transition-all hover:translate-y-1"
                     >
-                      <div className="text-sm font-medium text-neutral-400">
+                      <div className="text-sm font-medium text-neutral-300 mb-1">
                         Estimated Cost
                       </div>
-                      <div className="mt-1 text-3xl font-semibold text-white">
+                      <div className="mt-1 text-4xl font-semibold text-white">
                         ${results.estimated_cost.toLocaleString()}
                       </div>
                     </motion.div>
 
                     <motion.div
                       variants={itemVariants}
-                      className="bg-neutral-800/50 rounded-lg p-4 border border-neutral-700/50"
+                      className="bg-neutral-800/70 rounded-lg p-5 border border-neutral-700/70 shadow-lg transform transition-all hover:translate-y-1"
                     >
-                      <div className="text-sm font-medium text-neutral-400">
+                      <div className="text-sm font-medium text-neutral-300 mb-1">
                         Estimated ROI
                       </div>
                       <div
-                        className={`mt-1 text-3xl font-semibold ${
+                        className={`mt-1 text-4xl font-semibold ${
                           results.estimated_roi >= 100
                             ? "text-green-400"
                             : "text-yellow-400"
@@ -484,12 +520,12 @@ const CollabSimulator = () => {
                     </motion.div>
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                     <motion.div
                       variants={itemVariants}
-                      className="bg-neutral-800/50 rounded-lg p-4 border border-neutral-700/50"
+                      className="bg-neutral-800/70 rounded-lg p-5 border border-neutral-700/70 shadow-lg transform transition-all hover:translate-y-1"
                     >
-                      <div className="text-sm font-medium text-neutral-400">
+                      <div className="text-sm font-medium text-neutral-300 mb-1">
                         Estimated Reach
                       </div>
                       <div className="mt-1 text-2xl font-semibold text-white">
@@ -499,9 +535,9 @@ const CollabSimulator = () => {
 
                     <motion.div
                       variants={itemVariants}
-                      className="bg-neutral-800/50 rounded-lg p-4 border border-neutral-700/50"
+                      className="bg-neutral-800/70 rounded-lg p-5 border border-neutral-700/70 shadow-lg transform transition-all hover:translate-y-1"
                     >
-                      <div className="text-sm font-medium text-neutral-400">
+                      <div className="text-sm font-medium text-neutral-300 mb-1">
                         Relevancy Score
                       </div>
                       <div className="mt-1 text-2xl font-semibold text-white">
@@ -511,9 +547,9 @@ const CollabSimulator = () => {
 
                     <motion.div
                       variants={itemVariants}
-                      className="bg-neutral-800/50 rounded-lg p-4 border border-neutral-700/50"
+                      className="bg-neutral-800/70 rounded-lg p-5 border border-neutral-700/70 shadow-lg transform transition-all hover:translate-y-1"
                     >
-                      <div className="text-sm font-medium text-neutral-400">
+                      <div className="text-sm font-medium text-neutral-300 mb-1">
                         Longevity Potential
                       </div>
                       <div className="mt-1 text-2xl font-semibold text-white">
@@ -524,12 +560,12 @@ const CollabSimulator = () => {
 
                   <motion.div
                     variants={itemVariants}
-                    className="bg-blue-900/30 border border-blue-800/50 p-4 rounded-lg"
+                    className="bg-blue-900/40 border border-blue-700/60 p-6 rounded-lg shadow-lg"
                   >
-                    <div className="text-sm font-medium text-blue-300 mb-2">
+                    <div className="text-sm font-medium text-blue-300 mb-3">
                       Recommendation
                     </div>
-                    <div className="text-blue-100">
+                    <div className="text-blue-100 text-lg">
                       {results.recommendation}
                     </div>
                   </motion.div>
@@ -541,12 +577,6 @@ const CollabSimulator = () => {
       </div>
     </div>
   );
-};
-
-// Helper function to extract username from channel info
-const getUsername = (channelInfo) => {
-  if (!channelInfo) return "unknown";
-  return channelInfo.startsWith("@") ? channelInfo.substring(1) : channelInfo;
 };
 
 export default CollabSimulator;
