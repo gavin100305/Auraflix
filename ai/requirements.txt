@@ -3,9 +3,9 @@ google.generativeai
 uvicorn
 fastapi
 pydantic
+scikit-learn
 fastapi
 numpy 
-sklearn
 google.generativeai
 dotenv
 
