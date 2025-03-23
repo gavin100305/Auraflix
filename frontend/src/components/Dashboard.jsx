@@ -2,6 +2,7 @@ import React from "react";
 import { Outlet, Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import Spotlight from "./Spotlight"; // Import the Spotlight component
+import CollabSimulator from "./CollabSimulator";
 
 const Dashboard = () => {
   const isLoggedIn = true; // Replace with actual authentication logic
@@ -46,15 +47,15 @@ const Dashboard = () => {
               </motion.h1>
             </Link>
 
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-5">
               <Link
                 to="/dashboard/leaderboard"
                 className="text-white hover:text-purple-400 transition-colors text-sm font-inter"
               >
-               Top Influencers
+                Top Influencers
               </Link>
               <Link
-                to="/dashboard/test"
+                to="/dashboard/suggestions"
                 className="text-white hover:text-purple-400 transition-colors text-sm font-inter"
               >
                 Suggestions
@@ -71,12 +72,12 @@ const Dashboard = () => {
               >
                 Insights
               </Link>
-
-             
             </div>
           </div>
         </div>
       </header>
+
+      <CollabSimulator />
 
       {/* Main Content */}
       <div className="flex-1 p-6 lg:p-8 overflow-y-auto relative z-10 mt-20">
