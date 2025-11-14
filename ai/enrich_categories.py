@@ -80,7 +80,7 @@ def enrich_categories(input_file="output_file.json"):
             
             # Call Gemini for category refinement
             try:
-                model = genai.GenerativeModel("gemini-1.5-pro")
+                model = genai.GenerativeModel("gemini-2.5-flash")
                 response = model.generate_content(full_prompt)
                 response_text = response.text
                 

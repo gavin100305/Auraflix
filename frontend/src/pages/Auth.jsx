@@ -8,7 +8,7 @@ const Auth = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-black text-white">
-      <div className="relative flex-1 flex overflow-hidden bg-black/[0.96] antialiased items-center justify-center">
+      <div className="relative flex-1 flex overflow-hidden bg-black/96 antialiased items-center justify-center">
         <div
           className="pointer-events-none absolute inset-0 select-none"
           style={{
@@ -21,7 +21,7 @@ const Auth = () => {
         <div className="relative z-10 w-full max-w-md mx-auto px-6 py-6">
           <div className="backdrop-blur-md bg-white/5 border border-white/10 rounded-2xl p-7 shadow-xl">
             <div className="text-center mb-3">
-              <h2 className="text-2xl font-bold bg-gradient-to-b from-neutral-50 to-neutral-400 bg-clip-text text-transparent">
+              <h2 className="text-2xl font-bold bg-linear-to-b from-neutral-50 to-neutral-400 bg-clip-text text-transparent">
                 {isSignIn ? "Welcome Back" : "Join InfluenceIQ"}
               </h2>
             </div>

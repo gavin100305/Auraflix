@@ -149,7 +149,7 @@ const SignIn = () => {
       <button
         type="submit"
         disabled={loading}
-        className="group relative w-full rounded-lg overflow-hidden bg-gradient-to-r from-blue-600 to-purple-600 py-2 px-4 text-white font-medium hover:from-blue-700 hover:to-purple-700 transition-all duration-300 disabled:opacity-70 disabled:cursor-not-allowed"
+        className="group relative w-full rounded-lg overflow-hidden bg-linear-to-r from-blue-600 to-purple-600 py-2 px-4 text-white font-medium hover:from-blue-700 hover:to-purple-700 transition-all duration-300 disabled:opacity-70 disabled:cursor-not-allowed"
       >
         {loading ? (
           <span className="flex items-center justify-center">

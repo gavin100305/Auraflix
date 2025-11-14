@@ -9,7 +9,7 @@ const Influencers = () => {
     <div className="min-h-screen flex flex-col bg-black text-white">
       <Header />
 
-      <div className="relative flex-1 flex overflow-hidden bg-black/[0.96] antialiased">
+      <div className="relative flex-1 flex overflow-hidden bg-black/96 antialiased">
         <div
           className="pointer-events-none absolute inset-0 select-none opacity-80"
           style={{
@@ -24,7 +24,7 @@ const Influencers = () => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.8 }}
-            className="bg-gradient-to-b from-neutral-50 to-neutral-400 bg-clip-text text-center text-4xl md:text-6xl font-bricolage font-bold text-transparent"
+            className="bg-linear-to-b from-neutral-50 to-neutral-400 bg-clip-text text-center text-4xl md:text-6xl font-bricolage font-bold text-transparent"
           >
             Influencer Directory
           </motion.h1>

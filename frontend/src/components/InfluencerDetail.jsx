@@ -245,7 +245,7 @@ const InfluencerDetail = () => {
     <div className="min-h-screen flex flex-col bg-black text-white">
       <Header />
 
-      <div className="relative flex-1 flex overflow-hidden bg-black/[0.96] antialiased">
+      <div className="relative flex-1 flex overflow-hidden bg-black/96 antialiased">
         <div
           className="pointer-events-none absolute inset-0 select-none opacity-80"
           style={{
@@ -273,7 +273,7 @@ const InfluencerDetail = () => {
                 animate={{ scale: 1 }}
                 whileHover={{ scale: 1.05 }}
                 transition={{ delay: 0.3, type: "spring" }}
-                className="w-24 h-24 md:w-28 md:h-28 bg-white/10 backdrop-blur-md rounded-full flex items-center justify-center text-white font-bold text-3xl overflow-hidden flex-shrink-0 border border-neutral-800/50"
+                className="w-24 h-24 md:w-28 md:h-28 bg-white/10 backdrop-blur-md rounded-full flex items-center justify-center text-white font-bold text-3xl overflow-hidden shrink-0 border border-neutral-800/50"
               >
                 {imageUrl ? (
                   <img
@@ -294,13 +294,13 @@ const InfluencerDetail = () => {
                   )}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="group inline-flex items-center gap-2 transition-all duration-300 hover:translate-y-[-2px]"
+                  className="group inline-flex items-center gap-2 transition-all duration-300 hover:-translate-y-0.5"
                 >
                   <motion.h1
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5, delay: 0.4 }}
-                    className="bg-gradient-to-b from-neutral-50 to-neutral-400 bg-clip-text text-3xl md:text-5xl font-bold text-transparent leading-tight transition-all duration-300 group-hover:from-blue-300 group-hover:to-purple-400"
+                    className="bg-linear-to-b from-neutral-50 to-neutral-400 bg-clip-text text-3xl md:text-5xl font-bold text-transparent leading-tight transition-all duration-300 group-hover:from-blue-300 group-hover:to-purple-400"
                   >
                     @{influencer.channel_info}
                   </motion.h1>
@@ -451,7 +451,7 @@ const InfluencerDetail = () => {
                         initial="hidden"
                         animate="visible"
                         custom={influencer.influence_score}
-                        className="bg-gradient-to-r from-blue-500 to-purple-500 h-2 rounded-full"
+                        className="bg-linear-to-r from-blue-500 to-purple-500 h-2 rounded-full"
                       ></motion.div>
                     </div>
                   </motion.div>
@@ -470,7 +470,7 @@ const InfluencerDetail = () => {
                         initial="hidden"
                         animate="visible"
                         custom={influencer.credibility_score}
-                        className="bg-gradient-to-r from-green-400 to-emerald-500 h-2 rounded-full"
+                        className="bg-linear-to-r from-green-400 to-emerald-500 h-2 rounded-full"
                       ></motion.div>
                     </div>
                   </motion.div>
@@ -489,7 +489,7 @@ const InfluencerDetail = () => {
                         initial="hidden"
                         animate="visible"
                         custom={influencer.longevity_score * 10}
-                        className="bg-gradient-to-r from-yellow-500 to-orange-500 h-2 rounded-full"
+                        className="bg-linear-to-r from-yellow-500 to-orange-500 h-2 rounded-full"
                       ></motion.div>
                     </div>
                   </motion.div>
@@ -510,7 +510,7 @@ const InfluencerDetail = () => {
                         initial="hidden"
                         animate="visible"
                         custom={influencer.engagement_quality_score}
-                        className="bg-gradient-to-r from-pink-500 to-rose-500 h-2 rounded-full"
+                        className="bg-linear-to-r from-pink-500 to-rose-500 h-2 rounded-full"
                       ></motion.div>
                     </div>
                   </motion.div>
@@ -529,7 +529,7 @@ const InfluencerDetail = () => {
                         initial="hidden"
                         animate="visible"
                         custom={influencer.influenceiq_score}
-                        className="bg-gradient-to-r from-cyan-400 to-blue-600 h-2 rounded-full"
+                        className="bg-linear-to-r from-cyan-400 to-blue-600 h-2 rounded-full"
                       ></motion.div>
                     </div>
                   </motion.div>

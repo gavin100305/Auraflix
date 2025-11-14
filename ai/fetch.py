@@ -83,7 +83,7 @@ async def generate_summary(request: InfluencerRequest):
         influencer's profile notable based on these metrics.
         """
 
-        model = genai.GenerativeModel("gemini-1.5-pro-latest")
+        model = genai.GenerativeModel("gemini-2.5-flash")
         response = model.generate_content(prompt)
         summary = response.text
         
@@ -952,7 +952,7 @@ async def receive_business(user: BusinessUser):
 
     # Call Gemini
     try:
-        model = genai.GenerativeModel("gemini-1.5-pro-latest")
+        model = genai.GenerativeModel("gemini-2.5-flash")
         response = model.generate_content(prompt)
         suggestions = response.text.strip()
         logger.info(f"Gemini suggestions: {suggestions}")
