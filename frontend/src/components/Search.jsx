@@ -20,7 +20,7 @@ const Search = ({ isEmbedded = false }) => {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const response = await fetch("https://influenceiq.onrender.com/users");
+        const response = await fetch("http://localhost:8000/users");
         const data = await response.json();
         if (data.users && Array.isArray(data.users)) {
           setUsers(data.users);
@@ -86,7 +86,7 @@ const Search = ({ isEmbedded = false }) => {
     setIsResultVisible(false);
 
     try {
-      const response = await fetch("https://influenceiq.onrender.com/data");
+      const response = await fetch("http://localhost:8000/data");
       const data = await response.json();
       const matchedInfluencer = data.find(
         (item) =>
@@ -95,7 +95,7 @@ const Search = ({ isEmbedded = false }) => {
       );
       if (matchedInfluencer) {
         const detailedResponse = await fetch(
-          `https://influenceiq.onrender.com/data/rank/${matchedInfluencer.rank}`
+          `http://localhost:8000/data/rank/${matchedInfluencer.rank}`
         );
         const influencerDetails = await detailedResponse.json();
         setInfluencerData(influencerDetails);

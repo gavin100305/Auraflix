@@ -36,7 +36,7 @@ const TrendGraph = ({ influencer }) => {
         }
 
         const response = await fetch(
-          `https://influenceiq.onrender.com/trends/${username}`
+          `http://localhost:8000/trends/${username}`
         );
 
         if (!response.ok) {
@@ -154,7 +154,7 @@ const TrendGraph = ({ influencer }) => {
       }));
 
       const response = await fetch(
-        `https://influenceiq.onrender.com/analyze/regression/${metric}`,
+        `http://localhost:8000/analyze/regression/${metric}`,
         {
           method: "POST",
           headers: {

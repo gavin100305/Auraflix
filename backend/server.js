@@ -13,16 +13,25 @@ const app = express();
 app.use(express.json());
 app.use(
   cors({
-    origin: "https://influenceiq-nine.vercel.app",
+    origin: "*",
     credentials: true,
   })
 );
 
+console.log("MONGO_URI:", process.env.MONGO_URI);
 // Connect to MongoDB
-mongoose
-  .connect(process.env.MONGO_URI)
-  .then(() => console.log("MongoDB connected"))
-  .catch((err) => console.log(err));
+const connectDB = async () => {
+  try {
+    await mongoose.connect(process.env.MONGO_URI);
+    console.log("MongoDB connected");
+  }
+  catch (err) {
+    console.error("MongoDB connection error:", err);
+    process.exit(1);
+  }
+}
+
+connectDB();
 
 // Routes
 app.use("/api/auth", authRoutes);

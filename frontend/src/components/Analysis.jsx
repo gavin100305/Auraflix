@@ -100,7 +100,7 @@ const InfluencerSuggestions = () => {
           sugg.username.split("\n").map((uname) => uname.trim().toLowerCase())
         );
 
-        const response = await fetch("https://influenceiq.onrender.com/users");
+        const response = await fetch("http://localhost:8001/users");
         if (!response.ok) {
           throw new Error("Failed to fetch user data from server.");
         }

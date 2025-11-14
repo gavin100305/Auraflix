@@ -57,7 +57,7 @@ const CollabSimulator = () => {
     const fetchInfluencers = async () => {
       try {
         const response = await axios.get(
-          "https://influenceiq.onrender.com/data"
+          "http://localhost:8000/data"
         );
         setInfluencers(response.data);
       } catch (error) {
@@ -89,7 +89,7 @@ const CollabSimulator = () => {
 
     try {
       const response = await axios.post(
-        "https://influenceiq.onrender.com/collab-simulation",
+        "http://localhost:8000/collab-simulation",
         {
           business: businessDetails,
           influencer_username: selectedInfluencer,
@@ -123,7 +123,7 @@ const CollabSimulator = () => {
 
     try {
       const response = await axios.post(
-        "https://influenceiq.onrender.com/batch-collab-recommendations",
+        "http://localhost:8000/batch-collab-recommendations",
         {
           business: businessDetails,
           count: 10, 

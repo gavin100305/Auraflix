@@ -72,7 +72,7 @@ const InfluencerList = () => {
     try {
       setLoading(true);
 
-      const response = await fetch(`https://influenceiq.onrender.com/data`);
+      const response = await fetch(`http://localhost:8000/data`);
 
       if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);

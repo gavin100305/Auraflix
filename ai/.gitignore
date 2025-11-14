@@ -5,3 +5,6 @@ venv
 .env.development
 .env.test
 .env.production
+
+bin
+lib

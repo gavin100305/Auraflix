@@ -27,7 +27,7 @@ const SignIn = () => {
 
     try {
       const response = await fetch(
-        "https://auraflix-production.up.railway.app/api/auth/login",
+        "http://localhost:8001/api/auth/login",
         {
           method: "POST",
           headers: {
