@@ -105,7 +105,7 @@ const InfluencerDetail = () => {
     const fetchInfluencerDetail = async () => {
       try {
         setLoading(true);
-        const response = await fetch("http://localhost:8000/data");
+        const response = await fetch("https://influenceiq-python.onrender.com/data");
 
         if (!response.ok) {
           throw new Error(`HTTP error! Status: ${response.status}`);
@@ -138,7 +138,7 @@ const InfluencerDetail = () => {
       setSummaryLoading(true);
 
       const response = await fetch(
-        "http://localhost:8000/generate-summary",
+        "https://influenceiq-python.onrender.com/generate-summary",
         {
           method: "POST",
           headers: {
