@@ -27,7 +27,7 @@ const SignIn = () => {
 
     try {
       const response = await fetch(
-        "http://localhost:8001/api/auth/login",
+        "https://influenceiq-node.onrender.com/api/auth/login",
         {
           method: "POST",
           headers: {
